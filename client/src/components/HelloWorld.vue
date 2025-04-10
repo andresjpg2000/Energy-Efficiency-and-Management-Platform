@@ -1,19 +1,43 @@
-<script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true,
-  },
-})
+<script>
+
+  export default {
+    data() {
+      return {
+        username: "",
+      }
+    },
+    mounted() {
+
+      // Testing data base connection
+      fetch("http://localhost:3000/users/1")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        return response.json();
+      })
+      .then((user) => {
+        this.username = user.nome;
+      })
+      .catch((error) => {
+        console.error("Error fetching user:", error);
+      });
+
+    }
+
+
+  }
+
+
 </script>
 
 <template>
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
     <h3>
-      You’ve successfully created a project with
-      <a href="https://vite.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
+      
+      Hello {{ username }}! <br>
+
     </h3>
   </div>
 </template>

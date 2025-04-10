@@ -1,44 +1,70 @@
 const express = require("express")
+
+const cors = require("cors")
 const app = express()
 const port = 3000
 
-// Restaurant API -- exemplo
+// Enable CORS for all routes
+app.use(cors());
 
-// Route
-app.get("/", (req, res) => {
-  res.send("Hello, Express!")
-})
+// Import .env file
+require("dotenv").config()
 
-// middleware
-app.use("/table", (req, res, next) => {
-  if (req.query.dressedProperly == "true") {
-    console.log("client is dressed properly!")
-    next()
-  } else {
-    res.status(403).send("You are not dressed properly!")
-  }
-})
+const mysql = require("mysql");
+// Create a connection pool for mysql server
+const connection = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: 10, // Set the maximum number of connections in the pool
+});
 
-let checkClientNumber = (req, res, next) => {
-  if (req.params.number < 0) {
-    let err = new Error(`Number of persons cannot be negative`)
-    err.statusCode = 400
-    next(err)
-  } else {
-    next()
-  }
-}
+app.get("/users", (req, res) => {
 
-app.get("/table/:number", checkClientNumber, (req, res) => {
-  res.send(`Table reserved for you to ${req.params.number} person!`)
-})
+  const query = "SELECT * FROM utilizador";
 
-// error middleware
-app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).send(err.message || `Something broke!`)
-})
+  connection.query(query, [], (error, results) => {
+    if (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).send("An error occurred while fetching the users.");
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send("Users table empty.");
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+app.get("/users/:id", (req, res) => {
+  const userId = req.params.id;
+  console.log(userId);
+  const query = "SELECT * FROM utilizador WHERE id_utilizador = ?";
+
+  connection.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).send("An error occurred while fetching the user.");
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send("User not found.");
+      return;
+    }
+
+    res.json(results[0]);
+  });
+});
 
 // Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)
 })
+
+// connection.end()
