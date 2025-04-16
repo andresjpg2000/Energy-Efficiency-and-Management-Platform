@@ -139,11 +139,79 @@ def populate_consumos(id_moradia, num_consumos=10):
         statement = f"INSERT INTO consumos_energeticos (data, valor, id_moradia, id_fornecedor) VALUES ('{data}', '{valor}', '{id_moradia}', '{fornecedor}');"
         statements.append(statement)
 
+def populate_all(last_user_id, last_moradia_id, num_records_per_table=10, consumos_per_moradia=10):
+    # Change these variables to match database last ids
+    user_ids = list(range(last_user_id, num_records_per_table + last_user_id))
+    moradia_ids = list(range(last_moradia_id, num_records_per_table + last_moradia_id))
+
+    # Step 1: Populate Users
+    populate_users(num_records_per_table)
+
+    # Step 2: Populate Moradias linked to each user
+    for i, user_id in enumerate(user_ids):
+        address = fake.address().replace("'", "''")  # Escape single quotes
+        cp = fake.pt_postal_code()
+        populate_codigo_postal([cp])
+        tipo_construcao = random.choice(['Apartamento', 'Moradia', 'Estúdio'])
+        statement = f"INSERT INTO moradia (Morada, CP, Tipo_Construção, id_consumidor) VALUES ('{address}', '{cp}', '{tipo_construcao}', {user_id});"
+        statements.append(statement)
+
+    # Step 3: Populate Equipamento Energetico per moradia
+    for moradia_id in moradia_ids:
+        tipo_energia = random.randint(1, 5)
+        
+        if tipo_energia == 1:
+            nome = "Painel Solar Fotovoltaico"
+            capacidade = random.randint(2, 10)
+        elif tipo_energia == 2:
+            nome = "Painel Solar Térmico"
+            capacidade = random.randint(3, 7)
+        elif tipo_energia == 3:
+            nome = "Biomassa"
+            capacidade = random.randint(10, 50)
+        elif tipo_energia == 4:
+            nome = "Energia Eólica"
+            capacidade = random.randint(1, 20)
+        elif tipo_energia == 5:
+            nome = "Energia Geotérmica"
+            capacidade = random.randint(3, 15)
+        else:
+            nome = fake.name()
+            capacidade = random.randint(1, 10)
+
+        statement = f"INSERT INTO equipamento_energetico (tipo_energia, Capacidade, moradia, nome) VALUES ({tipo_energia}, {capacidade}, {moradia_id}, '{nome}');"
+        statements.append(statement)
+
+    # Step 4: Populate Consumos per moradia
+    for moradia_id in moradia_ids:
+        data = datetime.now()
+        fornecedor = random.randint(1, 10)  # Adjust based on your DB
+
+        for _ in range(consumos_per_moradia):
+            data += timedelta(hours=1)
+            valor = round(random.uniform(10.0, 100.0), 2)
+            statement = f"INSERT INTO consumos_energeticos (data, valor, id_moradia, id_fornecedor) VALUES ('{data}', {valor}, {moradia_id}, {fornecedor});"
+            statements.append(statement)
+
+    # Final: Save all SQL to file
+    save_sql_file()
+
+
 # Run it
 # Remember to change the methods being called and their parameters
 if __name__ == "__main__":
     # populate_users()
     # populate_moradia(14)
     # populate_equipamento_energetico(14)
-    populate_consumos(7, 10)
-    save_sql_file()
+    # populate_consumos(7, 10)
+    # save_sql_file()
+    print("-----------------------------------------------------------")
+    print("Welcome to the database population script!")
+    print("This script will generate fake data for your database.")
+    print("-----------------------------------------------------------")
+    last_user_id = int(input("Enter the last user ID in the database: "))
+    last_moradia_id = int(input("Enter the last moradia ID in the database: "))
+    num_records_per_table = int(input("Enter the number of records to generate for each table: "))
+    consumos_per_moradia = int(input("Enter the number of consumos per moradia: "))
+    print("Generating...")
+    populate_all(last_user_id, last_moradia_id, num_records_per_table, consumos_per_moradia)  # Adjust the number of records as needed
