@@ -130,10 +130,20 @@ def populate_equipamento_energetico(num_equipamentos=10):
         statement = f"INSERT INTO equipamento_energetico (tipo_energia, Capacidade, moradia, nome) VALUES ('{tipo_energia}', '{capacidade}', '{id_moradia}', '{nome}');"
         statements.append(statement)
 
+def populate_consumos(id_moradia, num_consumos=10):
+    data = datetime.now() 
+    fornecedor = random.randint(1, 10)
+    for consumo in range(1, num_consumos + 1):
+        data += timedelta(hours=1)
+        valor = random.uniform(10.0, 100.0)
+        statement = f"INSERT INTO consumos_energeticos (data, valor, id_moradia, id_fornecedor) VALUES ('{data}', '{valor}', '{id_moradia}', '{fornecedor}');"
+        statements.append(statement)
+
 # Run it
 # Remember to change the methods being called and their parameters
 if __name__ == "__main__":
     # populate_users()
-    populate_moradia(14)
-    populate_equipamento_energetico(14)
+    # populate_moradia(14)
+    # populate_equipamento_energetico(14)
+    populate_consumos(7, 10)
     save_sql_file()
