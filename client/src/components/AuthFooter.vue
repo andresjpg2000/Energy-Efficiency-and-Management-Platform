@@ -14,7 +14,7 @@ const footerLink = shallowRef([
 ]);
 </script>
 <template>
-  <v-footer class="px-0 pt-2 Afooter">
+  <v-footer class="px-0 pt-2 Afooter bg-transparent" >
     <v-row justify="center" no-gutters>
       <v-col cols="12" md="6" class="text-md-left text-center">
         <p class="text-subtitle-2 text-lightText mb-md-0 mb-4">
@@ -38,9 +38,16 @@ const footerLink = shallowRef([
 </template>
 
 <style>
-/* Styles for the AuthFooter component */
-.Afooter {
-  /* Set the background to transparent */
-  background: transparent !important;
-}
+  .Afooter {
+    color: var(--color-text);
+  }
+  .Afooter a {
+    color: var(--color-text);
+  }
+  .Afooter p {
+    color: var(--color-text);
+  }
+  .Afooter a:hover {
+    color: #1caa00;
+  }
 </style>

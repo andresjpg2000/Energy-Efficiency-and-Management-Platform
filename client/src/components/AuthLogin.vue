@@ -1,6 +1,6 @@
 <script>
 export default {
-    name: 'HomeView',
+    name: 'AuthLogin',
     data() {
       return {
         checkbox: false,
@@ -21,11 +21,18 @@ export default {
           (v) => v === v.trim() || 'Password cannot start or end with spaces',
           (v) => v.length <= 10 || 'Password must be less than 10 characters'
         ],
-        Regform: null,
       };
     },
     methods: {
       // Define your methods here
+      validate() {
+        this.isSubmitting = true;
+        setTimeout(() => {
+          this.isSubmitting = false;
+          this.$router.push('/dashboard');
+        }, 2000);
+      },
+      
     },
     mounted() {
       // Code to run when the component is mounted
@@ -35,11 +42,11 @@ export default {
 </script>
 
 <template>
-  <div class="d-flex justify-space-between align-center">
+  <div class="d-flex justify-space-between align-center bg-transparent">
     <h3 class="text-h3 text-center mb-0">Login</h3>
     <router-link to="/register" class="text-primary text-decoration-none">Don't Have an account?</router-link>
   </div>
-  <v-form @submit="validate" class="mt-7 loginForm" @keydown.enter.prevent >
+  <v-form @submit="validate" class="mt-7 loginForm bg-transparent" @keydown.enter.prevent >
     <div class="mb-6">
       <v-label>Email Address</v-label>
       <v-text-field
@@ -69,8 +76,9 @@ export default {
         @input="password"
       >   
       <template v-slot:append-inner>
-          <v-btn color="secondary" icon rounded variant="text">
-            1
+          <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
+            <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
+            <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>
       </template>
       </v-text-field>
