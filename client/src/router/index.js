@@ -34,6 +34,21 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () =>  
+        import('../views/AdminSettingsView.vue')
+        
+        // const user = getUser()
+        // if (user.admin === 1) {
+        //   return import('../views/AdminSettingsView.vue')
+        // } else {
+        //   return import('../views/ProfileSettingsView.vue')
+        // }
+      
+  
+    },
   ],
 })
 

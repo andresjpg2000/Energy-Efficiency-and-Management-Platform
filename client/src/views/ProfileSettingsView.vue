@@ -1,15 +1,12 @@
 <template>
   <div>
-    <RouterLink to="/login">Login</RouterLink>
-  </div>
-  <div>
-    <RouterLink to="/settings">Profile Settings</RouterLink>
+
   </div>
 </template>
 
 <script>
   export default {
-    name: 'HomeView',
+    name: 'ProfileSettingsView',
     data() {
       return {
         // Define your data properties here
@@ -21,10 +18,9 @@
     mounted() {
       // Code to run when the component is mounted
     },
-    
   }
 </script>
 
-<style>
+<style lang="scss" scoped>
 
 </style>
