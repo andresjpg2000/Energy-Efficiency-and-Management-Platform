@@ -30,9 +30,9 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/DashboardView.vue'),
-      meta: {
-        requiresAuth: true,
-      },
+      // meta: {
+      //   requiresAuth: true,
+      // },
     },
     {
       path: '/settings',
@@ -53,6 +53,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  
+    //Actualiza o title
+    const defaultTitle = 'AMA ';
+    document.title = to.meta.title || defaultTitle;
+
   const isAuthenticated = localStorage.getItem('token') !== null
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next({ name: 'login' })

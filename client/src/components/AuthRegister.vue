@@ -44,7 +44,7 @@ export default {
 <template>
   <div class="d-flex justify-space-between align-center">
     <h3 class="text-h3 text-center mb-0">Sign up</h3>
-    <router-link to="/login1" class="text-primary text-decoration-none">Already have an account?</router-link>
+    <router-link to="/login" class="text-primary text-decoration-none">Already have an account?</router-link>
   </div>
   <v-form @submit="validate" lazy-validation class="mt-7 loginForm">
     <v-row class="my-0">
@@ -84,7 +84,7 @@ export default {
       <v-text-field
         v-model="email"
         :rules="emailRules"
-        placeholder="demo@company.com"
+        placeholder="user@company.com"
         class="mt-2"
         required
         hide-details="auto"
@@ -108,9 +108,9 @@ export default {
         @input="password"
       >
         <template v-slot:append-inner>
-          <v-btn color="secondary" icon rounded variant="text">
-            <EyeInvisibleOutlined :style="{ color: 'rgb(var(--v-theme-secondary))' }" v-if="show1 == false" @click="show1 = !show1" />
-            <EyeOutlined :style="{ color: 'rgb(var(--v-theme-secondary))' }" v-if="show1 == true" @click="show1 = !show1" />
+          <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
+            <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
+            <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>
         </template>
       </v-text-field>

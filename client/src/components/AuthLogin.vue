@@ -58,7 +58,6 @@ export default {
         hide-details="auto"
         variant="outlined"
         color="primary"
-        @input="username"
       ></v-text-field>
     </div>
     <div>
@@ -73,7 +72,6 @@ export default {
         hide-details="auto"
         :type="show1 ? 'text' : 'password'"
         class="mt-2"
-        @input="password"
       >   
       <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
