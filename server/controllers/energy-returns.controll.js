@@ -97,7 +97,44 @@ let getEnergyReturns = (req, res) => {
   } 
 }
 
+let addEnergyReturn = (req, res) => {
+  const { houseId, equipamentId, date, value } = req.body;
+
+  if (!houseId || !equipamentId || !date || !value) {
+    return res.status(400).json({
+      message: "House ID, Equipament ID, Date and Value are required",
+    });
+  }
+
+  if (isNaN(houseId) || isNaN(equipamentId) || isNaN(value)) {
+    return res.status(400).json({
+      message: "House ID, Equipament ID and Value must be numbers",
+    });
+  }
+
+  if (houseId < 0 || equipamentId < 0 || value < 0) {
+    return res.status(400).json({
+      message: "House ID, Equipament ID and Value must be positive numbers",
+    });
+  }
+
+  let newEnergyReturn = {
+    houseId,
+    equipamentId,
+    date: new Date(date),
+    value,
+  };
+
+  energyReturn.push(newEnergyReturn);
+
+  res.status(201).json({
+    message: "Energy return created",
+    data: newEnergyReturn,
+  });
+}
+
 
 module.exports = {
   getEnergyReturns,
+  addEnergyReturn
 };
