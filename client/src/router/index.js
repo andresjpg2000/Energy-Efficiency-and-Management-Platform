@@ -37,18 +37,16 @@ const router = createRouter({
     {
       path: '/settings',
       name: 'settings',
-      component: () =>  
-        import('../views/AdminSettingsView.vue')
-        
-        // const user = getUser()
-        // if (user.admin === 1) {
-        //   return import('../views/AdminSettingsView.vue')
-        // } else {
-        //   return import('../views/ProfileSettingsView.vue')
-        // }
-      
-  
-    },
+      component: () => import('../views/ProfileSettingsView.vue'),
+      children: [
+        { path: '', redirect: 'settings/account-information' },
+        { path: 'account-information', name: 'account-information', component: () => import('../views/AccountInformation.vue') },
+        { path: 'energy-preferences', name: 'energy-preferences', component: () => import('../views/EnergyPreferences.vue') },
+        { path: 'notification-settings', name: 'notification-settings', component: () => import('../views/NotificationSettings.vue') },
+        { path: 'security-settings', name: 'security-settings', component: () => import('../views/SecuritySettings.vue') },
+        { path: 'theme-accessibility', name: 'theme-accessibility', component: () => import('../views/ThemeAccessibility.vue') },
+      ],
+    }
   ],
 })
 
