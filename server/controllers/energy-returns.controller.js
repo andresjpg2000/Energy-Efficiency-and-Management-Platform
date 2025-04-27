@@ -1,5 +1,5 @@
 // Import the users data model
-const energyReturn = require("../models/energy-returns.model.js");
+const energyReturn = require("../models/energy-return.model.js");
 
 // get all energy returns
 let getEnergyReturns = (req, res) => {
