@@ -59,8 +59,8 @@ const router = createRouter({
         { path: 'user-management', name: 'user-management', component: () => import('../views/AdminSettings/UserManagementView.vue') },
         { path: 'energy-monitoring', name: 'energy-monitoring', component: () => import('../views/AdminSettings/EnergyMonitoringView.vue') },
         { path: 'system-settings', name: 'system-settings', component: () => import('../views/AdminSettings/SystemSettingsView.vue') },
-        { path: 'AdminAccountSettings', name: 'AdminAccountSettings', component: () => import('../views/AdminSettings/AdminAccountSettingsView.vue') },
-        { path: 'Analytics', name: 'Analytics', component: () => import('../views/AdminSettings/AnalyticsView.vue') },
+        { path: 'account-settings', name: 'adminAccountSettings', component: () => import('../views/AdminSettings/AdminAccountSettingsView.vue') },
+        { path: 'analytics', name: 'analytics', component: () => import('../views/AdminSettings/AnalyticsView.vue') },
       ],
       // meta: {
       //   requiresAuth: true,
