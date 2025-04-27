@@ -72,16 +72,6 @@
         </v-list-item>
       </v-list>
 
-
-      <template #append>
-        <v-list-item
-          class="ma-2"
-          link
-          nav
-          prepend-icon="mdi-cog-outline"
-          title="Settings"
-        />
-      </template>
     </v-navigation-drawer>
 
     <v-app-bar class="ps-4" flat>
@@ -110,7 +100,7 @@
 
     <v-main>
    
-      <v-container fluid class="pa-4">
+      <v-container fluid class="main-container">
         <router-view />
       </v-container>
   
@@ -122,5 +112,9 @@
 <style>
   .v-overlay-container {
     z-index: 9999 !important;
+  }
+  .main-container {
+    background-color: #f5f5f5;  /* Trocar por variavel */
+    min-height: 100vh;
   }
 </style>

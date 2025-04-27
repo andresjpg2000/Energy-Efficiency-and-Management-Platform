@@ -58,15 +58,6 @@
       </div>
       <v-list density="compact" item-props :items="items" nav />
 
-      <template #append>
-        <v-list-item
-          class="ma-2"
-          link
-          nav
-          prepend-icon="mdi-cog-outline"
-          title="Settings"
-        />
-      </template>
     </v-navigation-drawer>
 
     <v-app-bar class="ps-4" flat>

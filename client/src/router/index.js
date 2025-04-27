@@ -37,16 +37,35 @@ const router = createRouter({
     {
       path: '/settings',
       name: 'settings',
-      component: () => import('../views/ProfileSettingsView.vue'),
+      component: () => import('../views/ProfileSettings/ProfileSettingsView.vue'),
       children: [
-        { path: '', redirect: 'settings/account-information' },
-        { path: 'account-information', name: 'account-information', component: () => import('../views/AccountInformation.vue') },
-        { path: 'energy-preferences', name: 'energy-preferences', component: () => import('../views/EnergyPreferences.vue') },
-        { path: 'notification-settings', name: 'notification-settings', component: () => import('../views/NotificationSettings.vue') },
-        { path: 'security-settings', name: 'security-settings', component: () => import('../views/SecuritySettings.vue') },
-        { path: 'theme-accessibility', name: 'theme-accessibility', component: () => import('../views/ThemeAccessibility.vue') },
+        { path: '', name: '', redirect: 'settings/account-information' },
+        { path: 'account-information', name: 'account-information', component: () => import('../views/ProfileSettings/AccountInformationView.vue') },
+        { path: 'energy-preferences', name: 'energy-preferences', component: () => import('../views/ProfileSettings/EnergyPreferencesView.vue') },
+        { path: 'notification-settings', name: 'notification-settings', component: () => import('../views/ProfileSettings/NotificationSettingsView.vue') },
+        { path: 'security-settings', name: 'security-settings', component: () => import('../views/ProfileSettings/SecuritySettingsView.vue') },
+        { path: 'theme-accessibility', name: 'theme-accessibility', component: () => import('../views/ProfileSettings/ThemeAccessibilityView.vue') },
       ],
-    }
+      // meta: {
+      //   requiresAuth: true,
+      // },
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminSettings/AdminSettingsView.vue'),
+      children: [
+        { path: '', name: '', redirect: 'admin/user-management' },
+        { path: 'user-management', name: 'user-management', component: () => import('../views/AdminSettings/UserManagementView.vue') },
+        { path: 'energy-monitoring', name: 'energy-monitoring', component: () => import('../views/AdminSettings/EnergyMonitoringView.vue') },
+        { path: 'system-settings', name: 'system-settings', component: () => import('../views/AdminSettings/SystemSettingsView.vue') },
+        { path: 'AdminAccountSettings', name: 'AdminAccountSettings', component: () => import('../views/AdminSettings/AdminAccountSettingsView.vue') },
+        { path: 'Analytics', name: 'Analytics', component: () => import('../views/AdminSettings/AnalyticsView.vue') },
+      ],
+      // meta: {
+      //   requiresAuth: true,
+      // },
+    },
   ],
 })
 
