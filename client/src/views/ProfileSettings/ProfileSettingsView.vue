@@ -115,6 +115,7 @@
   }
   .main-container {
     background-color: #f5f5f5;  /* Trocar por variavel */
+    height: auto;
     min-height: 100vh;
   }
 </style>

@@ -10,13 +10,13 @@
               <v-row>
                 <v-col>
                   
-                    <v-text-field variant="outlined" label="First Name" density="default" v-model="FirstName" placeholder="John" type="text" hint="" :persistent-hint="false" class="" name="First Name" :rules="firstNameRules" counter required>
+                    <v-text-field variant="outlined" label="First Name" density="default" v-model="FirstName" autocomplete="given-name" placeholder="John" type="text" hint="" :persistent-hint="false" class="" name="First Name" :rules="firstNameRules" counter required>
                     </v-text-field>
                   
                 </v-col>
                 <v-col>
                   
-                    <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name":rules="lastNameRules" counter required>
+                    <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" autocomplete="family-name" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name":rules="lastNameRules" counter required>
                     </v-text-field>
                   
                 </v-col>
@@ -24,7 +24,7 @@
               <v-row>
                 <v-col>
                  
-                    <v-text-field variant="outlined" label="Email" density="default" v-model="Email" placeholder="example@example.com" type="text" hint="" :persistent-hint="false" class="" name="Email" :rules="emailRules" counter required>
+                    <v-text-field variant="outlined" label="Email" density="default" v-model="Email" autocomplete="email" placeholder="example@example.com" type="text" hint="" :persistent-hint="false" class="" name="Email" :rules="emailRules" counter required>
                     </v-text-field>
                   
                 </v-col>
@@ -112,7 +112,7 @@
 </script>
 
 <style scoped>
-  .formContainer {
-    /* background-color: transparent; */
-  }
+  /* .formContainer {
+    background-color: transparent;
+  } */
 </style>
