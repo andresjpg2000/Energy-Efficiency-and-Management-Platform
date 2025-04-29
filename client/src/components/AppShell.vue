@@ -3,7 +3,7 @@
 <template>
 <v-app>
   <v-layout>
-    <v-navigation-drawer v-model="drawer" floating permanent @click="rail = false" :rail="rail">
+    <v-navigation-drawer v-if="showDrawer" v-model="drawer" floating permanent @click="rail = false" :rail="rail">
       <div class="px-4 py-8">
             <h5>AMA</h5>
       </div>
@@ -39,7 +39,7 @@
     </v-navigation-drawer>
 
     <v-app-bar class="ps-4" flat>
-      <template v-slot:prepend>
+      <template v-if="showDrawer" v-slot:prepend>
         <v-app-bar-nav-icon @click.stop="rail = !rail" ></v-app-bar-nav-icon>
       </template>
 
@@ -81,6 +81,10 @@
         type: Array,
       },
       showSettings: {
+        type: Boolean,
+        default: true,
+      },
+      showDrawer: {
         type: Boolean,
         default: true,
       },
