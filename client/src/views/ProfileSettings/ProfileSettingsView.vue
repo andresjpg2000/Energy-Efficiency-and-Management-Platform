@@ -19,6 +19,7 @@ import AppShell from '@/components/AppShell.vue';
             title: 'Account information',
             prependIcon: 'mdi-account-outline',
             to: '/settings/account-information',
+            exact: true,
           },
           {
             title: 'Energy Preferences',

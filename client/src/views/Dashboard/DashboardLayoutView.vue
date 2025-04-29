@@ -1,6 +1,6 @@
 <template>
   <AppShell :items="items" :showSettings="true">
-    <router-view></router-view>
+    <router-view/>
   </AppShell>
 </template>
 
@@ -19,6 +19,7 @@ import AppShell from '@/components/AppShell.vue';
             title: 'My Dashboard',
             prependIcon: 'mdi-view-dashboard-outline',
             to: { name: "Dashboard" },  // Corrigido para objeto de rota
+            exact: true,
           },
           {
             title: 'Monitoring',

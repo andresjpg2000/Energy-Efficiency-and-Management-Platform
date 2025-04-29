@@ -13,6 +13,7 @@ import AppShell from '@/components/AppShell.vue';
             title: 'User Management',
             prependIcon: 'mdi-account-outline', // View all users(table), Edit user, delete user, see user activity*
             to: '/admin/user-management',
+            exact: true,
           },
           {
             title: 'Energy Data Monitoring',
