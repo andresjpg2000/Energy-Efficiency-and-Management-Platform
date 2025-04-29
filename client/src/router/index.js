@@ -10,7 +10,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'dashboard',
+      name: 'home',
       component: DashboardLayoutView,
       children: [
         { path: '', name: 'Dashboard', component: DashboardView }, // root "/"
