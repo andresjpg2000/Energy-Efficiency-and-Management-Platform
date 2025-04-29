@@ -8,20 +8,7 @@
             <h5>AMA</h5>
       </div>
       
-      <v-list density="compact" nav>
-        <v-list-item
-          v-for="item in items"
-          :key="item.link"
-          :to="item.to"
-          link
-          nav
-        >
-          <template #prepend>
-            <v-icon>{{ item.prependIcon }}</v-icon>
-          </template>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
+      <v-list density="compact" mandatory item-props :items="items" nav />
 
       <template #append>
         <v-list-item
@@ -64,8 +51,7 @@
     <v-main>
    
       <v-container fluid class="main-container">
-        <!-- <router-view /> -->
-         <slot />
+        <slot/>
       </v-container>
   
     </v-main>
@@ -100,6 +86,8 @@
     },
     mounted () {
       
+    },
+    created () {
     },
   } 
 </script>
