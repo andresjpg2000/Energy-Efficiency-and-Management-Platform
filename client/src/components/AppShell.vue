@@ -5,7 +5,11 @@
   <v-layout>
     <v-navigation-drawer v-if="showDrawer" v-model="drawer" floating permanent @click="rail = false" :rail="rail">
       <div class="px-4 py-8">
-            <h5>AMA</h5>
+            
+        <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
+          <h5>AMA</h5>
+        </router-link>
+        
       </div>
       
       <v-list density="compact" mandatory item-props :items="items" nav />
@@ -30,7 +34,9 @@
         <v-app-bar-nav-icon @click.stop="rail = !rail" ></v-app-bar-nav-icon>
       </template>
 
-      <v-app-bar-title>AMA</v-app-bar-title>
+      <router-link to="/" style="text-decoration: none; color: inherit;">
+        <v-app-bar-title>AMA</v-app-bar-title>
+      </router-link>
 
       <template #append>
         <v-btn class="mx-4" icon="mdi-bell"></v-btn>
@@ -99,6 +105,6 @@
   .main-container {
     background-color: #f5f5f5;  /* Trocar por variavel */
     height: auto;
-    min-height: 100vh;
+    min-height: 100vh - calc(64px + 56px); /* 64px for app bar and 56px for navigation drawer */
   }
 </style>
