@@ -65,6 +65,8 @@
         <v-list-item
           class="ma-2"
           link
+          :to="{ path: '/settings' }"
+          router
           nav
           prepend-icon="mdi-cog-outline"
           title="Settings"
@@ -87,7 +89,7 @@
 
           <v-menu activator="parent">
             <v-list density="compact" nav>
-              <v-list-item append-icon="mdi-cog-outline" link title="Settings" />
+              <v-list-item append-icon="mdi-cog-outline" link title="Settings" :to="{ path: '/settings' }" router/>
 
               <v-list-item append-icon="mdi-logout" link title="Logout" />
             </v-list>

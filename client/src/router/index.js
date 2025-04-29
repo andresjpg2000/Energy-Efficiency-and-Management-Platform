@@ -10,8 +10,19 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'dashboard',
+      component: DashboardLayoutView,
+      children: [
+        { path: '', name: 'Dashboard', component: DashboardView }, // root "/"
+        { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
+        { path: 'Forecasts', name: 'Forecasts', component: () => import('../views/Dashboard/ForecastsView.vue') },
+        { path: 'Reports', name: 'Reports', component: () => import('../views/Dashboard/ReportsView.vue') },
+        { path: 'Resource-Allocation', name: 'Resource Allocation', component: () => import('../views/Dashboard/Resource-AllocationView.vue') }, // corrigido
+        { path: 'Alerts-Notifications', name: 'Alerts & Notifications', component: () => import('../views/Dashboard/Alerts-NotificationsView.vue') },
+      ],
+      // meta: {
+      //   requiresAuth: true,
+      // },
     },
     {
       path: '/about',
@@ -29,27 +40,11 @@ const router = createRouter({
       component: RegisterView,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardLayoutView,
-      children: [
-        { path: '', name: 'Dashboard', component: DashboardView }, // root "/"
-        { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
-        { path: 'Forecasts', name: 'Forecasts', component: () => import('../views/Dashboard/ForecastsView.vue') },
-        { path: 'Reports', name: 'Reports', component: () => import('../views/Dashboard/ReportsView.vue') },
-        { path: 'Resource-Allocation', name: 'Resource Allocation', component: () => import('../views/Dashboard/Resource-AllocationView.vue') }, // corrigido
-        { path: 'Alerts-Notifications', name: 'Alerts & Notifications', component: () => import('../views/Dashboard/Alerts-NotificationsView.vue') },
-      ],
-      // meta: {
-      //   requiresAuth: true,
-      // },
-    },
-    {
       path: '/settings',
       name: 'settings',
       component: () => import('../views/ProfileSettings/ProfileSettingsView.vue'),
       children: [
-        { path: '', name: '', redirect: 'settings/account-information' },
+        { path: '', name: 'default', redirect: 'settings/account-information' },
         { path: 'account-information', name: 'account-information', component: () => import('../views/ProfileSettings/AccountInformationView.vue') },
         { path: 'energy-preferences', name: 'energy-preferences', component: () => import('../views/ProfileSettings/EnergyPreferencesView.vue') },
         { path: 'notification-settings', name: 'notification-settings', component: () => import('../views/ProfileSettings/NotificationSettingsView.vue') },
@@ -65,7 +60,7 @@ const router = createRouter({
       name: 'admin',
       component: () => import('../views/AdminSettings/AdminSettingsView.vue'),
       children: [
-        { path: '', name: '', redirect: 'admin/user-management' },
+        { path: '', redirect: 'admin/user-management'},
         { path: 'user-management', name: 'user-management', component: () => import('../views/AdminSettings/UserManagementView.vue') },
         { path: 'energy-monitoring', name: 'energy-monitoring', component: () => import('../views/AdminSettings/EnergyMonitoringView.vue') },
         { path: 'system-settings', name: 'system-settings', component: () => import('../views/AdminSettings/SystemSettingsView.vue') },
@@ -75,6 +70,11 @@ const router = createRouter({
       // meta: {
       //   requiresAuth: true,
       // },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/NotFoundView.vue'),
     },
   ],
 })
