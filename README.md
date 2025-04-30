@@ -1,6 +1,6 @@
 # AMA - Energy Efficiency and Management Platform
 
-This project, titled AMA, is an Energy Efficiency and Management Platform developed for the Project 2 course at ESMAD. It aims to provide users with tools to monitor and manage their energy consumption, promote energy efficiency, and offer insights into energy usage patterns. The platform consists of a client-side application built with Vue.js and a server-side application using Node.js and Express, with data storage managed (though the specifics aren't detailed in the provided file list).
+This project, titled AMA, is an Energy Efficiency and Management Platform developed for the Project 2 course at ESMAD. It aims to provide users with tools to monitor and manage their energy consumption, promote energy efficiency, and offer insights into energy usage patterns. The platform consists of a client-side application built with Vue.js and a server-side application using Node.js and Express, with data storage managed.
 
 ## Features
 
@@ -9,6 +9,34 @@ This project, titled AMA, is an Energy Efficiency and Management Platform develo
 *   Data visualization through charts and graphs
 *   User profile settings
 *   Admin panel for user and system management
+
+## Folder Structure
+
+└── andresjpg2000-energy-efficiency-and-management-platform/
+├── populateDB.py
+├── client/
+│   ├── README.md
+│   ├── index.html
+│   ... (other client files)
+└── server/
+├── package-lock.json
+├── package.json
+├── server.js
+├── controllers/
+│   ├── energy-returns.controller.js
+│   ├── suppliers.controller.js
+│   ├── users.controller.js
+│   └── wigets.controller.js
+├── models/
+│   ├── energy-returns.model.js
+│   ├── suppliers.model.js
+│   ├── users.model.js
+│   └── wigets.model.js
+└── routes/
+├── energy-returns.routes.js
+├── suppliers.routes.js
+├── users.routes.js
+└── wigets.routes.js
 
 ## Client Setup
 
