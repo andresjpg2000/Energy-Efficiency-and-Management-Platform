@@ -3,9 +3,9 @@
 <template>
 <v-app>
   <v-layout>
-    <v-navigation-drawer v-if="showDrawer" v-model="drawer" floating permanent @click="rail = false" :rail="rail">
+    <v-navigation-drawer v-if="showDrawer" permanent floating @click="rail = true" :rail="rail">
       <!-- <div class="px-4 py-8">
-            
+        tirar comentario se for para adicionar o logo
         <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
           <h5>AMA</h5>
         </router-link>
@@ -21,7 +21,7 @@
           nav
           prepend-icon="mdi-menu"
         />
-        <!-- <v-app-bar-nav-icon @click.stop="rail = !rail" ></v-app-bar-nav-icon> -->
+
       </template>
       
       <template #append>
@@ -61,7 +61,7 @@
       </template>
     </v-app-bar>
 
-    <v-main style=" margin-right: 0.1rem;">
+    <v-main>
    
       <v-container fluid class="main-container">
         <slot/>
@@ -90,7 +90,6 @@
     },
     data() {
       return {
-        drawer: true,
         rail: true ,
       };
     },
@@ -111,7 +110,7 @@
   }
   .main-container {
     background-color: #E0E0E0;  /* Trocar por variavel */
-    border-radius: 1.5rem;
+    border-top-left-radius: 1rem;
     height: auto;
     min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
   }
