@@ -3,7 +3,7 @@
 <template>
 <v-app>
   <v-layout>
-    <v-navigation-drawer v-if="showDrawer" permanent floating @click="rail = true" :rail="rail">
+    <v-navigation-drawer v-if="showDrawer" permanent floating @click="rail = false" :rail="rail">
       <!-- <div class="px-4 py-8">
         tirar comentario se for para adicionar o logo
         <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
@@ -94,7 +94,7 @@
       };
     },
     methods: {
-      // Define your methods here
+      
     },
     mounted () {
       
