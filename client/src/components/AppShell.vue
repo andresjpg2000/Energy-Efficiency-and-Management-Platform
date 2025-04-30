@@ -38,10 +38,10 @@
       </template>
 
     </v-navigation-drawer>
-
-    <v-app-bar class="" flat>
+    
+    <v-app-bar flat>
       
-      <router-link to="/" style="text-decoration: none; color: inherit;">
+      <router-link to="/" :style="{textDecoration: 'none', color: 'inherit',marginLeft: showDrawer ? '0' : '32px'}">
         <v-app-bar-title>AMA</v-app-bar-title>
       </router-link>
 
