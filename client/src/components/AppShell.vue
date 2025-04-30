@@ -4,16 +4,26 @@
 <v-app>
   <v-layout>
     <v-navigation-drawer v-if="showDrawer" v-model="drawer" floating permanent @click="rail = false" :rail="rail">
-      <div class="px-4 py-8">
+      <!-- <div class="px-4 py-8">
             
         <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
           <h5>AMA</h5>
         </router-link>
         
-      </div>
+      </div> -->
       
       <v-list density="compact" mandatory item-props :items="items" nav />
 
+      <template v-if="showDrawer" v-slot:prepend>
+        <v-list-item
+          @click.stop="rail = !rail"
+          class="ma-2"
+          nav
+          prepend-icon="mdi-menu"
+        />
+        <!-- <v-app-bar-nav-icon @click.stop="rail = !rail" ></v-app-bar-nav-icon> -->
+      </template>
+      
       <template #append>
         <v-list-item
           v-if="showSettings"
@@ -29,11 +39,8 @@
 
     </v-navigation-drawer>
 
-    <v-app-bar class="ps-4" flat>
-      <template v-if="showDrawer" v-slot:prepend>
-        <v-app-bar-nav-icon @click.stop="rail = !rail" ></v-app-bar-nav-icon>
-      </template>
-
+    <v-app-bar class="" flat>
+      
       <router-link to="/" style="text-decoration: none; color: inherit;">
         <v-app-bar-title>AMA</v-app-bar-title>
       </router-link>
@@ -54,7 +61,7 @@
       </template>
     </v-app-bar>
 
-    <v-main>
+    <v-main style=" margin-right: 0.1rem;">
    
       <v-container fluid class="main-container">
         <slot/>
@@ -103,8 +110,9 @@
     z-index: 9999 !important;
   }
   .main-container {
-    background-color: #f5f5f5;  /* Trocar por variavel */
+    background-color: #E0E0E0;  /* Trocar por variavel */
+    border-radius: 1.5rem;
     height: auto;
-    min-height: 100vh - calc(64px + 56px); /* 64px for app bar and 56px for navigation drawer */
+    min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
   }
 </style>

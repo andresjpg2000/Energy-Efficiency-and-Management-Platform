@@ -62,7 +62,6 @@ import AppShell from '@/components/AppShell.vue';
 </script>
 
 <style>
-
   .v-overlay-container {
     z-index: 9999 !important;
   }

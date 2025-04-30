@@ -87,11 +87,11 @@ import MinisWiget from '@/components/minis.wiget.vue';
 
 
 <template>
-      <div color="surface-light" class="pa-4">
+      
         <v-sheet
-          color="surface-light"
-          height="100vh"
+          color="#E0E0E0"
           rounded="lg"
+          height="100vh"
           width="100%"
           class="grid-stack"
         >
@@ -103,7 +103,7 @@ import MinisWiget from '@/components/minis.wiget.vue';
             </div>
           </div>      
         </v-sheet>
-      </div>
+      
 </template>
 
 <style>
