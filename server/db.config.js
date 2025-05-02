@@ -1,5 +1,4 @@
-const mysql = require('mysql2');
-
+// This file contains the database configuration for the application.
 module.exports = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
