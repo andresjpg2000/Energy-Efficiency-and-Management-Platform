@@ -1,16 +1,34 @@
 // Import the suppliers model
-const suppliers = require("../models/suppliers.model.js");
+const db = require('../models/index.js');
+const Suppliers = db.Suppliers; 
 
 // Get all suppliers
-let getAllSuppliers = (req, res) => {
-    res.status(200).json({
-        data: suppliers,
-        links: [{
-            rel: 'add',
-            href: '/energy-provided',
-            method: 'ADD',
-        }],
-    });
+const getAllSuppliers = async (req, res) => {
+    try {
+        // Fetch all suppliers from the database
+        const suppliers = await Suppliers.findAll();
+        // Check if suppliers were found
+        if (suppliers.length === 0) {
+            return res.status(404).json({
+                message: "No suppliers found!",
+            });
+        }
+        // Send a response with the suppliers data
+        res.status(200).json({
+            data: suppliers,
+            links: [{
+                rel: 'add',
+                href: '/energy-provided',
+                method: 'ADD',
+            }],
+        });
+    } catch (error) {
+        // Handle any errors that occur during the database query
+        console.error("Error fetching suppliers:", error);
+        res.status(500).json({
+            message: "Internal server error!",
+        });
+    }
 }
 
 // Post a new supplier
