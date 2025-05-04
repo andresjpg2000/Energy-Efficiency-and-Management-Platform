@@ -9,16 +9,17 @@ module.exports = (sequelize) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        empresa: {
+        enterprise: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true
         },
-        custo_kWh: {
+        cost_kWh: {
             type: DataTypes.FLOAT,
             allowNull: false,
         },
     }, {
-        tableName: 'fornecedor',
+        tableName: 'suppliers',
         timestamps: false, // Disable createdAt and updatedAt fields
     });
     

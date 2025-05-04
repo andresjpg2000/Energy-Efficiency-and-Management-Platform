@@ -3,215 +3,228 @@ from faker.providers import BaseProvider
 from datetime import datetime, timedelta
 import random
 
-#Script to populate database. 
-# How to use:
-# 1. Run the script to generate a SQL file with INSERT statements.
-# 2. Run the SQL file in your database to populate it with fake data.
-# 3. Make sure to adjust the number of records generated as needed.
+# Script to populate database with the new schema
+# Usage:
+# 1. Adjust the numbers in the main() section as needed.
+# 2. Run this script to generate a SQL file with INSERT statements.
+# 3. Execute the SQL file in your MySQL database.
 
 fake = Faker()
 
-statements = []
-codigo_postal_statements = []
-inserted_cps = set()
-    
+# Custom provider for Portuguese postal codes
 class customProvider(BaseProvider):
     def pt_postal_code(self):
         first_part = str(random.randint(1000, 9999))
         second_part = str(random.randint(100, 999))
-        return f"{first_part}{second_part}"
-    
+        return int(f"{first_part}{second_part}")  # store as integer
+
 fake.add_provider(customProvider)
 
-def save_sql_file(filename="populateDB.sql"):
+# Collections of statements
+energy_type_statements = []
+postal_code_statements = []
+supplier_statements = []
+user_statements = []
+housing_statements = []
+equipment_statements = []
+consumption_statements = []
+production_statements = []
+given_statements = []
+notification_statements = []
+widget_statements = []
+
+inserted_cps = set()
+
+# Write all SQL statements to file in the correct order
+def save_sql_file(filename="populateDB_new_schema.sql"):
     with open(filename, "w", encoding="utf-8") as file:
         file.write(f"-- Generated on {datetime.now()}\n")
-        
-        # It's important to have the table "codigo_postal" before the table "moradia"
-        # because the table "moradia" has a foreign key that references the table "codigo_postal"
-        for statement in codigo_postal_statements:
-            file.write(statement + "\n")
-        
-        for statement in statements:
-            file.write(statement + "\n")
-    
-# Populate "utilizador" table
-def populate_users (num_users=10):
-    for _ in range(num_users):
-        nome = fake.name()
-        email = fake.email()
-        password = fake.password()
-        statement = f"INSERT INTO utilizador (nome, email, password) VALUES ('{nome}', '{email}', '{password}');"
-        statements.append(statement)
+        # Order matters due to FKs
+        for stmt in energy_type_statements:
+            file.write(stmt + "\n")
+        for stmt in postal_code_statements:
+            file.write(stmt + "\n")
+        for stmt in supplier_statements:
+            file.write(stmt + "\n")
+        for stmt in user_statements:
+            file.write(stmt + "\n")
+        for stmt in housing_statements:
+            file.write(stmt + "\n")
+        for stmt in equipment_statements:
+            file.write(stmt + "\n")
+        for stmt in consumption_statements:
+            file.write(stmt + "\n")
+        for stmt in production_statements:
+            file.write(stmt + "\n")
+        for stmt in given_statements:
+            file.write(stmt + "\n")
+        for stmt in notification_statements:
+            file.write(stmt + "\n")
+        for stmt in widget_statements:
+            file.write(stmt + "\n")
 
-# Populate "codigo_postal" table
-def populate_codigo_postal(postal_codes):
-    for cp in postal_codes:
-        # Only insert if the CP has not been inserted yet
+# 1. Populate energy_types (static list)
+def populate_energy_types():
+    types = ["Solar Photovoltaic", "Solar Thermal", "Biomass", "Wind", "Geothermal"]
+    for name in types:
+        energy_type_statements.append(
+            f"INSERT INTO energy_types (name) VALUES ('{name}');"
+        )
+
+# 2. Populate postal_codes when generating housings
+def populate_postal_codes(cps):
+    for cp in cps:
         if cp not in inserted_cps:
-            cp_prefix = cp[:4]  # Get the first part of the postal code (e.g., "1000")
-            
-            if 1000 <= int(cp_prefix) <= 1999:
-                localidade = "Lisboa"
-            elif 2000 <= int(cp_prefix) <= 2399:
-                localidade = "Santarém"
-            elif 2400 <= int(cp_prefix) < 2900:
-                localidade = "Leiria"
-            elif 2900 <= int(cp_prefix) <= 2999:
-                localidade = "Setúbal"
-            elif 3000 <= int(cp_prefix) <= 3999:
-                localidade = "Coimbra"
-            elif 3800 <= int(cp_prefix) <= 3899:
-                localidade = "Aveiro"
-            elif 4000 <= int(cp_prefix) <= 4999:
-                localidade = "Porto"
-            elif 4700 <= int(cp_prefix) <= 4899:
-                localidade = "Braga"
-            elif 5000 <= int(cp_prefix) <= 5299:
-                localidade = "Vila Real"
-            elif 5300 <= int(cp_prefix) <= 5999:
-                localidade = "Bragança"
-            elif 6000 <= int(cp_prefix) <= 6999:
-                localidade = "Castelo Branco"
-            elif 7000 <= int(cp_prefix) <= 7299:
-                localidade = "Évora"
-            elif 7300 <= int(cp_prefix) < 7800:
-                localidade = "Portalegre"
-            elif 7800 <= int(cp_prefix) <= 7899:
-                localidade = "Beja"
-            elif 8000 <= int(cp_prefix) <= 8999:
-                localidade = "Faro"
-            elif 9000 <= int(cp_prefix) < 10000:
-                localidade = "Madeira"
-            elif 6300 <= int(cp_prefix) <= 6399:
-                localidade = "Guarda"
+            # Simple mapping based on prefix
+            prefix = int(str(cp)[:4])
+            if 1000 <= prefix < 2000:
+                loc = "Lisboa"
+            elif 2000 <= prefix < 2400:
+                loc = "Santarém"
+            elif 2400 <= prefix < 2900:
+                loc = "Leiria"
+            elif 2900 <= prefix < 3000:
+                loc = "Setúbal"
+            elif 3000 <= prefix < 4000:
+                loc = "Coimbra"
+            elif 4000 <= prefix < 5000:
+                loc = "Porto"
             else:
-                localidade = "Desconhecido"  # In case the CP prefix doesn't match known ranges
+                loc = "Desconhecido"
+            postal_code_statements.append(
+                f"INSERT INTO postal_codes (pc, location) VALUES ({cp}, '{loc}');"
+            )
+            inserted_cps.add(cp)
 
-            statement = f"INSERT INTO codigo_postal (cp, localidade) VALUES ('{cp}', '{localidade}');"
-            codigo_postal_statements.append(statement)
-            inserted_cps.add(cp)  # Mark this CP as inserted
+# 3. Populate suppliers
+def populate_suppliers(num_suppliers=5):
+    for _ in range(num_suppliers):
+        enterprise = fake.company().replace("'", "''")
+        cost = round(random.uniform(0.05, 0.30), 4)
+        supplier_statements.append(
+            f"INSERT INTO suppliers (enterprise, cost_kWh) VALUES ('{enterprise}', {cost});"
+        )
 
-# Populate "moradia" table
-def populate_moradia(num_moradias=10):
-    # Change to match users_id in data base
-    for user_id in range(2, num_moradias + 1):
-        id_consumidor = user_id
-        address = fake.address()
+# 4. Populate users
+def populate_users(num_users=10):
+    for _ in range(num_users):
+        name = fake.name().replace("'", "''")
+        email = fake.email()
+        password = fake.password(length=10)
+        admin = random.choice([0, 1])
+        user_statements.append(
+            f"INSERT INTO users (email, name, password, admin) VALUES ('{email}', '{name}', '{password}', {admin});"
+        )
+
+# 5. Populate housings
+def populate_housings(num_housings=10, num_users=10):
+    for i in range(1, num_housings+1):
+        address = fake.address().replace("'", "''")
         cp = fake.pt_postal_code()
-        populate_codigo_postal([cp])
-        tipo_construcao = random.choice(['Apartamento', 'Moradia', 'Estúdio'])
-        statement = f"INSERT INTO moradia (Morada, CP, Tipo_Construção, id_consumidor) VALUES ('{address}', '{cp}', '{tipo_construcao}', '{id_consumidor}');"
-        statements.append(statement)
+        populate_postal_codes([cp])
+        btype = random.choice(['Apartamento', 'Moradia', 'Estúdio'])
+        user_id = random.randint(1, num_users)
+        housing_statements.append(
+            f"INSERT INTO housings (address, pc, building_type, id_user) VALUES ('{address}', {cp}, '{btype}', {user_id});"
+        )
 
-def populate_equipamento_energetico(num_equipamentos=10):
-    for equipamento in range(1, num_equipamentos + 1):
-        id_moradia = equipamento
-        tipo_energia = random.randint(1, 6)
-        
-        if tipo_energia == 1:
-            nome = "Painel Solar Fotovoltaico"
-            capacidade = random.randint(2, 10)
-        elif tipo_energia == 2:
-            nome = "Painel Solar Térmico"
-            capacidade = random.randint(3, 7)
-        elif tipo_energia == 3:
-            nome = "Biomassa"
-            capacidade = random.randint(10, 50)
-        elif tipo_energia == 4:
-            nome = "Energia Eólica"
-            capacidade = random.randint(1, 20)
-        elif tipo_energia == 5:
-            nome = "Energia Geotérmica"
-            capacidade = random.randint(3, 15)
-        else:
-            nome = fake.name()
-            
-        statement = f"INSERT INTO equipamento_energetico (tipo_energia, Capacidade, moradia, nome) VALUES ('{tipo_energia}', '{capacidade}', '{id_moradia}', '{nome}');"
-        statements.append(statement)
+# 6. Populate energy_equipments
+def populate_equipments(num_housings=10, max_energy_type=5):
+    for i in range(1, num_housings+1):
+        num_eq = random.randint(1, 3)
+        for _ in range(num_eq):
+            e_type = random.randint(1, max_energy_type)
+            cap = random.randint(1, 50)
+            name = fake.word().capitalize()
+            equipment_statements.append(
+                f"INSERT INTO energy_equipments (energy_type, capacity, housing, name) VALUES ({e_type}, {cap}, {i}, '{name}');"
+            )
 
-def populate_consumos(id_moradia, num_consumos=10):
-    data = datetime.now() 
-    fornecedor = random.randint(1, 10)
-    for consumo in range(1, num_consumos + 1):
-        data += timedelta(hours=1)
-        valor = random.uniform(10.0, 100.0)
-        statement = f"INSERT INTO consumos_energeticos (data, valor, id_moradia, id_fornecedor) VALUES ('{data}', '{valor}', '{id_moradia}', '{fornecedor}');"
-        statements.append(statement)
+# 7. Populate energy_consumptions
+def populate_consumptions(num_housings=10, num_suppliers=5, per_housing=5):
+    for i in range(1, num_housings+1):
+        dt = datetime.now()
+        for _ in range(per_housing):
+            dt += timedelta(hours=1)
+            val = round(random.uniform(1.0, 20.0), 2)
+            supp = random.randint(1, num_suppliers)
+            consumption_statements.append(
+                f"INSERT INTO energy_consumptions (value, date, id_supplier, id_housing) VALUES ({val}, '{dt}', {supp}, {i});"
+            )
 
-def populate_all(last_user_id, last_moradia_id, num_records_per_table=10, consumos_per_moradia=10):
-    # Change these variables to match database last ids
-    user_ids = list(range(last_user_id, num_records_per_table + last_user_id))
-    moradia_ids = list(range(last_moradia_id, num_records_per_table + last_moradia_id))
+# 8. Populate energy_productions
+def populate_productions(max_equipment_id, per_equipment=5):
+    for eq_id in range(1, max_equipment_id+1):
+        dt = datetime.now()
+        for _ in range(per_equipment):
+            dt += timedelta(hours=1)
+            val = round(random.uniform(0.5, 15.0), 2)
+            production_statements.append(
+                f"INSERT INTO energy_productions (id_equipment, value, date) VALUES ({eq_id}, {val}, '{dt}');"
+            )
 
-    # Step 1: Populate Users
-    populate_users(num_records_per_table)
+# 9. Populate given_energies
+def populate_given_energies(max_equipment_id, per_equipment=3):
+    for eq_id in range(1, max_equipment_id+1):
+        dt = datetime.now()
+        for _ in range(per_equipment):
+            dt += timedelta(hours=1)
+            val = round(random.uniform(0.1, 10.0), 2)
+            given_statements.append(
+                f"INSERT INTO given_energies (value, id_equipment, date) VALUES ({val}, {eq_id}, '{dt}');"
+            )
 
-    # Step 2: Populate Moradias linked to each user
-    for i, user_id in enumerate(user_ids):
-        address = fake.address().replace("'", "''")  # Escape single quotes
-        cp = fake.pt_postal_code()
-        populate_codigo_postal([cp])
-        tipo_construcao = random.choice(['Apartamento', 'Moradia', 'Estúdio'])
-        statement = f"INSERT INTO moradia (Morada, CP, Tipo_Construção, id_consumidor) VALUES ('{address}', '{cp}', '{tipo_construcao}', {user_id});"
-        statements.append(statement)
+# 10. Populate notifications
+def populate_notifications(num_notifications=10, max_user=10, max_consumption=50):
+    types = ['alert', 'info', 'warning']
+    for _ in range(num_notifications):
+        t = random.choice(types)
+        u = random.randint(1, max_user)
+        c = random.randint(1, max_consumption)
+        msg = fake.sentence().replace("'", "''")
+        notification_statements.append(
+            f"INSERT INTO notifications (type, id_user, id_consumption, message) VALUES ('{t}', {u}, {c}, '{msg}');"
+        )
 
-    # Step 3: Populate Equipamento Energetico per moradia
-    for moradia_id in moradia_ids:
-        tipo_energia = random.randint(1, 5)
-        
-        if tipo_energia == 1:
-            nome = "Painel Solar Fotovoltaico"
-            capacidade = random.randint(2, 10)
-        elif tipo_energia == 2:
-            nome = "Painel Solar Térmico"
-            capacidade = random.randint(3, 7)
-        elif tipo_energia == 3:
-            nome = "Biomassa"
-            capacidade = random.randint(10, 50)
-        elif tipo_energia == 4:
-            nome = "Energia Eólica"
-            capacidade = random.randint(1, 20)
-        elif tipo_energia == 5:
-            nome = "Energia Geotérmica"
-            capacidade = random.randint(3, 15)
-        else:
-            nome = fake.name()
-            capacidade = random.randint(1, 10)
+# 11. Populate widgets
+def populate_widgets(per_user=2, max_user=10):
+    for uid in range(1, max_user+1):
+        for _ in range(per_user):
+            title = fake.word().capitalize()
+            body = fake.sentence().replace("'", "''")
+            wtype = fake.word()
+            widget_statements.append(
+                f"INSERT INTO widgets (id_user, title, body, type) VALUES ({uid}, '{title}', '{body}', '{wtype}');"
+            )
 
-        statement = f"INSERT INTO equipamento_energetico (tipo_energia, Capacidade, moradia, nome) VALUES ({tipo_energia}, {capacidade}, {moradia_id}, '{nome}');"
-        statements.append(statement)
-
-    # Step 4: Populate Consumos per moradia
-    for moradia_id in moradia_ids:
-        data = datetime.now()
-        fornecedor = random.randint(1, 10)  # Adjust based on your DB
-
-        for _ in range(consumos_per_moradia):
-            data += timedelta(hours=1)
-            valor = round(random.uniform(10.0, 100.0), 2)
-            statement = f"INSERT INTO consumos_energeticos (data, valor, id_moradia, id_fornecedor) VALUES ('{data}', {valor}, {moradia_id}, {fornecedor});"
-            statements.append(statement)
-
-    # Final: Save all SQL to file
-    save_sql_file()
-
-
-# Run it
-# Remember to change the methods being called and their parameters
+# Main invocation
 if __name__ == "__main__":
-    # populate_users()
-    # populate_moradia(14)
-    # populate_equipamento_energetico(14)
-    # populate_consumos(7, 10)
-    # save_sql_file()
-    print("-----------------------------------------------------------")
-    print("Welcome to the database population script!")
-    print("This script will generate fake data for your database.")
-    print("-----------------------------------------------------------")
-    last_user_id = int(input("Enter the last user ID in the database: "))
-    last_moradia_id = int(input("Enter the last moradia ID in the database: "))
-    num_records_per_table = int(input("Enter the number of records to generate for each table: "))
-    consumos_per_moradia = int(input("Enter the number of consumos per moradia: "))
-    print("Generating...")
-    populate_all(last_user_id, last_moradia_id, num_records_per_table, consumos_per_moradia)  # Adjust the number of records as needed
+    # Configuration
+    NUM_SUPPLIERS = 1
+    NUM_USERS = 1
+    NUM_HOUSINGS = 1
+    PER_HOUSING_CONSUMPTIONS = 1
+    PER_EQUIP_PRODUCTIONS = 1
+    PER_EQUIP_GIVEN = 1
+    NUM_NOTIFICATIONS = 1
+    WIDGETS_PER_USER = 1
+
+    # Populate all tables
+    populate_energy_types()
+    # populate_suppliers(NUM_SUPPLIERS)
+    populate_users(NUM_USERS)
+    populate_housings(NUM_HOUSINGS, NUM_USERS)
+    populate_equipments(NUM_HOUSINGS, len(energy_type_statements))
+    populate_consumptions(NUM_HOUSINGS, NUM_SUPPLIERS, PER_HOUSING_CONSUMPTIONS)
+    # Estimate total equipment rows for productions and given
+    total_eq = len(equipment_statements)
+    populate_productions(total_eq, PER_EQUIP_PRODUCTIONS)
+    populate_given_energies(total_eq, PER_EQUIP_GIVEN)
+    # Estimate total consumptions for notifications
+    total_cons = len(consumption_statements)
+    populate_notifications(NUM_NOTIFICATIONS, NUM_USERS, total_cons)
+    populate_widgets(WIDGETS_PER_USER, NUM_USERS)
+
+    # Write to SQL file
+    save_sql_file()
+    print("SQL file 'populateDB_new_schema.sql' has been generated.")
