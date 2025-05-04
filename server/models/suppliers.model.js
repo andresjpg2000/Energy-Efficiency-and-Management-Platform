@@ -1,7 +1,28 @@
-let suppliers = [
-    { id: 1, enterprise: "Supplier A", cost_kWh: 100 },
-    { id: 2, enterprise: "Supplier B", cost_kWh: 200 },
-    { id: 3, enterprise: "Supplier C", cost_kWh: 300 }
-];
+// This file defines the Supplier model for the database using Sequelize ORM.
+const { DataTypes } = require('sequelize');
+const sequelize = require('../db.config.js'); // Import the sequelize instance
 
-module.exports = suppliers;
+module.exports = (sequelize) => {
+    const Supplier = sequelize.define('Supplier', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        empresa: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        custo_kWh: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+        },
+    }, {
+        tableName: 'fornecedor',
+        timestamps: false, // Disable createdAt and updatedAt fields
+    });
+    
+    return Supplier;
+}
+
+

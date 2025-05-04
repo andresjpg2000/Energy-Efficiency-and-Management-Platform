@@ -1,9 +1,11 @@
 // This file contains the database configuration for the application.
-module.exports = {
+require('dotenv').config();
+const { Sequelize } = require('sequelize');
+
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   dialect: process.env.DB_DIALECT,
-};
+}); 
+
+module.exports = sequelize; // Export the sequelize instance to use in other files
