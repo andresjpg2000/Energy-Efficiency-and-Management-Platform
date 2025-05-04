@@ -12,11 +12,29 @@ module.exports = (sequelize) => {
         enterprise: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
+            unique: true,
+            validate: {
+                notEmpty: {
+                  msg: "enterprise must not be empty"
+                },
+                len: {
+                  args: [1, 45],
+                  msg: "enterprise must have between 1 and 45 characters"
+                }
+            }
         },
         cost_kWh: {
             type: DataTypes.FLOAT,
             allowNull: false,
+            validate: {
+                isFloat: {
+                  msg: "cost_kWh must be a float"
+                },
+                min: {
+                  args: [0.01],
+                  msg: "cost_kWh must be greater than 0"
+                }
+            }
         },
     }, {
         tableName: 'suppliers',

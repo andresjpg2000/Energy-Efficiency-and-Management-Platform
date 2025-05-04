@@ -36,8 +36,6 @@ const getAllSuppliers = async (req, res) => {
 // Get a supplier by ID
 const getSupplierById = async (req, res) => {
     try {
-        // Fetch all suppliers from the database
-        const suppliers = await Suppliers.findAll();
         // Find the supplier by ID
         const supplier = await Suppliers.findByPk(req.params.id);
         if (!supplier) {
@@ -93,32 +91,6 @@ const getSupplierById = async (req, res) => {
 
 // Post a new supplier
 const createSupplier = async (req, res) => {
-    // Check if the request body is empty
-    if (!req.body) {
-        return res.status(400).json({
-            message: "Content cannot be empty!",
-        });
-    }
-    // Check if the supplier already exists
-    const existingSupplier = await Suppliers.findOne({ where: { enterprise: req.body.enterprise } });
-    if (existingSupplier) {
-        return res.status(400).json({
-            message: `Supplier with enterprise ${req.body.enterprise} already exists!`,
-        });
-    }
-    // Check if the cost_kWh is a valid number
-    if (isNaN(req.body.cost_kWh) || req.body.cost_kWh <= 0) {
-        return res.status(400).json({
-            message: "cost_kWh must be a valid number!",
-        });
-    }
-    // Check if the enterprise name is valid
-    if (typeof req.body.enterprise !== 'string' || req.body.enterprise.trim() === '' || req.body.enterprise.length > 45) {
-        return res.status(400).json({
-            message: "enterprise must be a valid string and can't have more than 45 characters!",
-        });
-    }
-
     // Create a new supplier object
     const newSupplier = {
         enterprise: req.body.enterprise,
@@ -140,7 +112,7 @@ const createSupplier = async (req, res) => {
                 },
                 {
                     rel: 'get-by-id',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${createSupplier.id}`,
                     method: 'GET',
                 },
                 {
@@ -150,17 +122,17 @@ const createSupplier = async (req, res) => {
                 },
                 {
                     rel: 'update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${createSupplier.id}`,
                     method: 'PUT',
                 },
                 {
                     rel: 'partial-update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${createSupplier.id}`,
                     method: 'PATCH',
                 },
                 {
                     rel: 'delete',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${createSupplier.id}`,
                     method: 'DELETE',
                 },
             
@@ -169,6 +141,13 @@ const createSupplier = async (req, res) => {
     } catch (error) {
         // Handle any errors that occur during the database query
         console.error("Error creating supplier:", error);
+
+        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
+            return res.status(400).json({
+                message: error.errors.map(err => err.message).join(', ')
+            });
+        }
+
         res.status(500).json({
             message: "Internal server error!",
         });
@@ -177,39 +156,11 @@ const createSupplier = async (req, res) => {
 
 // Put update a supplier
 const updateSupplier = async (req, res) => {
-    // Check if the request body is empty
-    if (!req.body) {
-        return res.status(400).json({
-            message: "Content cannot be empty!",
-        });
-    }
-
     // Find the supplier by ID
     const supplier = await Suppliers.findByPk(req.params.id);
     if (!supplier) {
         return res.status(404).json({
             message: `Supplier with ID ${req.params.id} not found!`,
-        });
-    }
-
-    // Check if the supplier already exists
-    const existingSupplier = await Suppliers.findOne({ where: { enterprise: req.body.enterprise } });
-    if (existingSupplier && existingSupplier.id !== supplier.id) {
-        // If the existing supplier is not the same as the one being updated, return an error
-        return res.status(400).json({
-            message: `Supplier with enterprise ${req.body.enterprise} already exists!`,
-        });
-    }
-    // Check if the cost_kWh is a valid number
-    if (isNaN(req.body.cost_kWh) || req.body.cost_kWh <= 0) {
-        return res.status(400).json({
-            message: "cost_kWh must be a valid number!",
-        });
-    }
-    // Check if the enterprise name is valid
-    if (typeof req.body.enterprise !== 'string' || req.body.enterprise.trim() === '' || req.body.enterprise.length > 45) {
-        return res.status(400).json({
-            message: "enterprise must be a valid string and can't have more than 45 characters!",
         });
     }
 
@@ -260,7 +211,14 @@ const updateSupplier = async (req, res) => {
         });
     } catch (error) {
         // Handle any errors that occur during the database query
-        console.error("Error updating supplier:", error);
+        console.error("Error creating supplier:", error);
+
+        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
+            return res.status(400).json({
+                message: error.errors.map(err => err.message).join(', ')
+            });
+        }
+
         res.status(500).json({
             message: "Internal server error!",
         });
@@ -269,38 +227,11 @@ const updateSupplier = async (req, res) => {
 
 // Partially update a supplier
 const partialUpdateSupplier = async (req, res) => {
-    // Check if the request body is empty
-    if (!req.body) {
-        return res.status(400).json({
-            message: "Content cannot be empty!",
-        });
-    }
-
     // Find the supplier by ID
     const supplier = await Suppliers.findByPk(req.params.id);
     if (!supplier) {
         return res.status(404).json({
             message: `Supplier with ID ${req.params.id} not found!`,
-        });
-    }
-    // Check if the supplier already exists
-    const existingSupplier = await Suppliers.findOne({ where: { enterprise: req.body.enterprise } });
-    if (existingSupplier && existingSupplier.id !== supplier.id) {
-        // If the existing supplier is not the same as the one being updated, return an error
-        return res.status(400).json({
-            message: `Supplier with enterprise ${req.body.enterprise} already exists!`,
-        });
-    }
-    // Check if the cost_kWh is a valid number
-    if (isNaN(req.body.cost_kWh) || req.body.cost_kWh <= 0) {
-        return res.status(400).json({
-            message: "cost_kWh must be a valid number!",
-        });
-    }
-    // Check if the enterprise name is valid
-    if (typeof req.body.enterprise !== 'string' || req.body.enterprise.trim() === '' || req.body.enterprise.length > 45) {
-        return res.status(400).json({
-            message: "enterprise must be a valid string and can't have more than 45 characters!",
         });
     }
 
@@ -355,7 +286,14 @@ const partialUpdateSupplier = async (req, res) => {
         });
     } catch (error) {
         // Handle any errors that occur during the database query
-        console.error("Error partially updating supplier:", error);
+        console.error("Error creating supplier:", error);
+
+        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
+            return res.status(400).json({
+                message: error.errors.map(err => err.message).join(', ')
+            });
+        }
+
         res.status(500).json({
             message: "Internal server error!",
         });
