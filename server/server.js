@@ -11,9 +11,6 @@ const db = require('./models/index.js');
     }
 })();
 
-// Testing if the model is correctly imported
-console.log("Suppliers model - ", db.Supplier === db.sequelize.models.Supplier);
-
 const app = express();
 
 app.use(express.json());
