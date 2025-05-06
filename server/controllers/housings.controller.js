@@ -1,4 +1,5 @@
 const { Housing } = require('../models/index.js');
+const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 // Get all housings
 const getAllHousings = async (req, res, next) => {
@@ -164,14 +165,14 @@ const createHousing = async (req, res, next) => {
         // Handle any errors that occur during the database query
         console.error("Error creating housing:", err);
 
-        // Handle specific Sequelize validation errors and join them into a single message
-        if (err instanceof db.Sequelize.ValidationError) {
+        // Handle specific db.Sequelize validation errors and join them into a single message
+        if (err instanceof ValidationError) {
             return res.status(400).json({
                 message: err.errors.map(err => err.message).join(', ')
             });
         }
         // Handle unique constraint errors
-        if (err instanceof db.Sequelize.UniqueConstraintError) {
+        if (err instanceof UniqueConstraintError) {
             return res.status(400).json({
                 message: "Housing already exists!",
             });
@@ -181,142 +182,134 @@ const createHousing = async (req, res, next) => {
     }
 }
 
-// Update a housing by ID
 const updateHousing = async (req, res, next) => {
     try {
-        const housing = await Housing.findByPk(req.params.id);
+        const [affectedRows] = await Housing.update(req.body, {
+            where: {
+                id_housing: req.params.id_housing,
+                // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+            },
+        });
 
-        if (!housing) {
-            return res.status(404).json({ message: 'Housing not found!' });
+        if (affectedRows === 0) {
+            return res.status(404).json({ message: 'Housing not found or unauthorized' });
         }
-
-        // Check if the user is the owner of the housing
-        if (req.user.id_user !== housing.id_user) {
-          return res.status(403).json({ message: 'You are not authorized to access this housing!' });
-        }
-
-        const updatedHousing = await housing.update(req.body);
 
         res.status(200).json({
-            data: updatedHousing,
+            message: `Housing with ID ${req.params.id_housing} updated successfully!`,
             links: [
-                {
-                    rel: 'self',
-                    href: `/housings/${updatedHousing.id_housing}`,
-                    method: 'PUT',
+                { 
+                    rel: 'self', 
+                    href: `/housings/${req.params.id}`,
+                    method: 'PUT' 
                 },
-                {
+                { 
                     rel: 'get-by-id',
-                    href: `/housings/${updatedHousing.id_housing}`,
-                    method: 'GET',
+                    href: `/housings/${req.params.id}`,
+                    method: 'GET' 
                 },
-                {
+                { 
                     rel: 'get-all',
-                    href: `/housings`,
-                    method: 'GET',
+                    href: `/housings`, 
+                    method: 'GET' 
                 },
                 {
                     rel: 'create',
-                    href: `/housings`,
-                    method: 'POST',
+                    href: `/housings`, 
+                    method: 'POST' 
                 },
                 {
                     rel: 'partial-update',
-                    href: `/housings/${updatedHousing.id_housing}`,
-                    method: 'PATCH',
+                    href: `/housings/${req.params.id}`,
+                    method: 'PATCH' 
                 },
                 {
                     rel: 'delete',
-                    href: `/housings/${updatedHousing.id_housing}`,
-                    method: 'DELETE',
+                    href: `/housings/${req.params.id}`,
+                    method: 'DELETE' 
                 },
-            ],            
+            ]
         });
     } catch (err) {
-        // Handle any errors that occur during the database query
         console.error("Error updating housing:", err);
 
-        // Handle specific Sequelize validation errors and join them into a single message
-        if (err instanceof db.Sequelize.ValidationError) {
+        if (err instanceof ValidationError) {
             return res.status(400).json({
                 message: err.errors.map(err => err.message).join(', ')
             });
         }
-        // Handle unique constraint errors
-        if (err instanceof db.Sequelize.UniqueConstraintError) {
+        if (err instanceof UniqueConstraintError) {
             return res.status(400).json({
                 message: "Housing already exists!",
             });
         }
-        // Handle other errors
         next(err);
     }
 }
+
 
 // Partially update a housing by ID
 const partialUpdateHousing = async (req, res, next) => {
   try {
-      const housing = await Housing.findByPk(req.params.id_housing);
 
-      if (!housing) {
-          return res.status(404).json({ message: 'Housing not found!' });
-      }
+    const [affectedRows] = await Housing.update(req.body, {
+        where: {
+            id_housing: req.params.id_housing,
+            // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+        },
+    });
 
-      // Check if the user is the owner of the housing
-      if (req.user.id_user !== housing.id_user) {
-        return res.status(403).json({ message: 'You are not authorized to access this housing!' });
-      }
+    if (affectedRows === 0) {
+        return res.status(404).json({ message: 'Housing not found or unauthorized' });
+    }
 
-      // const updatedHousing = await housing.update(req.body, { fields: Object.keys(req.body) });
-      const updatedHousing = await housing.update(req.body);
-
-      res.status(200).json({
-          data: updatedHousing,
-          links: [
-              {
-                  rel: 'self',
-                  href: `/housings/${updatedHousing.id_housing}`,
-                  method: 'PATCH',
-              },
-              {
-                  rel: 'get-by-id',
-                  href: `/housings/${updatedHousing.id_housing}`,
-                  method: 'GET',
-              },
-              {
-                  rel: 'get-all',
-                  href: `/housings`,
-                  method: 'GET',
-              },
-              {
-                  rel: 'create',
-                  href: `/housings`,
-                  method: 'POST',
-              },
-              {
-                  rel: 'update',
-                  href: `/housings/${updatedHousing.id_housing}`,
-                  method: 'PUT',
-              },
-              {
-                  rel: 'delete',
-                  href: `/housings/${updatedHousing.id_housing}`,
-                  method: 'DELETE',
-              },
-          ],            
-      });
+    res.status(200).json({
+        message: `Housing with ID ${req.params.id_housing} updated successfully!`,
+        links: [
+            {
+                rel: 'self',
+                href: `/housings/${req.params.id_housing}`,
+                method: 'PATCH',
+            },
+            {
+                rel: 'get-by-id',
+                href: `/housings/${req.params.id_housing}`,
+                method: 'GET',
+            },
+            {
+                rel: 'get-all',
+                href: `/housings`,
+                method: 'GET',
+            },
+            {
+                rel: 'create',
+                href: `/housings`,
+                method: 'POST',
+            },
+            {
+                rel: 'update',
+                href: `/housings/${req.params.id_housing}`,
+                method: 'PUT',
+            },
+            {
+                rel: 'delete',
+                href: `/housings/${req.params.id_housing}`,
+                method: 'DELETE',
+            },
+        ],            
+    });
   } catch (err) {
       // Handle any errors that occur during the database query
       console.error("Error patching housing:", err);
 
       // Handle specific Sequelize validation errors and join them into a single message
-      if (err instanceof db.Sequelize.ValidationError) {
+      if (err instanceof ValidationError) {
           return res.status(400).json({
               message: err.errors.map(err => err.message).join(', ')
           });
       }
       // Handle unique constraint errors
-      if (err instanceof db.Sequelize.UniqueConstraintError) {
+      if (err instanceof UniqueConstraintError) {
           return res.status(400).json({
               message: "Housing already exists!",
           });
@@ -329,9 +322,15 @@ const partialUpdateHousing = async (req, res, next) => {
 // Delete a housing by ID
 const deleteHousing = async (req, res, next) => {
     try {
-        const housing = await Housing.findByPk(req.params.id_housing);
+        
+        const affectedRows = await Housing.destroy({
+            where: {
+                id_housing: req.params.id_housing,
+                // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+            },
+        });
 
-        if (!housing) {
+        if (affectedRows === 0) {
             return res.status(404).json({ message: 'Housing not found!' });
         }
 
@@ -340,10 +339,8 @@ const deleteHousing = async (req, res, next) => {
         //   return res.status(403).json({ message: 'You are not authorized to access this housing!' });
         // }
 
-        await housing.destroy();
-
         res.status(204).json({
-            message: `Housing with ID ${housing.id_housing} deleted successfully!`,          
+            message: `Housing with ID ${req.params.id_housing} deleted successfully!`,          
         });
 
     } catch (err) {

@@ -1,6 +1,6 @@
 // Import the suppliers model
-const db = require('../models/index.js');
-const Suppliers = db.Supplier; 
+const { Suppliers } = require('../models/index.js'); 
+const { ValidationError, UniqueConstraintError } = require('sequelize'); 
 
 // Get all suppliers
 const getAllSuppliers = async (req, res, next) => {
@@ -164,13 +164,13 @@ const createSupplier = async (req, res, next) => {
         console.error("Error creating supplier:", err);
 
         // Handle specific Sequelize validation errors and join them into a single message
-        if (err instanceof db.Sequelize.ValidationError) {
+        if (err instanceof ValidationError) {
             return res.status(400).json({
                 message: err.errors.map(err => err.message).join(', ')
             });
         }
         // Handle unique constraint errors
-        if (err instanceof db.Sequelize.UniqueConstraintError) {
+        if (err instanceof UniqueConstraintError) {
             return res.status(400).json({
                 message: "Supplier already exists!",
             });
@@ -240,13 +240,13 @@ const updateSupplier = async (req, res, next) => {
          console.error("Error creating supplier:", err);
 
          // Handle specific Sequelize validation errors and join them into a single message
-         if (err instanceof db.Sequelize.ValidationError) {
+         if (err instanceof ValidationError) {
              return res.status(400).json({
                  message: err.errors.map(err => err.message).join(', ')
              });
          }
          // Handle unique constraint errors
-         if (err instanceof db.Sequelize.UniqueConstraintError) {
+         if (err instanceof UniqueConstraintError) {
              return res.status(400).json({
                  message: "Supplier already exists!",
              });
@@ -320,13 +320,13 @@ const partialUpdateSupplier = async (req, res, next) => {
         console.error("Error creating supplier:", err);
 
         // Handle specific Sequelize validation errors and join them into a single message
-        if (err instanceof db.Sequelize.ValidationError) {
+        if (err instanceof ValidationError) {
             return res.status(400).json({
                 message: err.errors.map(err => err.message).join(', ')
             });
         }
         // Handle unique constraint errors
-        if (err instanceof db.Sequelize.UniqueConstraintError) {
+        if (err instanceof UniqueConstraintError) {
             return res.status(400).json({
                 message: "Supplier already exists!",
             });

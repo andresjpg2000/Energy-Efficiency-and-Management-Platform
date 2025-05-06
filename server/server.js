@@ -25,6 +25,8 @@ app.use('/suppliers', require('./routes/suppliers.routes.js'));
 app.use('/wigets', require('./routes/wigets.routes.js'));
 // use route middleware for /housings requests
 app.use('/housings', require('./routes/housings.routes.js'));
+// use route middleware for /energy-consumptions requests
+// app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
 
 // error middleware (always at the end of the file)
 app.use((err, req, res, next) => {

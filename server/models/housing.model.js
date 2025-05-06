@@ -1,6 +1,6 @@
 // This file defines the Housing model for the database using Sequelize ORM.
 const { DataTypes } = require('sequelize');
-const sequelize = require('../db.config.js'); 
+const sequelize = require('../db.config.js').sequelize; 
 
 module.exports = (sequelize) => {
     const Housing = sequelize.define('Housing', {
@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             foreignKey: true,
             references: {
-                model: 'PostalCodes', // name of Target model
+                model: 'postal_codes', // name of Target model
                 key: 'pc', // key in Target model that we're referencing
             },
             allowNull: false,
@@ -63,7 +63,7 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             foreignKey: true,
             references: {
-                model: 'Users', // name of Target model
+                model: 'users', // name of Target model
                 key: 'id_user', // key in Target model that we're referencing
             },
             allowNull: false,
