@@ -1,9 +1,9 @@
 // Import the suppliers model
 const db = require('../models/index.js');
-const Suppliers = db.Suppliers; 
+const Suppliers = db.Supplier; 
 
 // Get all suppliers
-const getAllSuppliers = async (req, res) => {
+const getAllSuppliers = async (req, res, next) => {
     try {
         // Fetch all suppliers from the database
         const suppliers = await Suppliers.findAll();
@@ -18,23 +18,46 @@ const getAllSuppliers = async (req, res) => {
             data: suppliers,
             links: [
                 {
-                rel: 'add',
-                href: '/suppliers',
-                method: 'POST',
+                    rel: 'self',
+                    href: `/suppliers`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'get-by-id',
+                    href: `/suppliers/:id`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'create',
+                    href: `/suppliers`,
+                    method: 'POST',
+                },
+                {
+                    rel: 'update',
+                    href: `/suppliers/:id`,
+                    method: 'PUT',
+                },
+                {
+                    rel: 'partial-update',
+                    href: `/suppliers/:id`,
+                    method: 'PATCH',
+                },
+                {
+                    rel: 'delete',
+                    href: `/suppliers/:id`,
+                    method: 'DELETE',
                 },
             ],
         });
-    } catch (error) {
+    } catch (err) {
         // Handle any errors that occur during the database query
-        console.error("Error fetching suppliers:", error);
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+        console.error("Error fetching suppliers:", err);
+        next(err);
     }
 }
 
 // Get a supplier by ID
-const getSupplierById = async (req, res) => {
+const getSupplierById = async (req, res, next) => {
     try {
         // Find the supplier by ID
         const supplier = await Suppliers.findByPk(req.params.id);
@@ -49,7 +72,7 @@ const getSupplierById = async (req, res) => {
             links: [
                 {
                     rel: 'self',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'GET',
                 },
                 {
@@ -64,33 +87,31 @@ const getSupplierById = async (req, res) => {
                 },
                 {
                     rel: 'update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PUT',
                 },
                 {
                     rel: 'partial-update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PATCH',
                 },
                 {
                     rel: 'delete',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'DELETE',
                 },
             
             ],
         });
-    } catch (error) {
+    } catch (err) {
         // Handle any errors that occur during the database query
-        console.error("Error fetching suppliers:", error);
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+        console.error("Error fetching suppliers:", err);
+        next(err);
     }
 }
 
 // Post a new supplier
-const createSupplier = async (req, res) => {
+const createSupplier = async (req, res, next) => {
     // Create a new supplier object
     const newSupplier = {
         enterprise: req.body.enterprise,
@@ -112,7 +133,7 @@ const createSupplier = async (req, res) => {
                 },
                 {
                     rel: 'get-by-id',
-                    href: `/suppliers/${createSupplier.id}`,
+                    href: `/suppliers/${createdSupplier.id}`,
                     method: 'GET',
                 },
                 {
@@ -122,40 +143,45 @@ const createSupplier = async (req, res) => {
                 },
                 {
                     rel: 'update',
-                    href: `/suppliers/${createSupplier.id}`,
+                    href: `/suppliers/${createdSupplier.id}`,
                     method: 'PUT',
                 },
                 {
                     rel: 'partial-update',
-                    href: `/suppliers/${createSupplier.id}`,
+                    href: `/suppliers/${createdSupplier.id}`,
                     method: 'PATCH',
                 },
                 {
                     rel: 'delete',
-                    href: `/suppliers/${createSupplier.id}`,
+                    href: `/suppliers/${createdSupplier.id}`,
                     method: 'DELETE',
                 },
             
             ],
         });
-    } catch (error) {
+    } catch (err) {
         // Handle any errors that occur during the database query
-        console.error("Error creating supplier:", error);
+        console.error("Error creating supplier:", err);
 
-        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
+        // Handle specific Sequelize validation errors and join them into a single message
+        if (err instanceof db.Sequelize.ValidationError) {
             return res.status(400).json({
-                message: error.errors.map(err => err.message).join(', ')
+                message: err.errors.map(err => err.message).join(', ')
             });
         }
-
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+        // Handle unique constraint errors
+        if (err instanceof db.Sequelize.UniqueConstraintError) {
+            return res.status(400).json({
+                message: "Supplier already exists!",
+            });
+        }
+        // Handle other errors
+        next(err);
     }
 }
 
 // Put update a supplier
-const updateSupplier = async (req, res) => {
+const updateSupplier = async (req, res, next) => {
     // Find the supplier by ID
     const supplier = await Suppliers.findByPk(req.params.id);
     if (!supplier) {
@@ -174,16 +200,16 @@ const updateSupplier = async (req, res) => {
         // Send a response with the updated supplier
         res.status(200).json({
             data: supplier,
-            message: `Supplier with ID ${req.params.id} updated successfully!`,
+            message: `Supplier with ID ${supplier.id} updated successfully!`,
             links: [
                 {
                     rel: 'self',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PUT',
                 },
                 {
                     rel: 'get-by-id',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'GET',
                 },
                 {
@@ -198,35 +224,40 @@ const updateSupplier = async (req, res) => {
                 },
                 {
                     rel: 'partial-update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PATCH',
                 },
                 {
                     rel: 'delete',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'DELETE',
                 },
             
             ],
         });
-    } catch (error) {
-        // Handle any errors that occur during the database query
-        console.error("Error creating supplier:", error);
+    } catch (err) {
+         // Handle any errors that occur during the database query
+         console.error("Error creating supplier:", err);
 
-        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
-            return res.status(400).json({
-                message: error.errors.map(err => err.message).join(', ')
-            });
-        }
-
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+         // Handle specific Sequelize validation errors and join them into a single message
+         if (err instanceof db.Sequelize.ValidationError) {
+             return res.status(400).json({
+                 message: err.errors.map(err => err.message).join(', ')
+             });
+         }
+         // Handle unique constraint errors
+         if (err instanceof db.Sequelize.UniqueConstraintError) {
+             return res.status(400).json({
+                 message: "Supplier already exists!",
+             });
+         }
+         // Handle other errors
+         next(err);
     }
 }
 
 // Partially update a supplier
-const partialUpdateSupplier = async (req, res) => {
+const partialUpdateSupplier = async (req, res, next) => {
     // Find the supplier by ID
     const supplier = await Suppliers.findByPk(req.params.id);
     if (!supplier) {
@@ -249,16 +280,16 @@ const partialUpdateSupplier = async (req, res) => {
         // Send a response with the updated supplier
         res.status(200).json({
             data: supplier,
-            message: `Supplier with ID ${req.params.id} partially updated successfully!`,
+            message: `Supplier with ID ${supplier.id} partially updated successfully!`,
             links: [
                 {
                     rel: 'self',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PATCH',
                 },
                 {
                     rel: 'get-by-id',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'GET',
                 },
                 {
@@ -273,35 +304,40 @@ const partialUpdateSupplier = async (req, res) => {
                 },
                 {
                     rel: 'update',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'PUT',
                 },
                 {
                     rel: 'delete',
-                    href: `/suppliers/${req.params.id}`,
+                    href: `/suppliers/${supplier.id}`,
                     method: 'DELETE',
                 },
             
             ],
         });
-    } catch (error) {
+    } catch (err) {
         // Handle any errors that occur during the database query
-        console.error("Error creating supplier:", error);
+        console.error("Error creating supplier:", err);
 
-        if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') {
+        // Handle specific Sequelize validation errors and join them into a single message
+        if (err instanceof db.Sequelize.ValidationError) {
             return res.status(400).json({
-                message: error.errors.map(err => err.message).join(', ')
+                message: err.errors.map(err => err.message).join(', ')
             });
         }
-
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+        // Handle unique constraint errors
+        if (err instanceof db.Sequelize.UniqueConstraintError) {
+            return res.status(400).json({
+                message: "Supplier already exists!",
+            });
+        }
+        // Handle other errors
+        next(err);
     }
 }
 
 // Delete a supplier
-const deleteSupplier = async (req, res) => {
+const deleteSupplier = async (req, res, next) => {
     // Find the supplier by ID
     const supplier = await Suppliers.findByPk(req.params.id);
 
@@ -318,12 +354,11 @@ const deleteSupplier = async (req, res) => {
         res.status(204).json({
             message: `Supplier with ID ${req.params.id} deleted successfully!`,
         });
-    } catch (error) {
+    } catch (err) {
         // Handle any errors that occur during the database query
-        console.error("Error deleting supplier:", error);
-        res.status(500).json({
-            message: "Internal server error!",
-        });
+        console.error("Error deleting supplier:", err);
+        
+        next(err);
     }
 }
 

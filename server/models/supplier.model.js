@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db.config.js'); // Import the sequelize instance
 
 module.exports = (sequelize) => {
-    const Suppliers = sequelize.define('Suppliers', {
+    const Supplier = sequelize.define('Supplier', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -41,7 +41,7 @@ module.exports = (sequelize) => {
         timestamps: false, // Disable createdAt and updatedAt fields
     });
     
-    return Suppliers;
+    return Supplier;
 }
 
 

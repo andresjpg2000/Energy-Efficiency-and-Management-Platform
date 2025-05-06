@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const suppliersController = require('../controllers/suppliers.controller.js');
+const auth = require('../middleware/auth.js'); // Trocar para o middleware de autenticação real
 
 // GET /suppliers - Get all suppliers
 router.get('/', suppliersController.getAllSuppliers);
