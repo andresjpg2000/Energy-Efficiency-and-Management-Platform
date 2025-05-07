@@ -109,7 +109,6 @@
     z-index: 9999 !important;
   }
   .main-container {
-    background-color: #E0E0E0;  /* Trocar por variavel */
     border-top-left-radius: 1rem;
     height: auto;
     min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));

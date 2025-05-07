@@ -4,6 +4,8 @@ const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 // const helmet = require('helmet'); security middleware
 // app.use(helmet());
+const cors = require('cors');
+
 
 // Testing connection
 (async () => {
@@ -16,6 +18,12 @@ const { ValidationError, UniqueConstraintError } = require('sequelize');
 })();
 
 const app = express();
+
+app.use(cors({
+    origin: '*', // Allow all origins (for development purposes only, restrict in production)
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 

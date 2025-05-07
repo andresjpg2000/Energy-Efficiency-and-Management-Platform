@@ -1,5 +1,5 @@
 <template>
-  <v-container class="mt-4">
+  <v-container class="mt-4 container">
     <v-row justify="space-between" align="center" class="mb-4">
       <h1 class="text-h5">User Management</h1>
       <v-btn color="primary" @click="openDialog = true">Add User</v-btn>
@@ -9,7 +9,7 @@
       :headers="headers"
       :items="users"
       item-value="id"
-      class="elevation-1"
+      class="elevation-1 p-0"
     >
       <template #item.actions="{ item }">
         <v-icon small class="me-2" @click="editUser(item)">mdi-pencil</v-icon>
@@ -96,3 +96,7 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+</style>
