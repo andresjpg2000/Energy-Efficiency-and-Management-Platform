@@ -8,12 +8,20 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            validators: {
+            validate: {
                 notEmpty: {
                     msg: "id must not be empty"
                 },
                 isInt: {
                     msg: "id must be an integer"
+                },
+                min: {
+                    args: [1],
+                    msg: "id must be greater than 0"
+                },
+                max: {
+                    args: [2147483647],
+                    msg: "id must be less than 2147483647"
                 }
             } 
         },

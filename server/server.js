@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./models/index.js'); 
+const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 // const helmet = require('helmet'); security middleware
 // app.use(helmet());
@@ -43,9 +44,20 @@ app.use((err, req, res, next) => {
     // console.error(err);
 
     // error thrown by express.json() middleware when the request body is not valid JSON
-    if (err.type === 'entity.parse.failed')
+    if (err.type === 'entity.parse.failed') 
         return res.status(400).json({ message: 'Invalid JSON payload! Check if your body data is a valid JSON.' });
 
+    if (err instanceof ValidationError || err instanceof UniqueConstraintError) {
+        return res.status(400).json({ 
+            error: 'Validation error',
+            details: err.errors.map(error => ({
+                field: error.path,
+                message: error.message
+            }))
+        });
+        
+    }
+ 
     res.status(err.statusCode || 500).json({ message: err.message || 'Internal Server Error' });
 });
 
