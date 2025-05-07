@@ -67,19 +67,32 @@ let addWidgets = async (req, res) => {
 }
 
 let deleteWidgets = async (req, res) => {
-    
-    const widget = await Widgets.findByPk(req.query.id_user && req.params.title);
-    
-    if (!widget) {
-        return res.status(404).json({
-            message: "Widget not found",
+    const { id_user } = req.query;// token verificar aqui
+    const { title } = req.params;
+
+    if (!id_user || !title) {
+        return res.status(400).json({
+            message: "Missing required parameters (id_user and title)"
         });
-    }
-    
+    }    
 
     try {
+
+        const widget = await Widgets.findOne({
+            where: {
+                id_user,
+                title
+            }
+        });
+
+        if (!widget) {
+            return res.status(404).json({
+                message: "Widget not found"
+            });
+        }
+
         await widget.destroy();
-        return res.status(204);
+        return res.status(204).send(); // No content response
     } catch (error) {
         return res.status(500).json({
             message: "Error deleting widget",
