@@ -1,12 +1,12 @@
 // Import the suppliers model
-const { Suppliers } = require('../models/index.js'); 
+const { Supplier } = require('../models/index.js'); 
 const { ValidationError, UniqueConstraintError } = require('sequelize'); 
 
 // Get all suppliers
 const getAllSuppliers = async (req, res, next) => {
     try {
         // Fetch all suppliers from the database
-        const suppliers = await Suppliers.findAll();
+        const suppliers = await Supplier.findAll();
         // Check if suppliers were found
         if (suppliers.length === 0) {
             return res.status(404).json({
@@ -60,7 +60,7 @@ const getAllSuppliers = async (req, res, next) => {
 const getSupplierById = async (req, res, next) => {
     try {
         // Find the supplier by ID
-        const supplier = await Suppliers.findByPk(req.params.id);
+        const supplier = await Supplier.findByPk(req.params.id);
         if (!supplier) {
             return res.status(404).json({
                 message: `Supplier with ID ${req.params.id} not found!`,
@@ -120,7 +120,7 @@ const createSupplier = async (req, res, next) => {
 
     try {
         // Add the new supplier to the database
-        const createdSupplier = await Suppliers.create(newSupplier);
+        const createdSupplier = await Supplier.create(newSupplier);
         // Send a response with the created supplier
         res.status(201).json({
             data: createdSupplier,
@@ -183,7 +183,7 @@ const createSupplier = async (req, res, next) => {
 // Put update a supplier
 const updateSupplier = async (req, res, next) => {
     // Find the supplier by ID
-    const supplier = await Suppliers.findByPk(req.params.id);
+    const supplier = await Supplier.findByPk(req.params.id);
     if (!supplier) {
         return res.status(404).json({
             message: `Supplier with ID ${req.params.id} not found!`,
@@ -259,7 +259,7 @@ const updateSupplier = async (req, res, next) => {
 // Partially update a supplier
 const partialUpdateSupplier = async (req, res, next) => {
     // Find the supplier by ID
-    const supplier = await Suppliers.findByPk(req.params.id);
+    const supplier = await Supplier.findByPk(req.params.id);
     if (!supplier) {
         return res.status(404).json({
             message: `Supplier with ID ${req.params.id} not found!`,
@@ -339,7 +339,7 @@ const partialUpdateSupplier = async (req, res, next) => {
 // Delete a supplier
 const deleteSupplier = async (req, res, next) => {
     // Find the supplier by ID
-    const supplier = await Suppliers.findByPk(req.params.id);
+    const supplier = await Supplier.findByPk(req.params.id);
 
     if (!supplier) {
         return res.status(404).json({

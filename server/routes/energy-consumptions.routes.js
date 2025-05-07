@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const consumptionsController = require('../controllers/energy-consumptions.controller.js');
-const auth = require('../middleware/auth.js'); // Trocar para o middleware de autenticação real
+
+const auth = require('../middleware/auth.js');
+const validateIdParam = require('../middleware/validateIdParam.js');
 
 // Get all energy consumptions
 router.get('/', consumptionsController.getAllEnergyConsumptions);
@@ -10,6 +12,6 @@ router.get('/', consumptionsController.getAllEnergyConsumptions);
 router.post('/', consumptionsController.addEnergyConsumption);
 
 // Delete an energy consumption by ID
-router.delete('/:id', consumptionsController.deleteEnergyConsumption);
+router.delete('/:id', validateIdParam("id"), consumptionsController.deleteEnergyConsumption);
 
 module.exports = router;

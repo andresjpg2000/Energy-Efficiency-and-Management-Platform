@@ -3,6 +3,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../db.config.js'); // Import the sequelize instance
 
 const db = {};
+
 db.sequelize = sequelize; // Sequelize instance  for database connection, queries, etc...
 
 // Import models

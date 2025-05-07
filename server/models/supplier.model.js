@@ -1,5 +1,5 @@
 // This file defines the Supplier model for the database using Sequelize ORM.
-const { DataTypes } = require('sequelize');
+const { DataTypes, INTEGER } = require('sequelize');
 const sequelize = require('../db.config.js'); // Import the sequelize instance
 
 module.exports = (sequelize) => {
@@ -8,6 +8,14 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+            validators: {
+                notEmpty: {
+                    msg: "id must not be empty"
+                },
+                isInt: {
+                    msg: "id must be an integer"
+                }
+            } 
         },
         enterprise: {
             type: DataTypes.STRING,

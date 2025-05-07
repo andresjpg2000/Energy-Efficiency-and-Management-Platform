@@ -1,6 +1,9 @@
 const express = require('express');
 const db = require('./models/index.js'); 
 
+// const helmet = require('helmet'); security middleware
+// app.use(helmet());
+
 // Testing connection
 (async () => {
     try {
@@ -29,6 +32,12 @@ app.use('/housings', require('./routes/housings.routes.js'));
 // app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
 
 // error middleware (always at the end of the file)
+app.use((req, res, next) => {
+    const err = new Error('Not Found');
+    err.statusCode = 404;
+    next(err);
+});
+
 app.use((err, req, res, next) => {
     // !Uncomment this line to log the error details to the server console!
     // console.error(err);
