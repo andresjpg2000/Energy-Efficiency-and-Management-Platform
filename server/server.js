@@ -33,8 +33,8 @@ app.use('/users', require('./routes/users.routes.js'));
 app.use('/energy-returns', require('./routes/energy-returns.routes.js'));
 // use route middleware for /suppliers requests
 app.use('/suppliers', require('./routes/suppliers.routes.js'));
-// use route middleware for /wigets requests
-app.use('/wigets', require('./routes/wigets.routes.js'));
+// use route middleware for /widgets requests
+app.use('/widgets', require('./routes/wigets.routes.js'));
 // use route middleware for /housings requests
 app.use('/housings', require('./routes/housings.routes.js'));
 // use route middleware for /energy-consumptions requests
