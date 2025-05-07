@@ -11,6 +11,8 @@ db.Supplier = require('./supplier.model.js')(sequelize);
 db.Housing = require('./housing.model.js')(sequelize);
 db.widgets = require('./widgets.model.js')(sequelize);
 db.EnergyConsumption = require('./energy-consumption.model.js')(sequelize);
+db.GivenEnergies = require('./given-energies.model.js')(sequelize);
+db.EnergyEquipments = require('./given-energies.model.js')(sequelize);
 
 // Define associations between models
 db.Housing.hasMany(db.EnergyConsumption, {

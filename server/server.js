@@ -30,7 +30,7 @@ app.use(express.json());
 // use route middleware for /users requests
 app.use('/users', require('./routes/users.routes.js'));
 // use route middleware for /energy-returns requests
-app.use('/energy-returns', require('./routes/energy-returns.routes.js'));
+app.use('/given-energies', require('./routes/given-energies.routes.js'));
 // use route middleware for /suppliers requests
 app.use('/suppliers', require('./routes/suppliers.routes.js'));
 // use route middleware for /widgets requests
