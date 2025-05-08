@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('./models/index.js'); 
+const db = require('./models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 // const helmet = require('helmet'); security middleware
@@ -34,13 +34,22 @@ app.use('/given-energies', require('./routes/given-energies.routes.js'));
 // use route middleware for /suppliers requests
 app.use('/suppliers', require('./routes/suppliers.routes.js'));
 // use route middleware for /widgets requests
+<<<<<<< HEAD
 app.use('/widgets', require('./routes/wigets.routes.js'));
+=======
+app.use('/widgets', require('./routes/widgets.routes.js'));
+>>>>>>> 3e2d598 (Implement energy equipment and user management features: add models, controllers, and routes for energy equipment; refactor user routes and controllers for improved functionality.)
 // use route middleware for /housings requests
 app.use('/housings', require('./routes/housings.routes.js'));
 // use route middleware for /energy-consumptions requests
 // app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
+<<<<<<< HEAD
 // use route middleware for /energy-consumptions requests
 app.use('/energy-productions', require('./routes/energy-productions.routes.js'));
+=======
+app.use('/energy-equipments', require('./routes/energy-equipments.routes.js'));
+
+>>>>>>> 3e2d598 (Implement energy equipment and user management features: add models, controllers, and routes for energy equipment; refactor user routes and controllers for improved functionality.)
 
 // error middleware (always at the end of the file)
 app.use((req, res, next) => {
@@ -54,20 +63,20 @@ app.use((err, req, res, next) => {
     // console.error(err);
 
     // error thrown by express.json() middleware when the request body is not valid JSON
-    if (err.type === 'entity.parse.failed') 
+    if (err.type === 'entity.parse.failed')
         return res.status(400).json({ message: 'Invalid JSON payload! Check if your body data is a valid JSON.' });
 
     if (err instanceof ValidationError || err instanceof UniqueConstraintError) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             error: 'Validation error',
             details: err.errors.map(error => ({
                 field: error.path,
                 message: error.message
             }))
         });
-        
+
     }
- 
+
     res.status(err.statusCode || 500).json({ message: err.message || 'Internal Server Error' });
 });
 
