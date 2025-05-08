@@ -1,5 +1,6 @@
 const db = require("../models/index.js");
 const User = db.User;
+const bcrypt = require("bcryptjs"); // Para encriptar passwords
 
 // Obter todos os utilizadores
 async function getAllUsers(req, res, next) {
@@ -36,10 +37,12 @@ async function createUser(req, res, next) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
+
     const newUser = await User.create({
       email,
       name,
-      password,
+      password: hashedPassword,
       admin: admin || 0,
     });
     res
@@ -61,7 +64,9 @@ async function updateUser(req, res, next) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    await user.update({ email, name, password, admin });
+    const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
+
+    await user.update({ email, name, password: hashedPassword, admin });
     res.status(204).send();
   } catch (error) {
     next(error);

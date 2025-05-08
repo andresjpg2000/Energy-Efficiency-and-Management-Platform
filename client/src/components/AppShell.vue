@@ -54,7 +54,7 @@
           <v-menu activator="parent">
             <v-list density="compact" nav>
               <v-list-item v-if="showSettings" append-icon="mdi-cog-outline" link title="Settings" :to="{ path: '/settings' }" router/>
-              <v-list-item append-icon="mdi-logout" link title="Logout" />
+              <v-list-item @click="logout()" append-icon="mdi-logout" link title="Logout" />
             </v-list>
           </v-menu>
         </v-btn>
@@ -73,6 +73,8 @@
 </template>
 
 <script >
+import { useUsersStore } from '@/stores/usersStore';
+
   export default {
     name: 'AppShell',
     props: {
@@ -94,7 +96,15 @@
       };
     },
     methods: {
-      
+      logout () {
+        const usersStore = useUsersStore();
+        usersStore.logout();
+        
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 100);
+        
+      },
     },
     mounted () {
       

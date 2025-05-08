@@ -19,9 +19,9 @@ const router = createRouter({
         { path: 'Resource-Allocation', name: 'Resource Allocation', component: () => import('../views/Dashboard/Resource-AllocationView.vue') }, // corrigido
         { path: 'Alerts-Notifications', name: 'Alerts & Notifications', component: () => import('../views/Dashboard/Alerts-NotificationsView.vue') },
       ],
-      // meta: {
-      //   requiresAuth: true,
-      // },
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/about',
@@ -50,9 +50,9 @@ const router = createRouter({
         { path: 'security-settings', name: 'security-settings', component: () => import('../views/ProfileSettings/SecuritySettingsView.vue') },
         { path: 'theme-accessibility', name: 'theme-accessibility', component: () => import('../views/ProfileSettings/ThemeAccessibilityView.vue') },
       ],
-      // meta: {
-      //   requiresAuth: true,
-      // },
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/admin',
@@ -66,9 +66,9 @@ const router = createRouter({
         { path: 'account-settings', name: 'adminAccountSettings', component: () => import('../views/AdminSettings/AdminAccountSettingsView.vue') },
         { path: 'analytics', name: 'analytics', component: () => import('../views/AdminSettings/AnalyticsView.vue') },
       ],
-      // meta: {
-      //   requiresAuth: true,
-      // },
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -84,7 +84,7 @@ router.beforeEach((to, from, next) => {
     const defaultTitle = 'AMA ';
     document.title = to.meta.title || defaultTitle;
 
-  const isAuthenticated = localStorage.getItem('token') !== null
+  const isAuthenticated = sessionStorage.getItem('token') !== null
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next({ name: 'login' })
   } else {

@@ -1,11 +1,13 @@
 <script>
+import { useUsersStore } from '@/stores/usersStore';
+
 export default {
     name: 'AuthLogin',
     data() {
       return {
         checkbox: false,
-        password: 'admin123',
-        username: "info@teste.com",
+        password: 'passteste',
+        username: "teste@email.com",
         show1: false,
         isSubmitting: false,
         emailRules: [
@@ -19,19 +21,45 @@ export default {
         passwordRules: [
           (v) => !!v || 'Password is required',
           (v) => v === v.trim() || 'Password cannot start or end with spaces',
-          (v) => v.length <= 10 || 'Password must be less than 10 characters'
+          (v) => v.length <= 100 || 'Password must be equal or less than 100 characters'
         ],
       };
     },
     methods: {
       // Define your methods here
-      validate() {
+      async validate() {
         this.isSubmitting = true;
-        setTimeout(() => {
+        // this.$refs.form.validate(); // Validate the form
+        try {
+          
+          const response = await fetch('http://localhost:3000/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: this.username,
+                password: this.password,
+              }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Error processing login');
+          }
+
+          const data = await response.json();
+          console.log(data);
+          
+          const usersStore = useUsersStore();
+          usersStore.login(data);
+
+          this.$router.push('/');
+
+        } catch (error) {
+          console.log(error);
+        } finally {
           this.isSubmitting = false;
-          this.$router.push('/dashboard');
-        }, 2000);
-      },
+        }
       
     },
     mounted() {
@@ -39,6 +67,7 @@ export default {
     },
     
   }
+}
 </script>
 
 <template>
@@ -46,7 +75,7 @@ export default {
     <h3 class="text-h3 text-center mb-0">Login</h3>
     <router-link to="/register" class="text-primary text-decoration-none">Don't Have an account?</router-link>
   </div>
-  <v-form @submit="validate" class="mt-7 loginForm bg-transparent" @keydown.enter.prevent >
+  <v-form @submit.prevent="validate" class="mt-7 loginForm bg-transparent" @keydown.enter.prevent >
     <div class="mb-6">
       <v-label>Email Address</v-label>
       <v-text-field
@@ -58,6 +87,7 @@ export default {
         hide-details="auto"
         variant="outlined"
         color="primary"
+        auto-complete="email"
       ></v-text-field>
     </div>
     <div>
@@ -72,6 +102,7 @@ export default {
         hide-details="auto"
         :type="show1 ? 'text' : 'password'"
         class="mt-2"
+        auto-complete="current-password"
       >   
       <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
