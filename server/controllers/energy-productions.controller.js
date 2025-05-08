@@ -1,5 +1,5 @@
 // Import the users data model
-const { EnergyProductions, EnergyEquipments } = require('../models/index.js'); 
+const { EnergyProductions, EnergyEquipments } = require('../models/index.js');
 
 
 // get all energy returns
@@ -16,7 +16,7 @@ let getAllEnergyProductions = async (req, res) => {
   let houseId = parseInt(req.query.houseId);
   let limit;
   let equipaments = [];
-  
+
   // check if houseId is a number and positive
   if (isNaN(houseId)) {
     return res.status(400).json({
@@ -59,10 +59,10 @@ let getAllEnergyProductions = async (req, res) => {
       message: "Error retrieving energy returns",
       error: error.message,
     });
-    
+
   }
-  
-  
+
+
   // check if start and end dates are provided in the query parameters
   // if they are, check if they are valid dates
   let start = req.query.start ? new Date(req.query.start) : new Date(0);
@@ -97,7 +97,7 @@ let getAllEnergyProductions = async (req, res) => {
     //query the database for the energy returns
     filterEnergy = await EnergyProductions.findAll({
       where: {
-        id_equipament: {
+        id_equipment: {
           [Op.in]: equipaments
         },
         date: {
@@ -160,7 +160,7 @@ let addEnergyProduction = async (req, res) => {
 
   let newEnergyReturn = {
     value,
-    id_equipament: equipamentId,
+    id_equipment: equipamentId,
     date: finalDate,
   };
   try{
@@ -176,7 +176,7 @@ let addEnergyProduction = async (req, res) => {
       error: err.message,
     });
   }
-  
+
 }
 
 
