@@ -29,27 +29,22 @@ app.use(express.json());
 
 // use route middleware for /users requests
 app.use('/users', require('./routes/users.routes.js'));
-// use route middleware for /energy-returns requests
+// use route middleware for /given-energies requests
 app.use('/given-energies', require('./routes/given-energies.routes.js'));
 // use route middleware for /suppliers requests
 app.use('/suppliers', require('./routes/suppliers.routes.js'));
 // use route middleware for /widgets requests
-<<<<<<< HEAD
-app.use('/widgets', require('./routes/wigets.routes.js'));
-=======
 app.use('/widgets', require('./routes/widgets.routes.js'));
->>>>>>> 3e2d598 (Implement energy equipment and user management features: add models, controllers, and routes for energy equipment; refactor user routes and controllers for improved functionality.)
 // use route middleware for /housings requests
 app.use('/housings', require('./routes/housings.routes.js'));
 // use route middleware for /energy-consumptions requests
 // app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
-<<<<<<< HEAD
-// use route middleware for /energy-consumptions requests
-app.use('/energy-productions', require('./routes/energy-productions.routes.js'));
-=======
+// use route middleware for /energy-equipments requests
 app.use('/energy-equipments', require('./routes/energy-equipments.routes.js'));
+// use route middleware for /energy-productions requests
+app.use('/energy-productions', require('./routes/energy-productions.routes.js'));
 
->>>>>>> 3e2d598 (Implement energy equipment and user management features: add models, controllers, and routes for energy equipment; refactor user routes and controllers for improved functionality.)
+
 
 // error middleware (always at the end of the file)
 app.use((req, res, next) => {

@@ -26,17 +26,17 @@ This project, titled AMA, is an Energy Efficiency and Management Platform develo
 │   ├── energy-returns.controller.js
 │   ├── suppliers.controller.js
 │   ├── users.controller.js
-│   └── wigets.controller.js
+│   └── widgets.controller.js
 ├── models/
 │   ├── energy-returns.model.js
 │   ├── suppliers.model.js
 │   ├── users.model.js
-│   └── wigets.model.js
+│   └── widgets.model.js
 └── routes/
 ├── energy-returns.routes.js
 ├── suppliers.routes.js
 ├── users.routes.js
-└── wigets.routes.js
+└── widgets.routes.js
 
 ## Client Setup
 

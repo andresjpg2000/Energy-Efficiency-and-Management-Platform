@@ -9,7 +9,7 @@ db.sequelize = sequelize; // Sequelize instance  for database connection, querie
 // Import models
 db.Supplier = require('./supplier.model.js')(sequelize);
 db.Housing = require('./housing.model.js')(sequelize);
-db.widgets = require('./wigets.model.js')(sequelize);
+db.widgets = require('./widgets.model.js')(sequelize);
 db.EnergyConsumption = require('./energy-consumption.model.js')(sequelize);
 <<<<<<< HEAD
 db.EnergyProductions = require('./energy-productions.model.js')(sequelize);
