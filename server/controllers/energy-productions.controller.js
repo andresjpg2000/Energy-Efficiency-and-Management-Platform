@@ -1,10 +1,9 @@
 // Import the users data model
-const { now } = require('sequelize/lib/utils');
-const { GivenEnergies, EnergyEquipments } = require('../models/index.js'); 
+const { EnergyProductions, EnergyEquipments } = require('../models/index.js'); 
 
 
 // get all energy returns
-let getgivenEnergies = async (req, res) => {
+let getAllEnergyProductions = async (req, res) => {
   // check if houseId is provided in the query parameters
   if (!req.query.houseId) {
     return res.status(400).json({
@@ -12,6 +11,7 @@ let getgivenEnergies = async (req, res) => {
     });
   }
   // vars
+  let filterEnergy;
   let userId = parseInt(req.query.userId); // TOKEN VERIFICAR AQUI
   let houseId = parseInt(req.query.houseId);
   let limit;
@@ -59,7 +59,9 @@ let getgivenEnergies = async (req, res) => {
       message: "Error retrieving energy returns",
       error: error.message,
     });
+    
   }
+  
   
   // check if start and end dates are provided in the query parameters
   // if they are, check if they are valid dates
@@ -93,7 +95,7 @@ let getgivenEnergies = async (req, res) => {
   }
   try {
     //query the database for the energy returns
-    let filterEnergy = await GivenEnergies.findAll({
+    filterEnergy = await EnergyProductions.findAll({
       where: {
         id_equipament: {
           [Op.in]: equipaments
@@ -127,12 +129,12 @@ let getgivenEnergies = async (req, res) => {
   }
 }
 
-let addgivenEnergies = async (req, res) => {
+let addEnergyProduction = async (req, res) => {
   const { equipamentId, date, value } = req.body;
 
-  if (!equipamentId || !value) {
+  if (!equipamentId || !date || !value) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value are required",
+      message: "House ID, Equipament ID, Date and Value are required",
     });
   }
 
@@ -142,7 +144,7 @@ let addgivenEnergies = async (req, res) => {
     });
   }
 
-  if ( equipamentId < 0 || value < 0) {
+  if (equipamentId < 0 || value < 0) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value must be positive numbers",
     });
@@ -162,7 +164,7 @@ let addgivenEnergies = async (req, res) => {
     date: finalDate,
   };
   try{
-    const createdEnergyReturn = await GivenEnergies.create(newEnergyReturn);
+    const createdEnergyReturn = await EnergyProductions.create(newEnergyReturn);
 
     res.status(201).json({
       message: "Energy return created",
@@ -179,6 +181,7 @@ let addgivenEnergies = async (req, res) => {
 
 
 module.exports = {
-  getgivenEnergies,
-  addgivenEnergies
+    getAllEnergyProductions,
+    addEnergyProduction,
+    //deleteEnergyConsumption,
 };

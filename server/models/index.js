@@ -11,6 +11,7 @@ db.Supplier = require('./supplier.model.js')(sequelize);
 db.Housing = require('./housing.model.js')(sequelize);
 db.widgets = require('./widgets.model.js')(sequelize);
 db.EnergyConsumption = require('./energy-consumption.model.js')(sequelize);
+db.EnergyProductions = require('./energy-productions.model.js')(sequelize);
 db.GivenEnergies = require('./given-energies.model.js')(sequelize);
 db.EnergyEquipments = require('./given-energies.model.js')(sequelize);
 
@@ -23,5 +24,17 @@ db.Housing.hasMany(db.EnergyConsumption, {
 db.EnergyConsumption.belongsTo(db.Housing, {
     foreignKey: 'id_housing'
 });
+
+db.EnergyEquipments.hasMany(db.GivenEnergies, {
+    foreignKey: 'id_equipament',
+    sourceKey: 'id',
+    onDelete: 'CASCADE', // Delete all given energies when an equipament is deleted
+});
+db.GivenEnergies.belongsTo(db.EnergyEquipments, {
+    foreignKey: 'id_equipament',
+    targetKey: 'id'
+});
+
+
 
 module.exports = db; // Export the db object containing all models and sequelize instance
