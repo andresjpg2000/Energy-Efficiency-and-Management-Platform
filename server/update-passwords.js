@@ -13,7 +13,7 @@ async function updateExistingUsers() {
     const users = await User.findAll();
     for (const user of users) {
 
-      if (user.password.startsWith("$2a$")) {
+      if (user.password.startsWith("$2b$")) {
         // Skip if already hashed
         continue;
       }
