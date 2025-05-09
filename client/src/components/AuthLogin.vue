@@ -1,5 +1,6 @@
 <script>
 import { useUsersStore } from '@/stores/usersStore';
+import { useMessagesStore } from '@/stores/messages.js';
 
 export default {
     name: 'AuthLogin',
@@ -29,6 +30,7 @@ export default {
       // Define your methods here
       async validate() {
         this.isSubmitting = true;
+        const messagesStore = useMessagesStore();
         // this.$refs.form.validate(); // Validate the form
         try {
           
@@ -43,12 +45,24 @@ export default {
               }),
           });
 
+          const data = await response.json();
+
           if (!response.ok) {
-            throw new Error('Error processing login');
+            messagesStore.add({
+              text: data.message || 'Error processing login',
+              color: 'error',
+              timeout: 3000,
+            });
+
+            throw new Error(data.message || 'Error processing login');
           }
 
-          const data = await response.json();
-          
+          messagesStore.add({
+              text: data.message || 'Login successful',
+              color: 'success',
+              timeout: 3000,
+            });
+
           const usersStore = useUsersStore();
           usersStore.login(data);
 

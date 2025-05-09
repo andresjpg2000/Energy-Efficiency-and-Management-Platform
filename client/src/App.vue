@@ -1,9 +1,14 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { useMessagesStore } from '@/stores/messages.js'
+
+const messagesStore = useMessagesStore()
 </script>
 
 <template>
   <RouterView />
+
+  <v-snackbar-queue v-model="messagesStore.queue"></v-snackbar-queue>
 
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
 </template>

@@ -1,4 +1,6 @@
 <script>
+import { useMessagesStore } from '@/stores/messages.js';
+
 export default {
   name: 'HomeView',
     data() {
@@ -31,6 +33,7 @@ export default {
     methods: {
       async validate() {
         this.isSubmitting = true;
+        const messagesStore = useMessagesStore();
         
         try {
           
@@ -47,8 +50,20 @@ export default {
           });
 
           if (!response.ok) {
+            messagesStore.add({
+              text: data.message || 'Error processing registration',
+              color: 'error',
+              timeout: 3000,
+            });
+
             throw new Error('Error processing registration');
           }
+
+          messagesStore.add({
+              text: 'Registration successful, please login',
+              color: 'success',
+              timeout: 3000,
+            });
 
           setTimeout(() => {
             this.$router.push('/login');

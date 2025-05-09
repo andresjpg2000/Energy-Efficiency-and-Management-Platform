@@ -2,15 +2,19 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { User } = require('../models/index.js');
 
-async function login(req, res) {
+async function login(req, res, next) {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
 
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the password with the hashed password in the database
 
-    if (!user || !isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password' });
     }
 
     const token = jwt.sign(
@@ -32,7 +36,7 @@ async function login(req, res) {
     });
 
   } catch (error) {
-    nextId(error);
+    next(error);
   }
 }
 
