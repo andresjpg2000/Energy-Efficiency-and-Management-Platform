@@ -1,6 +1,7 @@
 // Import the users data model
 const { now } = require('sequelize/lib/utils');
-const { GivenEnergies, EnergyEquipments } = require('../models/index.js');
+const { GivenEnergies, EnergyEquipment } = require('../models/index.js');
+const { Op } = require('sequelize');
 
 
 // get all energy returns
@@ -12,10 +13,11 @@ let getgivenEnergies = async (req, res) => {
     });
   }
   // vars
+  let filterEnergy;
   let userId = parseInt(req.query.userId); // TOKEN VERIFICAR AQUI
   let houseId = parseInt(req.query.houseId);
   let limit;
-  let equipaments = [];
+  let equipments = [];
 
   // check if houseId is a number and positive
   if (isNaN(houseId)) {
@@ -29,29 +31,29 @@ let getgivenEnergies = async (req, res) => {
     });
   }
 
-  // check if equipamentId is provided in the query parameters
+  // check if equipmentId is provided in the query parameters
   // if it is, check if it is a number and positive
   try {
-    if (req.query.equipamentId) {
-        if (isNaN(parseInt(req.query.equipamentId))) {
+    if (req.query.equipmentId) {
+        if (isNaN(parseInt(req.query.equipmentId))) {
           return res.status(400).json({
             message: "Equipament ID must be a number",
           });
         }
-        if (parseInt(req.query.equipamentId) < 0) {
+        if (parseInt(req.query.equipmentId) < 0) {
           return res.status(400).json({
             message: "Equipament ID must be a positive number",
           });
         }
-        equipaments.push(parseInt(req.query.equipamentId));
+        equipments.push(parseInt(req.query.equipmentId));
       } else {
-        let equips = await EnergyEquipments.findAll({
+        let equips = await EnergyEquipment.findAll({
           where: {
-            id_house: houseId
+            housing: houseId
           }
         });
         equips.forEach(eq => {
-          equipaments.push(parseInt(eq.id));
+          equipments.push(parseInt(eq.id_equipment));
         });
       }
   } catch (error) {
@@ -93,10 +95,10 @@ let getgivenEnergies = async (req, res) => {
   }
   try {
     //query the database for the energy returns
-    let filterEnergy = await GivenEnergies.findAll({
+    filterEnergy = await GivenEnergies.findAll({
       where: {
         id_equipment: {
-          [Op.in]: equipaments
+          [Op.in]: equipments
         },
         date: {
           [Op.and]: [
@@ -128,21 +130,21 @@ let getgivenEnergies = async (req, res) => {
 }
 
 let addgivenEnergies = async (req, res) => {
-  const { equipamentId, date, value } = req.body;
+  const { id_equipment, date, value } = req.body;
 
-  if (!equipamentId || !value) {
+  if (!id_equipment || !value) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value are required",
     });
   }
 
-  if (isNaN(equipamentId) || isNaN(value)) {
+  if (isNaN(id_equipment) || isNaN(value)) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value must be numbers",
     });
   }
 
-  if ( equipamentId < 0 || value < 0) {
+  if ( id_equipment < 0 || value < 0) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value must be positive numbers",
     });
@@ -158,7 +160,7 @@ let addgivenEnergies = async (req, res) => {
 
   let newEnergyReturn = {
     value,
-    id_equipment: equipamentId,
+    id_equipment,
     date: finalDate,
   };
   try{

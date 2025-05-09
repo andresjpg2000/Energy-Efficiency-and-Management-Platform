@@ -77,7 +77,6 @@ let deleteWidgets = async (req, res) => {
     }    
 
     try {
-
         const widget = await Widgets.findOne({
             where: {
                 id_user,
