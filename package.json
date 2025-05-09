@@ -1,0 +1,24 @@
+{
+  "name": "energy-efficiency-and-management-platform",
+  "version": "1.0.0",
+  "description": "This project, titled AMA, is an Energy Efficiency and Management Platform developed for the Project 2 course at ESMAD. It aims to provide users with tools to monitor and manage their energy consumption, promote energy efficiency, and offer insights into energy usage patterns. The platform consists of a client-side application built with Vue.js and a server-side application using Node.js and Express, with data storage managed.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andresjpg2000/Energy-Efficiency-and-Management-Platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andresjpg2000/Energy-Efficiency-and-Management-Platform/issues"
+  },
+  "homepage": "https://github.com/andresjpg2000/Energy-Efficiency-and-Management-Platform#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

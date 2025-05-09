@@ -29,12 +29,37 @@ export default {
       };
     },
     methods: {
-      validate() {
+      async validate() {
         this.isSubmitting = true;
-        setTimeout(() => {
+        
+        try {
+          
+          const response = await fetch('http://localhost:3000/users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: this.email,
+              name: this.firstname + ' ' + this.lastname,
+              password: this.password
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Error processing registration');
+          }
+
+          setTimeout(() => {
+            this.$router.push('/login');
+          }, 100);
+
+        } catch (error) {
+          console.log(error);
+        } finally {
           this.isSubmitting = false;
-          this.$router.push('/dashboard');
-        }, 2000);
+        }
+      
       },
     },
 };

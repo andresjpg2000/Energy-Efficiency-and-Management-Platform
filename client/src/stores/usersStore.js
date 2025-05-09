@@ -19,9 +19,6 @@ export const useUsersStore = defineStore('user', {
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('user', JSON.stringify(data.user));
     },
-    create(data) {
-
-    },
     logout() {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
