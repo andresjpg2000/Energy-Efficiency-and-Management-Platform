@@ -12,6 +12,6 @@ router.get('/', energyProductions.getAllEnergyProductions);
 router.post('/', energyProductions.addEnergyProduction);
 
 // Delete an energy consumption by ID
-//router.delete('/:id', validateIdParam("id"), energyProductions.deleteEnergyConsumption);
+router.delete('/:id', validateIdParam("id"), energyProductions.deleteEnergyProduction);
 
 module.exports = router;
