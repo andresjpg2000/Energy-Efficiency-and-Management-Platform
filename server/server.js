@@ -46,6 +46,8 @@ app.use('/housings', require('./routes/housings.routes.js'));
 app.use('/energy-equipments', require('./routes/energy-equipments.routes.js'));
 // use route middleware for /energy-productions requests
 app.use('/energy-productions', require('./routes/energy-productions.routes.js'));
+// use route middleware for /notifications requests
+app.use('/notifications', require('./routes/notifications.routes.js'));
 
 
 
