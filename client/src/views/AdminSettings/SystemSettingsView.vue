@@ -40,8 +40,10 @@
 </template>
 
 <script>
-export default {
+import { useMessagesStore } from '@/stores/messages.js';
+import { useSuppliersStore } from '@/stores/suppliers.js';
 
+export default {
   data() {
     return {
       headers: [
@@ -50,15 +52,20 @@ export default {
         { title: 'cost_kWh', key: 'cost_kWh' },
         { title: 'Actions', key: 'actions', sortable: false },
       ],
-      // Trocar quando o backend estiver pronto
-      Suppliers: [],
       openDialog: false,
       editingSupplier: null,
       form: {
         enterprise: "",
         cost_kWh: "",
       },
+      messagesStore: null,
+      suppliersStore: null,
     };
+  },
+  computed: {
+    Suppliers() {
+      return this.suppliersStore.suppliers;
+    },
   },
   methods: {
     editSupplier(Supplier) {
@@ -67,21 +74,51 @@ export default {
       this.form.cost_kWh = Supplier.cost_kWh;
       this.openDialog = true;
     },
-    deleteSupplier(Supplier) {
-      this.Suppliers = this.Suppliers.filter(u => u.id !== Supplier.id);
+    async deleteSupplier(Supplier) {
+      try {
+          await this.suppliersStore.deleteSupplier(Supplier.id);
+          this.messagesStore.add({
+            color: 'success',
+            text: 'Supplier deleted successfully!',
+          });
+
+        } catch (error) {
+          this.messagesStore.add({
+              color: 'error',
+              text: error.message || 'Error editing supplier',
+          });
+        }
     },
-    saveSupplier() {
-      if (this.editingSupplier) {
-        this.editingSupplier.enterprise = this.form.enterprise;
-        this.editingSupplier.cost_kWh = this.form.cost_kWh;
-      } else {
-        const newSupplier = {
-          enterprise: this.form.enterprise,
-          cost_kWh: this.form.cost_kWh,
-        };
-        this.Suppliers.push(newSupplier);
+    async saveSupplier() {
+      try {
+        if (this.editingSupplier) {
+          await this.suppliersStore.updateSupplier({
+            id: this.editingSupplier.id,
+            enterprise: this.form.enterprise,
+            cost_kWh: this.form.cost_kWh,
+          });
+          this.messagesStore.add({
+            color: 'success',
+            text: 'Supplier updated successfully!',
+          });
+        } else {
+          await this.suppliersStore.addSupplier({
+            enterprise: this.form.enterprise,
+            cost_kWh: this.form.cost_kWh,
+          });
+          this.messagesStore.add({
+            color: 'success',
+            text: 'Supplier added successfully!',
+          });
+        }
+      } catch (error) {
+        this.messagesStore.add({
+          color: 'error',
+          text: error.message || 'Error saving supplier',
+        });
+      } finally {
+        this.closeDialog();
       }
-      this.closeDialog();
     },
     closeDialog() {
       this.openDialog = false;
@@ -89,21 +126,14 @@ export default {
       this.form.enterprise = '';
       this.form.cost_kWh = '';
     },
-    async fetchSuppliers() {
-      try {
-        const response = await fetch('http://localhost:3000/suppliers');
-        if (!response.ok) {
-          throw new Error('Failed to fetch suppliers');
-        }
-        const data = await response.json();
-        this.Suppliers = data.data;
-      } catch (error) {
-        console.error('Error fetching suppliers:', error);
-      }
-    },
   },
   mounted() {
-    this.fetchSuppliers();
+    
+  },
+  async created() {
+    this.messagesStore = useMessagesStore();
+    this.suppliersStore = useSuppliersStore();
+    await this.suppliersStore.fetchSuppliers();
   },
 };
 </script>

@@ -68,6 +68,7 @@ const router = createRouter({
       ],
       meta: {
         requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {
@@ -75,21 +76,44 @@ const router = createRouter({
       name: 'NotFound',
       component: () => import('../views/NotFoundView.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'Forbidden',
+      component: () => import('../views/ForbiddenView.vue'),
+    },
   ],
 })
 
+// Check if the user is an admin trough the token
+const getRoleFromToken = () => {
+  const token = sessionStorage.getItem('token')
+  if (token) {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.admin
+  }
+  return null
+}
+
 router.beforeEach((to, from, next) => {
   
-    //Actualiza o title
-    const defaultTitle = 'AMA ';
-    document.title = to.meta.title || defaultTitle;
+  //Actualiza o title
+  const defaultTitle = 'AMA ';
+  document.title = to.meta.title || defaultTitle;
 
-  const isAuthenticated = sessionStorage.getItem('token') !== null
+  const token = sessionStorage.getItem('token')
+  const isAuthenticated = !!token;
+  const isAdmin = token ?  getRoleFromToken(token) : null;
+
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next({ name: 'login' })
-  } else {
-    next()
+  } 
+  
+  if (to.matched.some(record => record.meta.requiresAdmin) && !isAdmin) {
+    next({ name: 'Forbidden' })
   }
+  
+  next()
+  
 });
 
 export default router

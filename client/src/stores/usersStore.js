@@ -2,26 +2,53 @@ import { defineStore } from 'pinia'
 
 export const useUsersStore = defineStore('user', {
   state: () => ({
-    user: JSON.parse(sessionStorage.getItem('user')) || null,
     token: sessionStorage.getItem('token') || null,
   }),
   getters: {
     isLoggedIn: (state) => !!state.token,
-    getUser: (state) => state.user,
     getToken: (state) => state.token,
-    isAdmin: (state) => state.user?.admin ?? false,
-    userId: (state) => state.user?.id_user ?? null,
-    userName: (state) => state.user?.name ?? null,
-    userEmail: (state) => state.user?.email ?? null,
+    decodedToken: (state) => {
+      if (state.token) {
+        const payload = JSON.parse(atob(state.token.split('.')[1]));
+        return payload;
+      }
+      return null;
+    },
+    isAdmin: (state) => {
+      const payload = state.decodedToken;
+      if (payload) {
+        return payload.admin;
+      }
+      return false;
+    },
+    userName: (state) => {
+      const payload = state.decodedToken;
+      if (payload) {
+        return payload.name;
+      }
+      return null;
+    },
+    userId: (state) => {
+      const payload = state.decodedToken;
+      if (payload) {
+        return payload.id_user;
+      }
+      return null;
+    },
+    userEmail: (state) => {
+      const payload = state.decodedToken;
+      if (payload) {
+        return payload.email;
+      }
+      return null;
+    },
   },
   actions: {
     login(data) {
       sessionStorage.setItem('token', data.token);
-      sessionStorage.setItem('user', JSON.stringify(data.user));
     },
     logout() {
       sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
     }
   },
 })

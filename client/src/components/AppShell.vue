@@ -1,5 +1,4 @@
 <!-- Main skeleton for the application -->
-
 <template>
 <v-app>
   <v-layout>
@@ -46,9 +45,17 @@
       </router-link>
 
       <template #append>
+
+        <router-link v-if="isAdmin && showSettings" to="admin" :style="{textDecoration: 'none', color: 'inherit',marginLeft: showDrawer ? '0' : '32px'}">
+          <v-app-bar-title>Manage system</v-app-bar-title>
+        </router-link>
+        
         <v-btn class="mx-4" icon="mdi-bell"></v-btn>
 
+        <span v-if="username" class="mr-4">{{ username }}</span>
+
         <v-btn class="text-none mr-8" height="48" icon slim>
+          
           <v-avatar color="surface-light" image="https://cdn.vuetifyjs.com/images/john.png" size="32" />
 
           <v-menu activator="parent">
@@ -93,12 +100,15 @@ import { useUsersStore } from '@/stores/usersStore';
     data() {
       return {
         rail: true ,
+        usersStore: null,
+        isAdmin: false,
+        username: null,
       };
     },
     methods: {
       logout () {
-        const usersStore = useUsersStore();
-        usersStore.logout();
+        
+        this.usersStore.logout();
         
         setTimeout(() => {
           this.$router.push('/login');
@@ -106,11 +116,14 @@ import { useUsersStore } from '@/stores/usersStore';
         
       },
     },
-    mounted () {
-      
-    },
     created () {
+      this.usersStore = useUsersStore();
     },
+    mounted () {
+      this.username = this.usersStore.userName;
+      this.isAdmin = this.usersStore.isAdmin;
+    },
+    
   } 
 </script>
 
