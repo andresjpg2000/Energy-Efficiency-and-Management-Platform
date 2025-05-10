@@ -17,12 +17,12 @@ async function login(req, res, next) {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign(
+    const token = jwt.sign
+    (
       { id_user: user.id_user, email: user.email, name: user.name, admin: user.admin },
       process.env.JWT_SECRET, 
-      {
-      expiresIn: process.env.JWT_EXPIRATION,
-    });
+      { expiresIn: process.env.JWT_EXPIRATION,}
+    );
 
     res.json({
       message: 'Login successful',

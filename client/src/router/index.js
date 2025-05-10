@@ -4,6 +4,9 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
+import { jwtDecode } from 'jwt-decode'
+import { useMessagesStore } from '@/stores/messages'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -95,14 +98,54 @@ const getRoleFromToken = () => {
 }
 
 router.beforeEach((to, from, next) => {
+
+  const messagesStore = useMessagesStore()
   
-  //Actualiza o title
+  // Update the document title based on the route
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
 
+  // Check if the user is authenticated
   const token = sessionStorage.getItem('token')
-  const isAuthenticated = !!token;
-  const isAdmin = token ?  getRoleFromToken(token) : null;
+  let isAuthenticated = !!token;
+
+  // Check if the user is an admin
+  let isAdmin = token ?  getRoleFromToken(token) : null;
+
+  // check if the token is expired
+  let isExpired = false;
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token);
+      isExpired = decodedToken.exp < Date.now() / 1000;
+    } catch (error) {
+      isExpired = true;
+      sessionStorage.removeItem('token')
+
+      messagesStore.add({
+        color: 'error',
+        text: 'Token expired. Please log in again.',
+        duration: 3000,
+      });
+
+      isAuthenticated = false;
+      isAdmin = false;
+    }
+  }
+
+  if (isExpired) {
+    sessionStorage.removeItem('token')
+
+    messagesStore.add({
+        color: 'error',
+        text: 'Token expired. Please log in again.',
+        duration: 3000,
+      });
+
+      isAuthenticated = false;
+      isAdmin = false;
+
+  }
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next({ name: 'login' })

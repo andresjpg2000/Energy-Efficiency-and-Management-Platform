@@ -4,6 +4,7 @@ export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({
     suppliers: [],
     loading: false,
+    token: sessionStorage.getItem('token'),
   }),
   actions: {
     async fetchSuppliers() {
@@ -27,10 +28,12 @@ export const useSuppliersStore = defineStore('suppliers', {
     },
     async addSupplier(supplier) {
       try {
+
         const response = await fetch('http://localhost:3000/suppliers', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.token}`,
           },
           body: JSON.stringify(supplier),
         })
@@ -40,7 +43,8 @@ export const useSuppliersStore = defineStore('suppliers', {
           throw new Error(data.message || 'Network response was not ok')
         }
 
-        await this.fetchSuppliers();
+        const newSupplier = await response.json()
+        this.suppliers.push(newSupplier.data);
 
       } catch (error) {
         throw error
@@ -52,6 +56,7 @@ export const useSuppliersStore = defineStore('suppliers', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.token}`,
           },
           body: JSON.stringify(supplier),
         })
@@ -71,6 +76,10 @@ export const useSuppliersStore = defineStore('suppliers', {
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${id}`, {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.token}`,
+          },
         })
 
         if (!response.ok) {
