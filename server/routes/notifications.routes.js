@@ -1,15 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const notificationsController = require('../controllers/notifications.controller.js');
-const validateIdParam = require('../middleware/validateIdParam.js');
+const notificationsController = require("../controllers/notifications.controller.js");
+const auth = require("../middleware/auth.js");
+const validateIdParam = require("../middleware/validateIdParam.js");
 
-// GET all notifications
-router.get('/', notificationsController.getAllNotifications);
+// Get all notifications for a specific user
+router.get("/:id_user", auth, validateIdParam("id_user"), notificationsController.getNotificationsByUser);
 
-// POST a new notification
-router.post('/', notificationsController.createNotification);
+// Create a new notification
+router.post("/", auth, notificationsController.createNotification);
 
-// DELETE a notification by ID
-router.delete('/:id', validateIdParam("id"), notificationsController.deleteNotification);
+// Delete a notification by ID
+router.delete("/:id_notification", auth, validateIdParam("id_notification"), notificationsController.deleteNotification);
 
 module.exports = router;
