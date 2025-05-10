@@ -119,10 +119,11 @@ import { useUsersStore } from '@/stores/usersStore';
     created () {
       this.usersStore = useUsersStore();
     },
-    mounted () {
+    beforeMount () {
       this.username = this.usersStore.userName;
       this.isAdmin = this.usersStore.isAdmin;
     },
+
     
   } 
 </script>

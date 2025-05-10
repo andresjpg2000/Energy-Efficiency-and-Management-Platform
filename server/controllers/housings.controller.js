@@ -1,6 +1,24 @@
 const { Housing } = require('../models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 
+async function checkIfUserIsTheOwner(user, id_housing) {
+    const housing = await Housing.findOne({
+        where: {
+            id_housing: id_housing,
+        }
+    });
+
+    if (!housing) {
+        throw { status: 404, message: 'Housing not found!' };
+    }
+
+    if (housing.id_user !== user.id_user && !user.admin) {
+        throw { status: 403, message: 'You are not authorized to access this housing!' };
+    }
+
+    return housing;
+}
+
 // Get all housings
 const getAllHousings = async (req, res, next) => {
     try {
@@ -55,20 +73,10 @@ const getAllHousings = async (req, res, next) => {
 // Get a housing by ID
 const getHousingById = async (req, res, next) => {
     try {
-        // Validate the ID parameter to prevent SQL injection attacks
-        if (!req.params.id_housing || isNaN(req.params.id_housing)) {
-            return res.status(400).json({ message: 'Invalid ID parameter!' });
-        }
+        const user = req.user;
+        const id_housing = req.params.id_housing;
 
-        const housing = await Housing.findByPk(req.params.id_housing);
-
-        if (!housing) {
-            return res.status(404).json({ message: 'Housing not found!' });
-        }
-        // Check if the user is the owner of the housing - user authentication not implemented yet
-        // if (req.user.id_user !== housing.id_user) {
-        //   return res.status(403).json({ message: 'You are not authorized to access this housing!' });
-        // }
+        const housing = await checkIfUserIsTheOwner(user, id_housing)
 
         res.status(200).json({
             data: housing,
@@ -115,14 +123,17 @@ const getHousingById = async (req, res, next) => {
 
 // Create a new housing
 const createHousing = async (req, res, next) => {
+    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type) {
+        return res.status(400).json({ message: 'Address, postal code, and building type are required!' });
+    }
+    
     try {
-        // Get the user ID from the authenticated user - not implemented yet
         const userID = req.user.id_user;
       
         const newHousing = await Housing.create({
-            address,
-            pc,
-            building_type,
+            address: req.body.address,
+            pc: req.body.pc,
+            building_type: req.body.building_type,
             id_user: userID,
         });
 
@@ -183,29 +194,35 @@ const createHousing = async (req, res, next) => {
 }
 
 const updateHousing = async (req, res, next) => {
+    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type) {
+        return res.status(400).json({ message: 'Address, postal code, and building type are required!' });
+    }
+    
     try {
-        const [affectedRows] = await Housing.update(req.body, {
+        const user = req.user;
+        const id_housing = req.params.id_housing;
+
+        const housing = await checkIfUserIsTheOwner(user, id_housing)
+
+        // Only update if the user is the owner
+        await Housing.update(req.body, {
             where: {
-                id_housing: req.params.id_housing,
-                // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+                id_housing: id_housing,
+                id_user: user.id_user,
             },
         });
 
-        if (affectedRows === 0) {
-            return res.status(404).json({ message: 'Housing not found or unauthorized' });
-        }
-
         res.status(200).json({
-            message: `Housing with ID ${req.params.id_housing} updated successfully!`,
+            message: `Housing with ID ${id_housing} updated successfully!`,
             links: [
                 { 
                     rel: 'self', 
-                    href: `/housings/${req.params.id}`,
+                    href: `/housings/${id_housing}`,
                     method: 'PUT' 
                 },
                 { 
                     rel: 'get-by-id',
-                    href: `/housings/${req.params.id}`,
+                    href: `/housings/${id_housing}`,
                     method: 'GET' 
                 },
                 { 
@@ -220,12 +237,12 @@ const updateHousing = async (req, res, next) => {
                 },
                 {
                     rel: 'partial-update',
-                    href: `/housings/${req.params.id}`,
+                    href: `/housings/${id_housing}`,
                     method: 'PATCH' 
                 },
                 {
                     rel: 'delete',
-                    href: `/housings/${req.params.id}`,
+                    href: `/housings/${id_housing}`,
                     method: 'DELETE' 
                 },
             ]
@@ -250,30 +267,36 @@ const updateHousing = async (req, res, next) => {
 
 // Partially update a housing by ID
 const partialUpdateHousing = async (req, res, next) => {
-  try {
+    if (!req.body || (!req.body.address && !req.body.pc && !req.body.building_type)) {
+        return res.status(400).json({ message: 'At least one of address, postal code, or building type must be provided!' });
+    }
+  
+    try {
 
-    const [affectedRows] = await Housing.update(req.body, {
+    const user = req.user;
+    const id_housing = req.params.id_housing;
+
+    const housing = await checkIfUserIsTheOwner(user, id_housing)
+
+    // Only update if the user is the owner
+    await Housing.update(req.body, {
         where: {
-            id_housing: req.params.id_housing,
-            // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+            id_housing: id_housing,
+            id_user: user.id_user,
         },
     });
-
-    if (affectedRows === 0) {
-        return res.status(404).json({ message: 'Housing not found or unauthorized' });
-    }
 
     res.status(200).json({
         message: `Housing with ID ${req.params.id_housing} updated successfully!`,
         links: [
             {
                 rel: 'self',
-                href: `/housings/${req.params.id_housing}`,
+                href: `/housings/${id_housing}`,
                 method: 'PATCH',
             },
             {
                 rel: 'get-by-id',
-                href: `/housings/${req.params.id_housing}`,
+                href: `/housings/${id_housing}`,
                 method: 'GET',
             },
             {
@@ -288,12 +311,12 @@ const partialUpdateHousing = async (req, res, next) => {
             },
             {
                 rel: 'update',
-                href: `/housings/${req.params.id_housing}`,
+                href: `/housings/${id_housing}`,
                 method: 'PUT',
             },
             {
                 rel: 'delete',
-                href: `/housings/${req.params.id_housing}`,
+                href: `/housings/${id_housing}`,
                 method: 'DELETE',
             },
         ],            
@@ -322,26 +345,20 @@ const partialUpdateHousing = async (req, res, next) => {
 // Delete a housing by ID
 const deleteHousing = async (req, res, next) => {
     try {
-        
-        const affectedRows = await Housing.destroy({
+        const user = req.user;
+        const id_housing = req.params.id_housing;
+
+        const housing = await checkIfUserIsTheOwner(user, id_housing)
+
+        // Only update if the user is the owner
+        await Housing.destroy({
             where: {
-                id_housing: req.params.id_housing,
-                // id_user: req.user.id_user, // Uncomment this line if you want to check user ownership
+                id_housing: id_housing,
+                id_user: user.id_user,
             },
         });
 
-        if (affectedRows === 0) {
-            return res.status(404).json({ message: 'Housing not found!' });
-        }
-
-        // Check if the user is the owner of the housing
-        // if (req.user.id_user !== housing.id_user) {
-        //   return res.status(403).json({ message: 'You are not authorized to access this housing!' });
-        // }
-
-        res.status(204).json({
-            message: `Housing with ID ${req.params.id_housing} deleted successfully!`,          
-        });
+        res.status(204).send();
 
     } catch (err) {
         // Handle any errors that occur during the database query
