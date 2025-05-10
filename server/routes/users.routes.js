@@ -1,22 +1,22 @@
-// users.routes.js
-
 const express = require('express');
 const router = express.Router();
 const usersController = require('../controllers/users.controller.js');
+const authenticate = require('../middleware/auth.js');
+const authorizeAdmin = require('../middleware/authorizeAdmin.js');
 
-// Listar todos os utilizadores
-router.get('/', usersController.getAllUsers);
+// Listar todos os utilizadores (Apenas admins)
+router.get('/', authenticate, authorizeAdmin, usersController.getAllUsers);
 
-// Obter um utilizador por ID
-router.get('/:id_user', usersController.getUserById);
+// Obter um utilizador por ID (Apenas o próprio ou admin)
+router.get('/:id_user', authenticate, usersController.getUserById);
 
-// Criar um novo utilizador
+// Criar um novo utilizador (Sem autenticação)
 router.post('/', usersController.createUser);
 
-// Atualizar dados de um utilizador
-router.put('/:id_user', usersController.updateUser);
+// Atualizar dados de um utilizador (Apenas o próprio ou admin)
+router.put('/:id_user', authenticate, usersController.updateUser);
 
-// Eliminar um utilizador
-router.delete('/:id_user', usersController.deleteUser);
+// Eliminar um utilizador (Apenas admins)
+router.delete('/:id_user', authenticate, authorizeAdmin, usersController.deleteUser);
 
 module.exports = router;
