@@ -112,7 +112,6 @@ const getSupplierById = async (req, res, next) => {
 
 // Post a new supplier
 const createSupplier = async (req, res, next) => {
-    console.log('User from token:', req.user);
 
     // Create a new supplier object
     const newSupplier = {

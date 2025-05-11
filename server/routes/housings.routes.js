@@ -4,7 +4,8 @@ const housingsController = require('../controllers/housings.controller.js');
 
 const auth = require('../middleware/auth.js');
 const validateIdParam = require('../middleware/validateIdParam.js');
-const authorizeAdmin = require('../middleware/authorizeAdmin.js'); 
+const authorizeAdmin = require('../middleware/authorizeAdmin.js');
+const verifyOwnership = require('../middleware/verifyOwnership.js'); 
 
 // Get all housings
 router.get('/', auth, authorizeAdmin, housingsController.getAllHousings);

@@ -41,7 +41,7 @@ app.use('/widgets', require('./routes/widgets.routes.js'));
 // use route middleware for /housings requests
 app.use('/housings', require('./routes/housings.routes.js'));
 // use route middleware for /energy-consumptions requests
-// app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
+app.use('/housings/:id_housing/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
 // use route middleware for /energy-equipments requests
 app.use('/energy-equipments', require('./routes/energy-equipments.routes.js'));
 // use route middleware for /energy-productions requests
