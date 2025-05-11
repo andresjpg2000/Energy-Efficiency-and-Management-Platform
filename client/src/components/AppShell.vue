@@ -105,10 +105,10 @@ import { useUsersStore } from '@/stores/usersStore';
     },
     computed: {
       username () {
-        return this.usersStore.userName;
+        return this.usersStore.userName || '';
       },
       isAdmin () {
-        return this.usersStore.isAdmin;
+        return this.usersStore.isAdmin || false;
       }
     },
     methods: {

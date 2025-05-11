@@ -46,9 +46,11 @@ export const useUsersStore = defineStore('user', {
   actions: {
     login(data) {
       sessionStorage.setItem('token', data.token);
+      this.token = data.token;
     },
     logout() {
       sessionStorage.removeItem('token');
+      this.token = null;
     }
   },
 })
