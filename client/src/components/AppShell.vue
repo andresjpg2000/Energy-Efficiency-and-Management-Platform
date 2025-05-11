@@ -2,8 +2,15 @@
 <template>
 <v-app>
   <v-layout>
-    <v-navigation-drawer v-if="showDrawer" permanent floating @click="rail = true" :rail="rail">
-      <!-- <div class="px-4 py-8">
+    <v-navigation-drawer 
+      v-if="showDrawer" 
+      v-model="drawer"
+      :permanent="!isMobile"
+      :temporary="isMobile"
+      :floating="!isMobile"
+      :rail="!isMobile && rail"
+      @click="rail = true">
+    <!-- <div class="px-4 py-8">
         tirar comentario se for para adicionar o logo
         <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
           <h5>AMA</h5>
@@ -15,6 +22,7 @@
 
       <template v-if="showDrawer" v-slot:prepend>
         <v-list-item
+          v-if="!isMobile"
           @click.stop="rail = !rail"
           class="ma-2"
           nav
@@ -39,7 +47,9 @@
     </v-navigation-drawer>
     
     <v-app-bar flat>
-      
+
+      <v-app-bar-nav-icon v-if="isMobile" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+
       <router-link to="/" :style="{textDecoration: 'none', color: 'inherit',marginLeft: showDrawer ? '0' : '32px'}">
         <v-app-bar-title>AMA</v-app-bar-title>
       </router-link>
@@ -81,6 +91,8 @@
 
 <script >
 import { useUsersStore } from '@/stores/usersStore';
+import { useDisplay } from 'vuetify'
+import { watch } from 'vue'
 
   export default {
     name: 'AppShell',
@@ -100,7 +112,9 @@ import { useUsersStore } from '@/stores/usersStore';
     data() {
       return {
         rail: true ,
+        drawer: true,
         usersStore: null,
+        isMobile: false,
       };
     },
     computed: {
@@ -124,6 +138,23 @@ import { useUsersStore } from '@/stores/usersStore';
     },
     created () {
       this.usersStore = useUsersStore();
+
+      // usar o helper de Vuetify
+      const { smAndDown } = useDisplay()
+
+      // setar o valor inicial
+      this.isMobile = smAndDown.value
+
+       // Definir drawer conforme o dispositivo
+      this.drawer = !this.isMobile  // <- fechado se for mobile
+
+      // observar mudanças de breakpoint
+      watch(smAndDown, (newVal) => {
+        this.isMobile = newVal
+        if (newVal) {
+          this.drawer = false
+        }
+      })
     },
   } 
 </script>
