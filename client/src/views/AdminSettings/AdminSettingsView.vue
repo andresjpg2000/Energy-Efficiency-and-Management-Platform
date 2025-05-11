@@ -26,11 +26,6 @@ import AppShell from '@/components/AppShell.vue';
             to: '/admin/system-settings',
           },
           {
-            title: 'Admin Account Settings', // Manage admin account settings, activity logs*
-            prependIcon: 'mdi-shield-outline',
-            to: '/admin/account-settings',
-          },
-          {
             title: 'Analytics Overview', // Visual charts, graphs, and reports, like energy consumption trends, user activity trends, etc.
             prependIcon: 'mdi-chart-line',
             to: '/admin/analytics',
