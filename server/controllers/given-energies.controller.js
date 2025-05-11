@@ -1,66 +1,66 @@
 // Import the users data model
-const { now } = require('sequelize/lib/utils');
-const { GivenEnergies, EnergyEquipment } = require('../models/index.js');
+const { GivenEnergies, EnergyEquipment, Housing } = require('../models/index.js');
 const { Op } = require('sequelize');
 
 
 // get all energy returns
 let getgivenEnergies = async (req, res) => {
-  // check if houseId is provided in the query parameters
-  if (!req.query.houseId) {
+  if (!req.query.userId) {
     return res.status(400).json({
-      message: "House ID is required",
+      message: "user ID is required",
     });
   }
+
   // vars
   let filterEnergy;
-  let userId = parseInt(req.query.userId); // TOKEN VERIFICAR AQUI
-  let houseId = parseInt(req.query.houseId);
   let limit;
   let equipments = [];
 
-  // check if houseId is a number and positive
-  if (isNaN(houseId)) {
-    return res.status(400).json({
-      message: "House ID must be a number",
-    });
-  }
-  if (houseId < 0) {
-    return res.status(400).json({
-      message: "House ID must be a positive number",
-    });
-  }
-
-  // check if equipmentId is provided in the query parameters
-  // if it is, check if it is a number and positive
   try {
-    if (req.query.equipmentId) {
-        if (isNaN(parseInt(req.query.equipmentId))) {
-          return res.status(400).json({
-            message: "Equipament ID must be a number",
-          });
+    if (!req.query.equipmentId && !req.query.houseId) {  
+      /// all user equipments
+      equipments = await allUserEquipments(parseInt(req.query.userId));
+    }else if (!req.query.equipmentId && req.query.houseId) {
+      // equipments of a house
+      equipments = await allequipmentsHouse(parseInt(req.query.houseId), parseInt(req.query.userId));
+    } else if (req.query.equipmentId && !req.query.houseId) {
+      // one equipment
+      const eq = await EnergyEquipment.findOne({
+        where: {
+          id_equipment: parseInt(req.query.equipmentId),
         }
-        if (parseInt(req.query.equipmentId) < 0) {
-          return res.status(400).json({
-            message: "Equipament ID must be a positive number",
-          });
-        }
-        equipments.push(parseInt(req.query.equipmentId));
-      } else {
-        let equips = await EnergyEquipment.findAll({
-          where: {
-            housing: houseId
-          }
-        });
-        equips.forEach(eq => {
-          equipments.push(parseInt(eq.id_equipment));
+      });
+      if (!eq) {
+        return res.status(404).json({   
+          message: "Equipment not found",
         });
       }
+      const hs = await Housing.findOne({
+        where: {
+          id_housing: eq.housing,
+          id_user: parseInt(req.query.userId)
+        }
+      });
+      
+      if (!hs) {
+        return res.status(403).json({
+          message: "House does not belong to the user",
+        });
+      }
+
+      equipments.push(parseInt(req.query.equipmentId),);
+    }else{
+      return res.status(400).json({
+        message: "cant use user ID and house ID at the same time",
+      });
+    }
+    
   } catch (error) {
     return res.status(500).json({
       message: "Error retrieving energy returns",
       error: error.message,
     });
+    
   }
 
   // check if start and end dates are provided in the query parameters
@@ -178,6 +178,52 @@ let addgivenEnergies = async (req, res) => {
   }
 
 }
+
+async function allUserEquipments(user)  {
+  const houses = await Housing.findAll({
+    where: {
+      id_user: user
+    }
+  });
+
+  const houseIds = houses.map(h => h.id_housing);
+
+  let equipments = await EnergyEquipment.findAll({
+    where: {
+      housing: {
+        [Op.in]: houseIds
+      },
+    }
+  });
+
+  equipments = equipments.map(e => e.id_equipment);
+
+
+  return equipments;
+}
+
+async function allequipmentsHouse(house,user)  {
+  const hs = await Housing.findOne({
+    where: {
+      id_housing: house,
+      id_user: user
+    }
+  }); 
+  if (!hs) {
+    const error = new Error("House does not belong to the user");
+    error.statusCode = 403;
+    throw error;
+  }
+  const equipments = await EnergyEquipment.findAll({
+    where: {
+      housing: house
+    }
+  });
+  const equipmentIds = equipments.map(e => e.id_equipment);
+  
+  return equipmentIds;
+}
+
 
 
 module.exports = {
