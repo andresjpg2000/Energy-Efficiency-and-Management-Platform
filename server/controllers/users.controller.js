@@ -5,8 +5,21 @@ const bcrypt = require("bcryptjs"); // Para encriptar passwords
 // Obter todos os utilizadores
 async function getAllUsers(req, res, next) {
   try {
-    const users = await User.findAll();
-    res.status(200).json(users);
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows } = await User.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      attributes: { exclude: ["password"] }, // Excluir a password da resposta
+    });
+    res.status(200).json({
+      users: rows,
+      total: count,
+      page,
+      pages: Math.ceil(count / limit),
+    });
   } catch (error) {
     next(error);
   }
@@ -64,9 +77,13 @@ async function updateUser(req, res, next) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
+    const updateData = {email, name, admin};
 
-    await user.update({ email, name, password: hashedPassword, admin });
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10); // Encriptar a password
+    }
+
+    await user.update(updateData);
     res.status(204).send();
   } catch (error) {
     next(error);

@@ -47,10 +47,10 @@ export default {
   data() {
     return {
       headers: [
-        { title: 'id', key: 'id' },
-        { title: 'enterprise', key: 'enterprise' },
-        { title: 'cost_kWh', key: 'cost_kWh' },
-        { title: 'Actions', key: 'actions', sortable: false },
+        { title: 'ID', key: 'id' },
+        { title: 'ENTERPRISE', key: 'enterprise' },
+        { title: 'COST_KWH', key: 'cost_kWh' },
+        { title: 'ACTIONS', key: 'actions', sortable: false },
       ],
       openDialog: false,
       editingSupplier: null,

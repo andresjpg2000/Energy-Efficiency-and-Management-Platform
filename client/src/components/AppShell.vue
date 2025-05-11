@@ -101,9 +101,15 @@ import { useUsersStore } from '@/stores/usersStore';
       return {
         rail: true ,
         usersStore: null,
-        isAdmin: false,
-        username: null,
       };
+    },
+    computed: {
+      username () {
+        return this.usersStore.userName;
+      },
+      isAdmin () {
+        return this.usersStore.isAdmin;
+      }
     },
     methods: {
       logout () {
@@ -119,12 +125,6 @@ import { useUsersStore } from '@/stores/usersStore';
     created () {
       this.usersStore = useUsersStore();
     },
-    beforeMount () {
-      this.username = this.usersStore.userName;
-      this.isAdmin = this.usersStore.isAdmin;
-    },
-
-    
   } 
 </script>
 
