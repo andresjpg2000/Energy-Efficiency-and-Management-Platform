@@ -19,7 +19,7 @@ async function login(req, res, next) {
 
     const token = jwt.sign
     (
-      { id_user: user.id_user, email: user.email, name: user.name, admin: user.admin },
+      { id_user: user.id_user, name: user.name, admin: user.admin },
       process.env.JWT_SECRET, 
       { expiresIn: process.env.JWT_EXPIRATION,}
     );
@@ -33,12 +33,6 @@ async function login(req, res, next) {
 
     res.json({
       message: 'Login successful',
-      // user: {
-      //   id_user: user.id_user,
-      //   email: user.email,
-      //   name: user.name,
-      //   admin: user.admin,
-      // },
     });
 
   } catch (error) {
@@ -56,7 +50,6 @@ async function getUserInfo(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     res.json({
       id_user: payload.id_user,
-      email: payload.email,
       name: payload.name,
       admin: payload.admin,
     })
