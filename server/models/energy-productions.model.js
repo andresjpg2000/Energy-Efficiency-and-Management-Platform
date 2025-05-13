@@ -7,6 +7,7 @@ module.exports = (sequelize) => {
     {
       id_production: {
         type: DataTypes.INTEGER,
+        unique: true,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,

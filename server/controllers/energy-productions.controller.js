@@ -18,6 +18,7 @@ let getAllEnergyProductions = async (req, res) => {
   let limit;
   let equipments = [];
 
+  //verify what type of query is asked and get the equipments
   try {
     if (!req.query.equipmentId && !req.query.houseId) {  
       /// all user equipments
@@ -58,11 +59,7 @@ let getAllEnergyProductions = async (req, res) => {
     }
     
   } catch (error) {
-    return res.status(500).json({
-      message: "Error retrieving energy returns",
-      error: error.message,
-    });
-    
+    next(error);
   }
 
   // check if start and end dates are provided in the query parameters
@@ -134,26 +131,30 @@ let getAllEnergyProductions = async (req, res) => {
 let addEnergyProduction = async (req, res) => {
   const { id_equipment, date, value } = req.body;
 
+  // check if all required fields are provided
   if (!id_equipment || !date || !value) {
     return res.status(400).json({
       message: " Equipament ID, Date and Value are required",
     });
   }
-
+  // check if the fields are valid
   if (isNaN(id_equipment) || isNaN(value)) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value must be numbers",
     });
   }
 
+  // check if the fields are positive
   if (id_equipment < 0 || value < 0) {
     return res.status(400).json({
       message: "House ID, Equipament ID and Value must be positive numbers",
     });
   }
 
+
   let finalDate = date ? new Date(date) : new Date();
 
+  // check if the date is valid
   if (isNaN(finalDate.getTime())) {
     return res.status(400).json({
       message: "Invalid date format",
@@ -166,6 +167,7 @@ let addEnergyProduction = async (req, res) => {
     date: finalDate,
   };
   try{
+    // create the new energy return
     const createdEnergyReturn = await EnergyProductions.create(newEnergyProd);
 
     res.status(201).json({
@@ -182,13 +184,16 @@ let addEnergyProduction = async (req, res) => {
 
 let deleteEnergyProduction = async (req, res, next) => {
   try {
+    // energy id
     const id  = parseInt(req.params.id);
 
+    // check if the id is a number
     const energy = await EnergyProductions.findByPk(id);
     if (!energy) {
       return res.status(404).json({ message: "Energy not found." });
     }
 
+    //delete the energy return
     await energy.destroy();
     res.status(204).send();
   } catch (error) {
@@ -200,6 +205,7 @@ let deleteEnergyProduction = async (req, res, next) => {
 }
 
 async function allUserEquipments(user)  {
+  
   const houses = await Housing.findAll({
     where: {
       id_user: user

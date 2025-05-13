@@ -1,4 +1,4 @@
-const { Housing } = require('../models/index.js');
+const { Housing, User } = require('../models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 async function checkIfUserIsTheOwner(user, id_housing) {
@@ -65,6 +65,42 @@ const getAllHousings = async (req, res, next) => {
         });
     } catch (err) {
         console.error('Error fetching housings:', err);
+
+        next(err);
+    }
+}
+// Get all equipments from a housing
+let getAllEquipsFromHouse = async (req, res, next) => {
+    try {
+        const house = await Housing.findByPk(req.params.id_housing, {
+        attributes: ['id_housing', 'id_user', 'address', 'pc', 'building_type'],
+        });
+        if (!house) {
+            return res.status(404).json({
+                message: "House not found",
+            });
+        }
+
+        // lazy loading
+        const equipments = await house.getEnergyEquipments({
+            attributes: ['id_equipment', 'name', 'energy_type', 'capacity', 'housing'],
+        });
+
+        //map HATEOAS links to each equipment
+        equipments.forEach(eq => {
+             eq.dataValues.links = [
+                { rel: "delete", href: `/energy-equipments/${eq.id_equipment}`, method: "DELETE" },
+                { rel: "modify", href: `/energy-equipments/${eq.id_equipment}`, method: "PUT" },
+            ]
+        });
+
+        house.dataValues.equipments = equipments;
+        res.status(200).json({
+            data: house,
+        });
+
+    } catch (err) {
+        console.error("Error fetching equipments:", err);
 
         next(err);
     }
@@ -375,4 +411,5 @@ module.exports = {
     updateHousing,
     partialUpdateHousing,
     deleteHousing,
+    getAllEquipsFromHouse
 };

@@ -21,6 +21,11 @@ db.Housing.hasMany(db.EnergyConsumption, {
   sourceKey: "id_housing",
   onDelete: "CASCADE", // Delete all energy consumptions when a housing is deleted
 });
+db.Housing.hasMany(db.EnergyEquipment, {
+  foreignKey: "housing",
+  sourceKey: "id_housing",
+  onDelete: "CASCADE", // Delete all energy consumptions when a housing is deleted
+});
 db.EnergyConsumption.belongsTo(db.Housing, {
   foreignKey: "id_housing",
 });
