@@ -2,55 +2,52 @@ import { defineStore } from 'pinia'
 
 export const useUsersStore = defineStore('user', {
   state: () => ({
-    token: sessionStorage.getItem('token') || null,
+    user: null,
   }),
   getters: {
-    isLoggedIn: (state) => !!state.token,
-    getToken: (state) => state.token,
-    decodedToken: (state) => {
-      if (state.token) {
-        const payload = JSON.parse(atob(state.token.split('.')[1]));
-        return payload;
-      }
-      return null;
-    },
-    isAdmin: (state) => {
-      const payload = state.decodedToken;
-      if (payload) {
-        return payload.admin;
-      }
-      return false;
-    },
-    userName: (state) => {
-      const payload = state.decodedToken;
-      if (payload) {
-        return payload.name;
-      }
-      return null;
-    },
-    userId: (state) => {
-      const payload = state.decodedToken;
-      if (payload) {
-        return payload.id_user;
-      }
-      return null;
-    },
-    userEmail: (state) => {
-      const payload = state.decodedToken;
-      if (payload) {
-        return payload.email;
-      }
-      return null;
-    },
-  },
+    isLoggedIn: (state) => !!state.user,
+    isAdmin: (state) => state.user?.admin || false,
+    getUsername: (state) => state.user?.name || null,
+    getUserId: (state) => state.user?.id_user || null,
+    getUserEmail: (state) => state.user?.email || null,
+  },  
   actions: {
-    login(data) {
-      sessionStorage.setItem('token', data.token);
-      this.token = data.token;
+    async logout() {
+      try {
+        const response = await fetch('http://localhost:3000/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to logout');
+        }
+
+        this.user = null;
+
+      } catch (error) {
+        console.log(error);
+      }
+
     },
-    logout() {
-      sessionStorage.removeItem('token');
-      this.token = null;
+    async fetchUser() {
+      try {
+        const response = await fetch('http://localhost:3000/auth/me', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        this.user = data;
+      } catch (error) {
+        console.log(error);
+        
+        this.user = null;
+      }
     }
   },
 })

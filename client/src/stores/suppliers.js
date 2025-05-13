@@ -33,7 +33,7 @@ export const useSuppliersStore = defineStore('suppliers', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
+            credentials: 'include',
           },
           body: JSON.stringify(supplier),
         })
@@ -56,7 +56,7 @@ export const useSuppliersStore = defineStore('suppliers', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
+            credentials: 'include',
           },
           body: JSON.stringify(supplier),
         })
@@ -78,7 +78,7 @@ export const useSuppliersStore = defineStore('suppliers', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
+            credentials: 'include',
           },
         })
 

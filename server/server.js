@@ -6,7 +6,7 @@ const { ValidationError, UniqueConstraintError } = require('sequelize');
 // const helmet = require('helmet'); security middleware
 // app.use(helmet());
 const cors = require('cors');
-
+const cookieParser = require('cookie-parser');
 
 // Testing connection
 (async () => {
@@ -20,8 +20,11 @@ const cors = require('cors');
 
 const app = express();
 
+app.use(cookieParser());
+
 app.use(cors({
-    origin: '*', // Allow all origins (for development purposes only, restrict in production)
+    origin: 'http://localhost:5173', // Allow all origins (for development purposes only, restrict in production)
+    credentials: true, // Allow cookies to be sent with requests
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -29,7 +32,7 @@ app.use(cors({
 app.use(express.json());
 
 // use route middleware for /login requests
-app.use('/login', require('./routes/login.routes.js'));
+app.use('/auth', require('./routes/auth.routes.js'));
 // use route middleware for /users requests
 app.use('/users', require('./routes/users.routes.js'));
 // use route middleware for /given-energies requests

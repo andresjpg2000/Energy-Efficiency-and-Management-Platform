@@ -81,8 +81,8 @@ export default {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${sessionStorage.getItem('token')}`,
           },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -115,8 +115,8 @@ export default {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${sessionStorage.getItem('token')}`,
           },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -136,8 +136,8 @@ export default {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${sessionStorage.getItem('token')}`,
           },
+          credentials: 'include',
           body: JSON.stringify({
             name: this.form.name,
             email: this.form.email,

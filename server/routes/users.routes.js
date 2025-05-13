@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const usersController = require('../controllers/users.controller.js');
 const authenticate = require('../middleware/auth.js');
-const authorizeAdmin = require('../middleware/authorizeAdmin.js');
 
 // Listar todos os utilizadores (Apenas admins)
-router.get('/', authenticate, authorizeAdmin, usersController.getAllUsers);
+router.get('/', authenticate(true), usersController.getAllUsers);
 
 // Obter um utilizador por ID (Apenas o próprio ou admin)
 router.get('/:id_user', authenticate, usersController.getUserById);
@@ -17,6 +16,6 @@ router.post('/', usersController.createUser);
 router.put('/:id_user', authenticate, usersController.updateUser);
 
 // Eliminar um utilizador (Apenas admins)
-router.delete('/:id_user', authenticate, authorizeAdmin, usersController.deleteUser);
+router.delete('/:id_user', authenticate(true), usersController.deleteUser);
 
 module.exports = router;

@@ -4,11 +4,10 @@ const housingsController = require('../controllers/housings.controller.js');
 
 const auth = require('../middleware/auth.js');
 const validateIdParam = require('../middleware/validateIdParam.js');
-const authorizeAdmin = require('../middleware/authorizeAdmin.js');
 const verifyOwnership = require('../middleware/verifyOwnership.js'); 
 
 // Get all housings
-router.get('/', auth, authorizeAdmin, housingsController.getAllHousings);
+router.get('/', auth(true), housingsController.getAllHousings);
 
 // Get a housing by IDgetAllEquipsFromHouse
 router.get('/:id_housing', auth, validateIdParam("id_housing"), housingsController.getHousingById);

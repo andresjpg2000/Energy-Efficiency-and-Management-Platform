@@ -24,7 +24,13 @@ const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
-app.use(router)
 app.use(vuetify);
 
-app.mount('#app')
+import { useUsersStore } from './stores/usersStore.js';
+const usersStore = useUsersStore();
+// Fetch user info before mounting the app
+usersStore.fetchUser().then(() => {
+    app.use(router)
+    app.mount('#app');
+});
+

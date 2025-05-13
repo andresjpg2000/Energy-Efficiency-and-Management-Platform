@@ -119,7 +119,7 @@ import { watch } from 'vue'
     },
     computed: {
       username () {
-        return this.usersStore.userName || '';
+        return this.usersStore.getUsername || '';
       },
       isAdmin () {
         return this.usersStore.isAdmin || false;

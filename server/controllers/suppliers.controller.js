@@ -183,7 +183,6 @@ const createSupplier = async (req, res, next) => {
 
 // Put update a supplier
 const updateSupplier = async (req, res, next) => {
-    console.log('User from token:', req.user);
     // Find the supplier by ID
     const supplier = await Supplier.findByPk(req.params.id);
     if (!supplier) {

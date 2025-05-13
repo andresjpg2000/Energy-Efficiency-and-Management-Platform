@@ -6,6 +6,7 @@ export default {
     name: 'AuthLogin',
     data() {
       return {
+        usersStore: useUsersStore(),
         checkbox: false,
         password: 'passteste',
         username: "teste@email.com",
@@ -34,11 +35,12 @@ export default {
         // this.$refs.form.validate(); // Validate the form
         try {
           
-          const response = await fetch('http://localhost:3000/login', {
+          const response = await fetch('http://localhost:3000/auth/login', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
+              credentials: 'include',
               body: JSON.stringify({
                 email: this.username,
                 password: this.password,
@@ -63,11 +65,8 @@ export default {
               timeout: 3000,
             });
 
-          const usersStore = useUsersStore();
-          usersStore.login(data);
-
+          await this.usersStore.fetchUser();
           this.$router.push('/');
-
         } catch (error) {
           console.log(error);
         } finally {

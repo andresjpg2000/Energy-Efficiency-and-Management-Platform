@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import { useMessagesStore } from '@/stores/messages.js'
-
 const messagesStore = useMessagesStore()
 </script>
 

@@ -5,6 +5,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   dialect: process.env.DB_DIALECT,
+  logging: console.log, // Enable logging for debugging
 }); 
 
 module.exports = sequelize; // Export the sequelize instance to use in other files

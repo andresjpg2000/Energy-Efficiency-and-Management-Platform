@@ -5,7 +5,7 @@ import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
 import { jwtDecode } from 'jwt-decode'
-import { useMessagesStore } from '@/stores/messages'
+import { useUsersStore } from '@/stores/usersStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,76 +86,23 @@ const router = createRouter({
   ],
 })
 
-// Check if the user is an admin trough the token
-const getRoleFromToken = () => {
-  const token = sessionStorage.getItem('token')
-  if (token) {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.admin
-  }
-  return null
-}
-
 router.beforeEach((to, from, next) => {
-
-  const messagesStore = useMessagesStore()
-  
+  const usersStore = useUsersStore()
   // Update the document title based on the route
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
-
   // Check if the user is authenticated
-  const token = sessionStorage.getItem('token')
-  let isAuthenticated = !!token;
-
+  let isAuthenticated = usersStore.isLoggedIn;
   // Check if the user is an admin
-  let isAdmin = token ?  getRoleFromToken(token) : null;
-
-  // check if the token is expired
-  let isExpired = false;
-  if (token) {
-    try {
-      const decodedToken = jwtDecode(token);
-      isExpired = decodedToken.exp < Date.now() / 1000;
-    } catch (error) {
-      isExpired = true;
-      sessionStorage.removeItem('token')
-
-      messagesStore.add({
-        color: 'error',
-        text: 'Token expired. Please log in again.',
-        duration: 3000,
-      });
-
-      isAuthenticated = false;
-      isAdmin = false;
-    }
-  }
-
-  if (isExpired) {
-    sessionStorage.removeItem('token')
-
-    messagesStore.add({
-        color: 'error',
-        text: 'Token expired. Please log in again.',
-        duration: 3000,
-      });
-
-      isAuthenticated = false;
-      isAdmin = false;
-
-  }
+  let isAdmin = usersStore.isAdmin;
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
-    next({ name: 'login' })
+    return next({ name: 'login' })
   } 
-  
   if (to.matched.some(record => record.meta.requiresAdmin) && !isAdmin) {
-    next({ name: 'Forbidden' })
+    return next({ name: 'Forbidden' })
   }
-  
-  next()
-  
+  return next()
 });
 
 export default router
