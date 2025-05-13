@@ -31,9 +31,9 @@ export const useSuppliersStore = defineStore('suppliers', {
 
         const response = await fetch('http://localhost:3000/suppliers', {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            credentials: 'include',
           },
           body: JSON.stringify(supplier),
         })
@@ -54,9 +54,9 @@ export const useSuppliersStore = defineStore('suppliers', {
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${supplier.id}`, {
           method: 'PATCH',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            credentials: 'include',
           },
           body: JSON.stringify(supplier),
         })
@@ -76,9 +76,9 @@ export const useSuppliersStore = defineStore('suppliers', {
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${id}`, {
           method: 'DELETE',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            credentials: 'include',
           },
         })
 
