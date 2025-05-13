@@ -4,7 +4,6 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
-import { jwtDecode } from 'jwt-decode'
 import { useUsersStore } from '@/stores/usersStore'
 
 const router = createRouter({

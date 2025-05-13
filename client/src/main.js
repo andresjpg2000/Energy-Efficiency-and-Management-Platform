@@ -29,8 +29,11 @@ app.use(vuetify);
 import { useUsersStore } from './stores/usersStore.js';
 const usersStore = useUsersStore();
 // Fetch user info before mounting the app
-usersStore.fetchUser().then(() => {
-    app.use(router)
-    app.mount('#app');
-});
-
+usersStore.fetchUser()
+    .catch((error) => {
+        console.error('Error fetching user:', error);
+    })
+    .then(() => {
+        app.use(router)
+        app.mount('#app');
+    });

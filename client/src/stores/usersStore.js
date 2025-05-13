@@ -45,8 +45,8 @@ export const useUsersStore = defineStore('user', {
         this.user = data;
       } catch (error) {
         console.log(error);
-        
         this.user = null;
+        return false;
       }
     }
   },
