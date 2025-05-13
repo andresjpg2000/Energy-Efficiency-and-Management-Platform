@@ -20,5 +20,8 @@
   "homepage": "https://github.com/andresjpg2000/Energy-Efficiency-and-Management-Platform#readme",
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "jwt-decode": "^4.0.0"
   }
 }
