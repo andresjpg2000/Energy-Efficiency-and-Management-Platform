@@ -18,4 +18,7 @@ router.put('/:id_user', authenticate, usersController.updateUser);
 // Eliminar um utilizador (Apenas admins)
 router.delete('/:id_user', authenticate(true), usersController.deleteUser);
 
+// Obter widgets de um utilizador (Apenas o próprio)
+router.get('/:id_user/widgets', authenticate(true), usersController.getAllUserWidgetsgi);
+
 module.exports = router;

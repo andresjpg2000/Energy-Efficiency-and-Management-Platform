@@ -1,4 +1,4 @@
-const { Housing, User } = require('../models/index.js');
+const { Housing } = require('../models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 
 async function checkIfUserIsTheOwner(user, id_housing) {

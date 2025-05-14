@@ -25,6 +25,33 @@ async function getAllUsers(req, res, next) {
   }
 }
 
+// Get all equipments from a housing
+let getAllUserWidgets = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id_user, {
+    attributes: ['id_user'],});
+    if (!house) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // lazy loading
+    const widgets = await user.getWidgets({
+      attributes: [ 'title', 'body', 'type'],
+    });
+
+    user.dataValues.widgets = widgets;
+    res.status(200).json({
+      data: user,
+    });
+    } catch (err) {
+      console.error("Error fetching Users Widgets:", err);
+
+      next(err);
+    }
+}
+
 // Obter um utilizador por ID
 async function getUserById(req, res, next) {
   try {
@@ -112,4 +139,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  getAllUserWidgets
 };

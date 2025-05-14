@@ -59,6 +59,17 @@ db.Notifications.belongsTo(db.User, {
   targetKey: "id_user",
 });
 
+// widgets and Users
+db.User.hasMany(db.widgets, {
+  foreignKey: "id_user",
+  sourceKey: "id_user",
+  onDelete: "CASCADE", // Delete all notifications when a user is deleted
+});
+db.widgets.belongsTo(db.User, {
+  foreignKey: "id_user",
+  targetKey: "id_user",
+});
+
 // Notifications and Energy Consumption
 db.EnergyConsumption.hasMany(db.Notifications, {
   foreignKey: "id_consumption",
