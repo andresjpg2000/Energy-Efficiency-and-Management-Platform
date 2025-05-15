@@ -9,16 +9,16 @@ const validateParamIsInt = require('../middleware/validateIdParam.js');
 router.get('/', auth(true), energyEquipmentsController.getAllEnergyEquipments);
 
 // Criar um novo equipamento
-router.post('/', energyEquipmentsController.createEnergyEquipment);
+router.post('/', auth(), energyEquipmentsController.createEnergyEquipment);
 
 // Atualizar nome de um equipamento
-router.patch('/:id', energyEquipmentsController.updateEnergyEquipmentName);
+router.patch('/:id', auth(), energyEquipmentsController.updateEnergyEquipmentName);
 
 // Eliminar um equipamento
-router.delete('/:id', energyEquipmentsController.deleteEnergyEquipment);
+router.delete('/:id',auth(), energyEquipmentsController.deleteEnergyEquipment);
 
 // get given energy of an equipment
-router.get('/:id/given-energies', energyEquipmentsController.getGivenEnergyOfEquipment);
+router.get('/:id/given-energies',validateParamIsInt("id"), energyEquipmentsController.getGivenEnergyOfEquipment);
 // get energy productions of an equipment
 router.get('/:id/energy-productions', energyEquipmentsController.getEnergyProductionsOfEquipment);
 module.exports = router;
