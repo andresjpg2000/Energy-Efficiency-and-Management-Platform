@@ -30,7 +30,7 @@ let getAllUserWidgets = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id_user, {
     attributes: ['id_user'],});
-    if (!house) {
+    if (!user) {
       return res.status(404).json({
         message: "User not found",
       });

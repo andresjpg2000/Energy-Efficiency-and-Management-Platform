@@ -224,9 +224,32 @@ async function allequipmentsHouse(house,user)  {
   return equipmentIds;
 }
 
+let deleteGivenEnergy = async (req, res, next) => {
+  try {
+    // energy id
+    const id  = parseInt(req.params.id);
+
+    // check if the id is a number
+    const energy = await GivenEnergies.findByPk(id);
+    if (!energy) {
+      return res.status(404).json({ message: "Energy not found." });
+    }
+
+    //delete the energy return
+    await energy.destroy();
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({
+      message: "Error creating energy return",
+      error: error.message,
+    });
+  }
+}
+
 
 
 module.exports = {
   getgivenEnergies,
-  addgivenEnergies
+  addgivenEnergies,
+  deleteGivenEnergy
 };

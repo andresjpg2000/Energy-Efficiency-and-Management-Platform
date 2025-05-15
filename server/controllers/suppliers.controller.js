@@ -1,5 +1,5 @@
 // Import the suppliers model
-const { log } = require('three/tsl');
+//const { log } = require('three/tsl');
 const { Supplier } = require('../models/index.js'); 
 const { ValidationError, UniqueConstraintError } = require('sequelize'); 
 

@@ -1,5 +1,7 @@
 const db = require("../models/index.js");
 const EnergyEquipment = db.EnergyEquipment;
+const { Op } = require('sequelize');
+
 
 // Listar todos os equipamentos
 async function getAllEnergyEquipments(req, res, next) {
@@ -83,9 +85,106 @@ async function deleteEnergyEquipment(req, res, next) {
   }
 }
 
+// Get given energy by equipment
+async function getGivenEnergyOfEquipment(req, res, next) {
+  try {
+    // Get the equipment by ID
+    const equipment = await EnergyEquipment.findByPk(req.params.id,{
+      attributes: ['id_equipment','name', 'capacity', 'housing'],
+    });
+    // Check if the equipment exists
+    if (!equipment) {
+      return res.status(404).json({ message: "Equipment not found." });
+    }
+
+    // Get the start and end dates from the query parameters
+    let start = req.query.start ? new Date(req.query.start) : new Date(0);
+    let end = req.query.end ? new Date(req.query.end) : new Date();
+
+    // Check if the start and end dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Invalid start or end date." });
+    }
+
+    // Check if the start date is before the end date
+    if (start > end) {
+      return res.status(400).json({ message: "Start date must be before end date." });
+    }
+
+    // Get the energy productions for the equipment within the specified date range
+    const givenEnergy = await equipment.getGivenEnergies({
+      where:{
+        date: {
+          [Op.and]: [
+            { [Op.gte]: start },
+            { [Op.lte]: end }
+          ]
+        }
+      },
+      attributes: ['id', 'value','date'],
+    });
+
+    // Add the energy productions to the equipment object
+    equipment.dataValues.givenEnergy = givenEnergy;
+
+    res.status(200).json({ data: equipment });
+  } catch (error) {
+    next(error);
+  }
+}
+// Get energy productions by equipment
+async function getEnergyProductionsOfEquipment(req, res, next) {
+  try {
+    // Get the equipment by ID
+    const equipment = await EnergyEquipment.findByPk(req.params.id,{
+      attributes: ['id_equipment','name', 'capacity', 'housing'],
+    });
+    // Check if the equipment exists
+    if (!equipment) {
+      return res.status(404).json({ message: "Equipment not found." });
+    }
+
+    // Get the start and end dates from the query parameters
+    let start = req.query.start ? new Date(req.query.start) : new Date(0);
+    let end = req.query.end ? new Date(req.query.end) : new Date();
+
+    // Check if the start and end dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: "Invalid start or end date." });
+    }
+
+    // Check if the start date is before the end date
+    if (start > end) {
+      return res.status(400).json({ message: "Start date must be before end date." });
+    }
+
+    // Get the energy productions for the equipment within the specified date range
+    const givenEnergy = await equipment.getEnergyProductions({
+      where:{
+        date: {
+          [Op.and]: [
+            { [Op.gte]: start },
+            { [Op.lte]: end }
+          ]
+        }
+      },
+      attributes: ['id', 'value','date'],
+    });
+
+    // Add the energy productions to the equipment object
+    equipment.dataValues.givenEnergy = givenEnergy;
+
+    res.status(200).json({ data: equipment });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getAllEnergyEquipments,
   createEnergyEquipment,
   updateEnergyEquipmentName,
   deleteEnergyEquipment,
+  getGivenEnergyOfEquipment,
+  getEnergyProductionsOfEquipment
 };

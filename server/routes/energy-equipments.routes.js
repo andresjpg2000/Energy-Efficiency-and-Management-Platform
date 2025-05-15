@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const energyEquipmentsController = require('../controllers/energy-equipments.controller.js');
 
+const auth = require('../middleware/auth.js');
+const validateParamIsInt = require('../middleware/validateIdParam.js'); 
+
 // Listar todos os equipamentos
-router.get('/', energyEquipmentsController.getAllEnergyEquipments);
+router.get('/', auth(true), energyEquipmentsController.getAllEnergyEquipments);
 
 // Criar um novo equipamento
 router.post('/', energyEquipmentsController.createEnergyEquipment);
@@ -14,4 +17,8 @@ router.patch('/:id', energyEquipmentsController.updateEnergyEquipmentName);
 // Eliminar um equipamento
 router.delete('/:id', energyEquipmentsController.deleteEnergyEquipment);
 
+// get given energy of an equipment
+router.get('/:id/given-energies', energyEquipmentsController.getGivenEnergyOfEquipment);
+// get energy productions of an equipment
+router.get('/:id/energy-productions', energyEquipmentsController.getEnergyProductionsOfEquipment);
 module.exports = router;

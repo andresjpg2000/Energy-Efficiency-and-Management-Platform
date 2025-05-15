@@ -2,36 +2,36 @@
 const db = require('../models/index.js');
 const Widgets = db.widgets; 
 
-let getWidgets = async (req, res) => {
-    try {
-        const userId = req.query.user; // token verificar aqui
-        if (!userId) {
-            return res.status(400).json({
-                message: `Missing required fields USER: ${userId}`,
-            });
-        }
-        // Find all widgets for the user
-        const widgets = await Widgets.findAll({
-            where: {
-                id_user: userId
-            }
-        });
-        if (widgets.length === 0) {
-            return res.status(404).json({
-                message: "No widgets found!",
-            });
-        }
-        return res.status(200).json({
-            message: "Energy widgets found",
-            data: widgets
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error retrieving widgets",
-            error: error.message
-        });
-    }
-}
+// let getWidgets = async (req, res) => {
+//     try {
+//         const userId = req.query.user; // token verificar aqui
+//         if (!userId) {
+//             return res.status(400).json({
+//                 message: `Missing required fields USER: ${userId}`,
+//             });
+//         }
+//         // Find all widgets for the user
+//         const widgets = await Widgets.findAll({
+//             where: {
+//                 id_user: userId
+//             }
+//         });
+//         if (widgets.length === 0) {
+//             return res.status(404).json({
+//                 message: "No widgets found!",
+//             });
+//         }
+//         return res.status(200).json({
+//             message: "Energy widgets found",
+//             data: widgets
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             message: "Error retrieving widgets",
+//             error: error.message
+//         });
+//     }
+// }
 
 let addWidgets = async (req, res) => {
     const { id_user, title, body, type } = req.body; // token verificar aqui
@@ -101,7 +101,7 @@ let deleteWidgets = async (req, res) => {
 }
 
 module.exports = {
-    getWidgets,
+    //getWidgets,
     addWidgets,
     deleteWidgets
   };
