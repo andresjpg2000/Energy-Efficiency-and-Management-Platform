@@ -33,6 +33,7 @@ async function login(req, res, next) {
 
     res.json({
       message: 'Login successful',
+      token,
     });
 
   } catch (error) {

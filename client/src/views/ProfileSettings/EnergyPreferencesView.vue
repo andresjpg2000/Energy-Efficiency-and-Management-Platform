@@ -35,17 +35,23 @@
 </template>
 
 <script>
+import { useSuppliersStore } from "@/stores/suppliers.js";
   export default {
     data() {
       return {
+        suppliersStore: useSuppliersStore(),
         form: null,
         isSubmitting: false,
-        suppliers: [],
         selectedSupplier: null,
         supplierRules: [
           (v) => !!v || "Energy supplier is required",
         ],
       }
+    },
+    computed: {
+      suppliers() {
+        return this.suppliersStore.suppliers.map((supplier => `${supplier.enterprise} - ${supplier.cost_kWh} €/kWh`));
+      },
     },
     methods: {
       formSubmit() {
@@ -73,23 +79,9 @@
         }
 
       },
-      // async fetchSuppliers() {
-      //   try {
-      //     const response = await fetch('http://localhost:3000/api/suppliers');
-      //     if (!response.ok) {
-      //       throw new Error('Network response was not ok');
-      //     }
-      //     const data = await response.json();
-      //     this.suppliers = data;
-      //   } catch (error) {
-      //     console.error('Error fetching suppliers:', error);
-      //   }
-      // },
     },
     mounted() {
-      
-      // this.fetchSuppliers();
-      
+      this.suppliersStore.fetchSuppliers("enterprise,cost_kWh");
       console.log('✅ EnergyPreferenceView mounted!');
     }
   }

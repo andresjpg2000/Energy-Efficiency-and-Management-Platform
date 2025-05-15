@@ -1,12 +1,21 @@
 // Import the suppliers model
+const { log } = require('three/tsl');
 const { Supplier } = require('../models/index.js'); 
 const { ValidationError, UniqueConstraintError } = require('sequelize'); 
 
 // Get all suppliers
 const getAllSuppliers = async (req, res, next) => {
     try {
+        // options object to hold query parameters so we dont have to list every attribute to get the entire supplier object
+        const options = {};
+        // Get attributes from the query string
+        const attributeArray = req.query.attributes? req.query.attributes.split(',').map(a => a.trim()) : undefined;
+        if (attributeArray && attributeArray.length > 0) {
+            // Only add attributes if they are provided
+            options.attributes = attributeArray;
+        }
         // Fetch all suppliers from the database
-        const suppliers = await Supplier.findAll();
+        const suppliers = await Supplier.findAll(options);
         // Check if suppliers were found
         if (suppliers.length === 0) {
             return res.status(404).json({

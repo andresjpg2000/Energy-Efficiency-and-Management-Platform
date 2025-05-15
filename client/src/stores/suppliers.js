@@ -7,10 +7,11 @@ export const useSuppliersStore = defineStore('suppliers', {
     token: sessionStorage.getItem('token'),
   }),
   actions: {
-    async fetchSuppliers() {
+    async fetchSuppliers(attributes) {
+      const query = attributes ? `?attributes=${encodeURIComponent(attributes)}` : '';
       this.loading = true
       try {
-        const response = await fetch('http://localhost:3000/suppliers')
+        const response = await fetch(`http://localhost:3000/suppliers${query}`)
 
         if (!response.ok) {
           const data = await response.json()
@@ -18,8 +19,9 @@ export const useSuppliersStore = defineStore('suppliers', {
         }
         
         const data = await response.json()
-
+        
         this.suppliers = data.data;
+
       } catch (error) {
         throw error;
       } finally {
