@@ -27,13 +27,11 @@ async function login(req, res, next) {
     res.cookie('token', token, {
       httpOnly: true,
       secure: false, // change to true if using HTTPS
-      maxAge: 60 * 60 * 1000, // 1 hour
-      // sameSite: 'Strict',  CSRF protection
+      maxAge: 60*60*1000, // 1 hour
     });
 
     res.json({
       message: 'Login successful',
-      token,
     });
 
   } catch (error) {

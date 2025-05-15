@@ -16,7 +16,7 @@ router.get('/:id_housing/equipments', auth(), validateIdParam("id_housing"), ver
 // Get all energy consumptions from a housing
 //router.get('/:id_housing/energy-consumptions', auth, validateIdParam("id_housing"), verifyOwnership, housingsController.getAllEnergyConsumptionsFromHouse);
 // Create a new housing
-router.post('/', auth, housingsController.createHousing);
+router.post('/', auth(), housingsController.createHousing);
 
 // Update a housing by ID
 router.put('/:id_housing', auth(), validateIdParam("id_housing"), housingsController.updateHousing);

@@ -85,20 +85,21 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   const usersStore = useUsersStore()
   // Update the document title based on the route
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
-  // Check if the user is authenticated
-  let isAuthenticated = usersStore.isLoggedIn;
-  // Check if the user is an admin
-  let isAdmin = usersStore.isAdmin;
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
+  if (!usersStore.user || usersStore.checkToken()) {
+    // check if user is already in cache or if token is expired and fetch user data if needed
+    await usersStore.fetchUser();
+  }
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !usersStore.isLoggedIn) {
     return next({ name: 'login' })
   } 
-  if (to.matched.some(record => record.meta.requiresAdmin) && !isAdmin) {
+  if (to.matched.some(record => record.meta.requiresAdmin) && !usersStore.isAdmin) {
     return next({ name: 'Forbidden' })
   }
   return next()
