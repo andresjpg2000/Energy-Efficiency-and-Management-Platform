@@ -91,18 +91,44 @@ router.beforeEach(async(to, from, next) => {
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
 
-  if (!usersStore.user || usersStore.checkToken()) {
-    // check if user is already in cache or if token is expired and fetch user data if needed
-    await usersStore.fetchUser();
+  const needsAuth = to.matched.some(record => record.meta.requiresAuth);
+  const needsAdmin = to.matched.some(record => record.meta.requiresAdmin);
+  const isProtectedRoute = needsAuth || needsAdmin;
+  const persistedLogin = sessionStorage.getItem('isLoggedIn');
+
+  if (persistedLogin === 'false' && !isProtectedRoute) {
+    // skip when user enters the app for the first time, but not on a protected route
+    return next();
   }
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !usersStore.isLoggedIn) {
-    return next({ name: 'login' })
-  } 
-  if (to.matched.some(record => record.meta.requiresAdmin) && !usersStore.isAdmin) {
-    return next({ name: 'Forbidden' })
+  try {
+    if (!usersStore.user || usersStore.checkToken()) {
+      // get user data if user is not cached or token expired
+      await usersStore.fetchUser();
+    }
+    if ((to.name == 'login' || to.name == 'register') && persistedLogin === 'true') {
+    return next({ name: 'home' })
+    }
+    if (needsAuth && !usersStore.isLoggedIn) {
+      return next({ name: 'login' })
+    } 
+    if (needsAdmin && !usersStore.isAdmin) {
+      return next({ name: 'Forbidden' })
+    }
+  
+    return next()
+
+  } catch (error) {
+    console.error('Error in router:', error);
+    usersStore.user = null;
+    usersStore.tokenTimer = null;
+    if (needsAuth) {
+      return next({ name: 'login' });
+    } else {
+      return next();
+    }
   }
-  return next()
+
 });
 
 export default router

@@ -23,6 +23,8 @@ export const useUsersStore = defineStore('user', {
           throw new Error('Failed to logout');
         }
         this.user = null;
+        // Treat a logout as a fresh start
+        sessionStorage.setItem('isLoggedIn', 'false'); 
       } catch (error) {
         console.log(error);
       }

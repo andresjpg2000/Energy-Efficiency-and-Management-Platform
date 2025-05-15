@@ -66,6 +66,7 @@ export default {
             });
 
           await this.usersStore.fetchUser();
+          sessionStorage.setItem('isLoggedIn', 'true');
           this.$router.push('/');
         } catch (error) {
           console.log(error);
