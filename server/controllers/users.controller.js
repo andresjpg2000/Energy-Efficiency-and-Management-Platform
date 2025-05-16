@@ -8,7 +8,7 @@ async function getAllUsers(req, res, next) {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows } = await User.findAndCountAll({
       limit: limit,
       offset: offset,
@@ -29,7 +29,8 @@ async function getAllUsers(req, res, next) {
 let getAllUserWidgets = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id_user, {
-    attributes: ['id_user'],});
+      attributes: ["id_user"],
+    });
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -38,19 +39,19 @@ let getAllUserWidgets = async (req, res, next) => {
 
     // lazy loading
     const widgets = await user.getWidgets({
-      attributes: [ 'title', 'body', 'type'],
+      attributes: ["title", "body", "type"],
     });
 
     user.dataValues.widgets = widgets;
     res.status(200).json({
       data: user,
     });
-    } catch (err) {
-      console.error("Error fetching Users Widgets:", err);
+  } catch (err) {
+    console.error("Error fetching Users Widgets:", err);
 
-      next(err);
-    }
-}
+    next(err);
+  }
+};
 
 // Obter um utilizador por ID
 async function getUserById(req, res, next) {
@@ -75,6 +76,12 @@ async function createUser(req, res, next) {
 
     if (!email || !name || !password) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Verificar se o email já está registado
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
@@ -104,7 +111,7 @@ async function updateUser(req, res, next) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const updateData = {email, name, admin};
+    const updateData = { email, name, admin };
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10); // Encriptar a password
@@ -139,5 +146,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  getAllUserWidgets
+  getAllUserWidgets,
 };
