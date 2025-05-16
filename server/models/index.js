@@ -28,6 +28,7 @@ db.Housing.hasMany(db.EnergyEquipment, {
 });
 db.EnergyConsumption.belongsTo(db.Housing, {
   foreignKey: "id_housing",
+  targetKey: "id_housing",
 });
 
 // Housing and Energy Equipment

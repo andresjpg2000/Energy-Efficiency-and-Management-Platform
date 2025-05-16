@@ -20,5 +20,5 @@ router.delete('/:id',auth(), energyEquipmentsController.deleteEnergyEquipment);
 // get given energy of an equipment
 router.get('/:id/given-energies',validateParamIsInt("id"), energyEquipmentsController.getGivenEnergyOfEquipment);
 // get energy productions of an equipment
-router.get('/:id/energy-productions', energyEquipmentsController.getEnergyProductionsOfEquipment);
+router.get('/:id/energy-productions', validateParamIsInt("id"), energyEquipmentsController.getEnergyProductionsOfEquipment);
 module.exports = router;

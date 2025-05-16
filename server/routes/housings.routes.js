@@ -14,7 +14,7 @@ router.get('/:id_housing', auth(), validateIdParam("id_housing"), housingsContro
 // Get all equipments from a housing
 router.get('/:id_housing/equipments', auth(), validateIdParam("id_housing"), verifyOwnership, housingsController.getAllEquipsFromHouse);
 // Get all energy consumptions from a housing
-//router.get('/:id_housing/energy-consumptions', auth, validateIdParam("id_housing"), verifyOwnership, housingsController.getAllEnergyConsumptionsFromHouse);
+router.get('/:id_housing/energy-consumptions', auth(), validateIdParam("id_housing"), verifyOwnership, housingsController.getAllEnergyConsumptionsFromHouse);
 // Create a new housing
 router.post('/', auth(), housingsController.createHousing);
 

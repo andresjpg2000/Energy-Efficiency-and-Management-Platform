@@ -4,7 +4,7 @@ const notificationsController = require("../controllers/notifications.controller
 const auth = require("../middleware/auth.js");
 const validateIdParam = require("../middleware/validateIdParam.js");
 
-// Get all notifications for a specific user
+// Get all notifications for a specific user - trocar para ser rest
 router.get("/:id_user", auth(), validateIdParam("id_user"), notificationsController.getNotificationsByUser);
 
 // Create a new notification

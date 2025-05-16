@@ -1,5 +1,6 @@
 const { Housing } = require('../models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
+const { Op } = require('sequelize');
 
 async function checkIfUserIsTheOwner(user, id_housing) {
     const housing = await Housing.findOne({
@@ -101,6 +102,65 @@ let getAllEquipsFromHouse = async (req, res, next) => {
 
     } catch (err) {
         console.error("Error fetching equipments:", err);
+
+        next(err);
+    }
+}
+
+// Get all equipments from a housing
+let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
+    try {
+        const house = await Housing.findByPk(req.params.id_housing, {
+        attributes: ['id_housing', 'id_user', 'address', 'pc', 'building_type'],
+        });
+        if (!house) {
+            return res.status(404).json({
+                message: "House not found",
+            });
+        }
+
+        // Get the start and end dates from the query parameters
+        let start = req.query.start ? new Date(req.query.start) : new Date(0);
+        let end = req.query.end ? new Date(req.query.end) : new Date();
+
+        // Check if the start and end dates are valid
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid start or end date." });
+        }
+
+        // Check if the start date is before the end date
+        if (start > end) {
+        return res.status(400).json({ message: "Start date must be before end date." });
+        }
+
+        // lazy loading
+        const consumptions = await house.getConsumptions({
+            where:{
+                date: {
+                [Op.and]: [
+                    { [Op.gte]: start },
+                    { [Op.lte]: end }
+                ]
+                },
+            },
+            attributes: ['id_consumption', 'value', 'date'],
+        });
+
+        //map HATEOAS links to each equipment
+        // equipments.forEach(eq => {
+        //      eq.dataValues.links = [
+        //         { rel: "delete", href: `/energy-equipments/${eq.id_equipment}`, method: "DELETE" },
+        //         { rel: "modify", href: `/energy-equipments/${eq.id_equipment}`, method: "PUT" },
+        //     ]
+        // });
+
+        house.dataValues.consumptions = consumptions;
+        res.status(200).json({
+            data: house,
+        });
+
+    } catch (err) {
+        console.error("Error fetching consumptions:", err);
 
         next(err);
     }
@@ -411,5 +471,6 @@ module.exports = {
     updateHousing,
     partialUpdateHousing,
     deleteHousing,
-    getAllEquipsFromHouse
+    getAllEquipsFromHouse,
+    getAllEnergyConsumptionsFromHouse
 };

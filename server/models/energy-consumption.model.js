@@ -40,23 +40,23 @@ module.exports = (sequelize) => {
         },
       },
     },
-    id_supplier: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'suppliers', // name of Target model
-        key: 'id_supplier', // key in Target model that we're referencing
-      },
-      validate: {
-        isInt: {
-          msg: 'id_supplier must be an integer',
-        },
-        min: {
-          args: 1,
-          msg: 'id_supplier must be greater than or equal to 1',
-        },
-      },
-    },
+    // id_supplier: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    //   references: {
+    //     model: 'suppliers', // name of Target model
+    //     key: 'id_supplier', // key in Target model that we're referencing
+    //   },
+    //   validate: {
+    //     isInt: {
+    //       msg: 'id_supplier must be an integer',
+    //     },
+    //     min: {
+    //       args: 1,
+    //       msg: 'id_supplier must be greater than or equal to 1',
+    //     },
+    //   },
+    // },
     id_housing: {
       type: DataTypes.INTEGER,
       allowNull: false,
