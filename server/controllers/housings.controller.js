@@ -288,8 +288,8 @@ const createHousing = async (req, res, next) => {
 }
 
 const updateHousing = async (req, res, next) => {
-    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type) {
-        return res.status(400).json({ message: 'Address, postal code, and building type are required!' });
+    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type || !req.body.id_supplier) {
+        return res.status(400).json({ message: 'Address, postal code, id_supplier and building type are required!' });
     }
     
     try {
@@ -361,8 +361,8 @@ const updateHousing = async (req, res, next) => {
 
 // Partially update a housing by ID
 const partialUpdateHousing = async (req, res, next) => {
-    if (!req.body || (!req.body.address && !req.body.pc && !req.body.building_type)) {
-        return res.status(400).json({ message: 'At least one of address, postal code, or building type must be provided!' });
+    if (!req.body || (!req.body.address && !req.body.pc && !req.body.building_type && !req.body.id_supplier)) {
+        return res.status(400).json({ message: 'At least one of address, postal code, id_supplier or building type must be provided!' });
     }
   
     try {

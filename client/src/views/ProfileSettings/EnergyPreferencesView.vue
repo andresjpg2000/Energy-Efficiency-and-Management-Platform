@@ -55,6 +55,7 @@ import { useSuppliersStore } from "@/stores/suppliers.js";
     },
     methods: {
       formSubmit() {
+        this.isSubmitting = true;
         // Handle form submission logic here
         if (this.$refs.form.validate()) {
           
@@ -63,19 +64,31 @@ import { useSuppliersStore } from "@/stores/suppliers.js";
             return;
           }
 
-          this.isSubmitting = true;
-
-          setTimeout(() => {
-            this.isSubmitting = false;
-
-            console.log("Form submitted with data:", {
-              empresa: this.selectedSupplier,
-            });
-            // Chamar API para atualizar os dados do usuário 
-          }, 1500);
-          
+          // await fetch("http://localhost:3000/housings/", {
+          //   method: "PATCH",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //     credentials: "include",
+          //   },
+          //   body: JSON.stringify({
+          //     energy_supplier: this.selectedSupplier,
+          //   }),
+          // })
+          // .then((response) => {
+          //   if (response.ok) {
+          //     console.log("Energy supplier updated successfully.");
+          //     this.isSubmitting = false;
+          //     this.$router.push({ name: "ProfileSettings" });
+          //   } else {
+          //     console.error("Error updating energy supplier:", response.statusText);
+          //     this.isSubmitting = false;
+          //   }
+          // })
+ 
         } else {
           console.log("Form validation failed.");
+          this.isSubmitting = false;
+          return;
         }
 
       },
