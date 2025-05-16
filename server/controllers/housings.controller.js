@@ -111,7 +111,7 @@ let getAllEquipsFromHouse = async (req, res, next) => {
 let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
     try {
         const house = await Housing.findByPk(req.params.id_housing, {
-        attributes: ['id_housing', 'id_user', 'address', 'pc', 'building_type'],
+        attributes: ['id_housing'],
         });
         if (!house) {
             return res.status(404).json({
@@ -146,13 +146,11 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
             attributes: ['id_consumption', 'value', 'date'],
         });
 
-        //map HATEOAS links to each equipment
-        // equipments.forEach(eq => {
-        //      eq.dataValues.links = [
-        //         { rel: "delete", href: `/energy-equipments/${eq.id_equipment}`, method: "DELETE" },
-        //         { rel: "modify", href: `/energy-equipments/${eq.id_equipment}`, method: "PUT" },
-        //     ]
-        // });
+        consumptions.forEach(eq => {
+             eq.dataValues.links = [
+                { rel: "delete", href: `/energy-consumptions/${eq.id_consumption}`, method: "DELETE" },
+            ]
+        });
 
         house.dataValues.consumptions = consumptions;
         res.status(200).json({

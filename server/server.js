@@ -45,12 +45,12 @@ app.use('/widgets', require('./routes/widgets.routes.js'));
 app.use('/housings', require('./routes/housings.routes.js'));
 // use route middleware for /energy-equipments requests
 app.use('/energy-equipments', require('./routes/energy-equipments.routes.js'));
+// use route middleware for /energy-equipments requests
+app.use('/energy-consumptions', require('./routes/energy-consumptions.routes.js'));
 // use route middleware for /energy-productions requests
 app.use('/energy-productions', require('./routes/energy-productions.routes.js'));
 // use route middleware for /notifications requests
 app.use('/notifications', require('./routes/notifications.routes.js'));
-
-
 
 // error middleware (always at the end of the file)
 app.use((req, res, next) => {

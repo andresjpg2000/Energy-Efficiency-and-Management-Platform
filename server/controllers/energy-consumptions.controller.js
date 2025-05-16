@@ -1,18 +1,38 @@
-const { EnergyConsumption } = require('../models/index.js');
+const { EnergyConsumption, Housing } = require('../models/index.js');
 const { UniqueConstraintError, ValidationError } = require('sequelize');
 
 // Create consumption
 const addEnergyConsumption = async (req, res, next) => {
-    if (!req.body || !req.body.value || !req.body.date || !req.body.id_supplier) {
-        return res.status(400).json({ message: 'Value, date and supplier are required!' });
+    if (!req.body || !req.body.value || !req.body.date || !req.body.id_housing) {
+        return res.status(400).json({ message: 'value, date and id_housing are required!' });
     }
     
+    const id_housing = req.body.id_housing;
+    const id_user = req.user.id_user;
+
+    try {
+        // Check if the housing belongs to the user
+        const housing = await Housing.findOne({
+            where: {
+                id_housing,
+                id_user,
+            },
+        });
+
+        if (!housing ) {
+            return res.status(403).json({ message: 'You do not have access to this housing.' });
+        }
+
+    } catch (error) {
+        console.error('Error verifying ownership:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+
     try {
         const newConsumption = await EnergyConsumption.create({
             value: req.body.value,
             date: req.body.date,
-            id_supplier: req.body.id_supplier,
-            id_housing: req.params.id_housing,
+            id_housing: req.body.id_housing,
         });
 
         res.status(201).json({
@@ -22,26 +42,6 @@ const addEnergyConsumption = async (req, res, next) => {
                     rel: 'self',
                     href: `/energy-consumptions`,
                     method: 'POST',
-                },
-                {
-                    rel: 'get-by-id',
-                    href: `/energy-consumptions/${newConsumption.id_consumption}`,
-                    method: 'GET',
-                },
-                {
-                    rel: 'get-all',
-                    href: `/energy-consumptions`,
-                    method: 'GET',
-                },
-                {
-                    rel: 'update',
-                    href: `/energy-consumptions/${newConsumption.id_consumption}`,
-                    method: 'PUT',
-                },
-                {
-                    rel: 'partial-update',
-                    href: `/energy-consumptions/${newConsumption.id_consumption}`,
-                    method: 'PATCH',
                 },
                 {
                     rel: 'delete',
@@ -71,89 +71,18 @@ const addEnergyConsumption = async (req, res, next) => {
     }
 }
 
-// Get all consumptions
-const getAllEnergyConsumptions = async (req, res, next) => {
-    try {
-        const consumptions = await EnergyConsumption.findAll({
-            where: {
-                id_housing: req.params.id_housing,
-            },
-            order: [['date', 'DESC']],
-        });
-        res.status(200).json({
-            data: consumptions,
-            links: [
-                {
-                    rel: 'self',
-                    href: `/energy-consumptions`,
-                    method: 'GET',
-                },
-                {
-                    rel: 'create',
-                    href: `/energy-consumptions`,
-                    method: 'POST',
-                },
-            ],
-        });
-    } catch (err) {
-        console.error("Error fetching consumptions:", err);
-        next(err);
-    }
-}
-
-// Get consumption by ID
-const getEnergyConsumptionById = async (req, res, next) => {
-    try {        
-        const consumption = await EnergyConsumption.findByPk(req.params.id_consumption);
-        if (!consumption) {
-            return res.status(404).json({ message: 'Consumption not found!' });
-        }
-
-        res.status(200).json({
-            data: consumption,
-            links: [
-                {
-                    rel: 'self',
-                    href: `/energy-consumptions/${req.params.id_consumption}`,
-                    method: 'GET',
-                },
-                {
-                    rel: 'get-all',
-                    href: `/energy-consumptions`,
-                    method: 'GET',
-                },
-                {
-                    rel: 'update',
-                    href: `/energy-consumptions/${req.params.id_consumption}`,
-                    method: 'PUT',
-                },
-                {
-                    rel: 'partial-update',
-                    href: `/energy-consumptions/${req.params.id_consumption}`,
-                    method: 'PATCH',
-                },
-                {
-                    rel: 'delete',
-                    href: `/energy-consumptions/${req.params.id_consumption}`,
-                    method: 'DELETE',
-                },
-            ],
-        });
-    } catch (err) {
-        console.error("Error fetching consumption by ID:", err);
-        next(err);
-    }
-}
-
 // Delete consumption
 const deleteEnergyConsumption = async (req, res, next) => {
     try {
-        const consumption = await EnergyConsumption.findByPk(req.params.id_consumption);
-        if (!consumption) {
+        const response = await EnergyConsumption.destroy({
+            where: {
+                id_consumption: req.params.id_consumption,
+            },
+        });
+
+        if (!response) {
             return res.status(404).json({ message: 'Consumption not found!' });
         }
-
-        await consumption.destroy();
 
         res.status(204).json({
             message: 'Consumption deleted successfully!',
@@ -164,9 +93,9 @@ const deleteEnergyConsumption = async (req, res, next) => {
                     method: 'DELETE',
                 },
                 {
-                    rel: 'get-all',
+                    rel: 'create',
                     href: `/energy-consumptions`,
-                    method: 'GET',
+                    method: 'POST',
                 },
             ],
         });
@@ -178,7 +107,5 @@ const deleteEnergyConsumption = async (req, res, next) => {
 
 module.exports = {
     addEnergyConsumption,
-    getAllEnergyConsumptions,
-    getEnergyConsumptionById,
     deleteEnergyConsumption,
 };
