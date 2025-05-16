@@ -48,7 +48,14 @@ async function updateEnergyEquipmentName(req, res, next) {
     const { id } = req.params;
     const { name } = req.body;
 
-    if (!name || name.length < 3) {
+    const bodyKeys = Object.keys(req.body);
+    if (!name || bodyKeys.length !== 1 || bodyKeys[0] !== "name") {
+      return res
+        .status(400)
+        .json({ message: "The 'name' field is required and must be the only field in the request body." }); 
+    }
+
+    if (name.length < 3) {
       return res
         .status(400)
         .json({ message: "The name must have at least 3 characters." });
