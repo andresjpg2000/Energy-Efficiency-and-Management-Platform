@@ -58,27 +58,27 @@ async function createNotification(req, res, next) {
 }
 
 // Get all notifications for a specific user
-async function getNotificationsByUser(req, res, next) {
-  try {
-    const { id_user } = req.params;
+// async function getNotificationsByUser(req, res, next) {
+//   try {
+//     const { id_user } = req.params;
 
-    // Validate user exists
-    const user = await User.findByPk(id_user);
-    if (!user) {
-      return res.status(404).json({
-        message: "The user with the provided credentials was not found.",
-      });
-    }
+//     // Validate user exists
+//     const user = await User.findByPk(id_user);
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "The user with the provided credentials was not found.",
+//       });
+//     }
 
-    const notifications = await Notifications.findAll({
-      where: { id_user },
-    });
+//     const notifications = await Notifications.findAll({
+//       where: { id_user },
+//     });
 
-    res.status(200).json(notifications);
-  } catch (error) {
-    next(error);
-  }
-}
+//     res.status(200).json(notifications);
+//   } catch (error) {
+//     next(error);
+//   }
+// }
 
 // Delete a notification by ID
 async function deleteNotification(req, res, next) {
@@ -98,7 +98,6 @@ async function deleteNotification(req, res, next) {
 }
 
 module.exports = {
-  getNotificationsByUser,
   createNotification,
   deleteNotification,
 };

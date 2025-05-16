@@ -26,4 +26,11 @@ router.get(
   usersController.getAllUserWidgets
 );
 
+// Obter Notifications de um Utilizador (Apenas o próprio)
+router.get(
+  "/:id_user/notifications",
+  authenticate(),
+  usersController.getAllUserNotifications
+);
+
 module.exports = router;
