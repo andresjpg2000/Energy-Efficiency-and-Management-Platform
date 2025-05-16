@@ -53,6 +53,40 @@ let getAllUserWidgets = async (req, res, next) => {
   }
 };
 
+// Obter todas as notificações do utilizador
+let getAllUserNotifications = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id_user, {
+      attributes: ["id_user"],
+    });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // lazy loading
+    const notifications = await user.getNotifications({
+      attributes: ["id_notification", "type", "id_consumption", "message",],
+    });
+
+    notifications.forEach(nt => {
+             nt.dataValues.links = [
+                { rel: "delete", href: `/notifications/${nt.id_notification}`, method: "DELETE" },
+            ]
+        });
+
+    user.dataValues.notifications = notifications;
+    res.status(200).json({
+      data: user,
+    });
+  } catch (err) {
+    console.error("Error fetching Users Notifications:", err);
+
+    next(err);
+  }
+};
+
 // Obter um utilizador por ID
 async function getUserById(req, res, next) {
   try {
@@ -147,4 +181,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllUserWidgets,
+  getAllUserNotifications
 };
