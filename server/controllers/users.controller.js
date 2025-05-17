@@ -138,6 +138,10 @@ async function createUser(req, res, next) {
 async function updateUser(req, res, next) {
   try {
     const { id_user } = req.params;
+    // Verificar se o utilizador é o próprio ou admin
+    if (id_user !== req.user.id_user && !req.user.admin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
     const { email, name, password, admin } = req.body;
 
     const user = await User.findByPk(id_user);
@@ -158,6 +162,38 @@ async function updateUser(req, res, next) {
   }
 }
 
+// Atualizar password de um utilizador
+async function updateUserPassword(req, res, next) {
+  try {
+    const { id_user } = req.params;
+    // Verificar se o utilizador é o próprio ou admin
+    if (id_user !== req.user.id_user && !req.user.admin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const user = await User.findByPk(id_user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const { currentPassword, newPassword } = req.body;
+    // Verificar se a password atual está correta
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordMatches) {
+      return res.status(401).json({ message: "Invalid current password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10); // Encriptar a password
+    user.password = hashedPassword;
+
+    await user.save();
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
 // Eliminar um utilizador
 async function deleteUser(req, res, next) {
   try {
@@ -181,5 +217,6 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllUserWidgets,
-  getAllUserNotifications
+  getAllUserNotifications,
+  updateUserPassword,
 };

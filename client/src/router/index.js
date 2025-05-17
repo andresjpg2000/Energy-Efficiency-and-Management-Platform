@@ -102,7 +102,7 @@ router.beforeEach(async(to, from, next) => {
   }
 
   try {
-    if (!usersStore.user || usersStore.checkToken()) {
+    if ((!usersStore.user || usersStore.checkToken()) && !usersStore.userFetched) {
       // get user data if user is not cached or token expired
       await usersStore.fetchUser();
     }
@@ -122,6 +122,7 @@ router.beforeEach(async(to, from, next) => {
     console.error('Error in router:', error);
     usersStore.user = null;
     usersStore.tokenTimer = null;
+    usersStore.userFetched = true;
     if (needsAuth) {
       return next({ name: 'login' });
     } else {

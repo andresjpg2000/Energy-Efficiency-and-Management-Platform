@@ -78,16 +78,21 @@
           <v-app-bar-title>Manage system</v-app-bar-title>
         </router-link>
         
-        <v-btn class="mx-4" icon="mdi-bell"></v-btn>
+        <v-btn class="mx-1" icon="mdi-bell"></v-btn>
 
-        <span v-if="username" class="mr-4">{{ username }}</span>
+        <!-- <span v-if="username" class="mr-4">{{ username }}</span> -->
 
-        <v-btn class="text-none mr-8" height="48" icon slim>
+        <v-btn class="text-none mr-4" height="48" icon slim>
           
-          <v-avatar color="surface-light" image="https://cdn.vuetifyjs.com/images/john.png" size="32" />
+          <!-- <v-avatar color="surface-light" class="profileAvatar" image="https://cdn.vuetifyjs.com/images/john.png" size="32" /> -->
+          <v-avatar color="surface-light" class="profileAvatar" text="" size="small">
+            <span class="initialsText">{{ userInitials }}</span>
+          </v-avatar> 
 
           <v-menu activator="parent">
             <v-list density="compact" nav>
+              <h3 class="text-center">{{ username }}</h3>
+              <v-divider class="my-2"></v-divider>
               <v-list-item v-if="showSettings" append-icon="mdi-cog-outline" link title="Settings" :to="{ path: '/settings' }" router/>
               <v-list-item @click="logout()" append-icon="mdi-logout" link title="Logout" />
             </v-list>
@@ -141,7 +146,10 @@ import { watch } from 'vue'
       },
       isAdmin () {
         return this.usersStore.isAdmin || false;
-      }
+      },
+      userInitials () {
+        return this.username.split(' ').map(word => word[0]).join('').toUpperCase();
+      },
     },
     methods: {
       logout () {
@@ -185,5 +193,9 @@ import { watch } from 'vue'
     border-top-left-radius: 1rem;
     height: auto;
     min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
+  }
+  .initialsText {
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 </style>

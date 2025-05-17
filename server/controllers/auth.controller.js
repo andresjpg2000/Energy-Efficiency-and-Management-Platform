@@ -47,10 +47,15 @@ async function getUserInfo(req, res, next) {
   }
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ where: { id_user: payload.id_user } });
+    if (!user) {
+      return res.status(404).json({ message: 'User information not found' });
+    }
     res.json({
-      id_user: payload.id_user,
-      name: payload.name,
-      admin: payload.admin,
+      id_user: user.id_user,
+      name: user.name,
+      email: user.email,
+      admin: user.admin,
     })
   } catch (err) {
     res.status(401).json({ message: 'Invalid or expire token' });

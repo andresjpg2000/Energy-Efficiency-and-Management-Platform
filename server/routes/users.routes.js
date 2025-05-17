@@ -14,7 +14,13 @@ router.get("/:id_user", authenticate(), usersController.getUserById);
 router.post("/", usersController.createUser);
 
 // Atualizar dados de um utilizador (Apenas o próprio ou admin)
-router.put("/:id_user", authenticate(), usersController.updateUser);
+// router.put("/:id_user", authenticate(), usersController.updateUser);
+
+// Atualizar parcialmente dados de um utilizador (Apenas o próprio ou admin)
+router.patch("/:id_user", authenticate(), usersController.updateUser);
+
+// Atualizar password de um utilizador (Apenas o próprio ou admin) - recebe currentPassword e newPassword
+router.patch("/:id_user/changePassword", authenticate(), usersController.updateUserPassword);
 
 // Eliminar um utilizador (Apenas admins)
 router.delete("/:id_user", authenticate(true), usersController.deleteUser);

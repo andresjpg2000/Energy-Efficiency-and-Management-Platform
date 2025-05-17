@@ -14,11 +14,17 @@
                   </v-text-field>
                   
                 </v-col>
+              </v-row>
+
+              <v-row>
                 <v-col>
-                  
                   <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="New Password" :rules="passwordRules">
                   </v-text-field>
-                  
+                </v-col>
+
+                <v-col>
+                  <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
+                  </v-text-field>
                 </v-col>
               </v-row>
 
@@ -39,13 +45,18 @@
 </template>
 
 <script>
+import { useMessagesStore } from '@/stores/messages';
+import { useUsersStore } from '@/stores/usersStore';
   export default {
     data() {
       return {
+        useUsersStore: useUsersStore(),
+        useMessagesStore: useMessagesStore(),
         form: null,
         isSubmitting: false,
         CurrentPassword: "",
         NewPassword: "",
+        ConfirmPassword: "",
         passwordRules: [
           (v) => !!v || 'Password is required',
           (v) => v === v.trim() || 'Password cannot start or end with spaces',
@@ -54,34 +65,75 @@
       }
     },
     methods: {
-      formSubmit() {
+      async formSubmit() {
         // Handle form submission logic here
         if (this.$refs.form.validate()) {
           
           // Trocar isto para verificar se o campo é igual à password na base de dados
           if (this.CurrentPassword.length > 10 || this.CurrentPassword.length == 0) {
-            console.error("Email must be less than 10 characters and cannot be empty.");
+            console.error("Current password must be less than 10 characters and cannot be empty.");
             return;
           }
 
           if (this.NewPassword.length > 10 || this.NewPassword.length == 0) {
-            console.error("Email must be less than 10 characters and cannot be empty.");
+            console.error("New password must be less than 10 characters and cannot be empty.");
+            return;
+          }
+
+          if (this.ConfirmPassword.length > 10 || this.ConfirmPassword.length == 0) {
+            console.error("Confirm password must be less than 10 characters and cannot be empty.");
+            return;
+          }
+
+          if (this.NewPassword !== this.ConfirmPassword) {
+            useMessagesStore().add({
+              color: 'error',
+              text: 'New password and confirm password do not match.',
+            });
             return;
           }
 
           this.isSubmitting = true;
 
-          setTimeout(() => {
-            this.isSubmitting = false;
+          this.data = {
+            currentPassword: this.CurrentPassword,
+            newPassword: this.NewPassword,
+          };
 
-            console.log("Form submitted with data:", {
-              password: this.NewPassword,
+          try {
+            await fetch(`http://localhost:3000/users/${this.useUsersStore.user.id_user}/changePassword`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify(this.data),
             });
-            // Chamar API para atualizar os dados do usuário 
-          }, 1500);
+            this.isSubmitting = false;
+            useMessagesStore().add({
+              color: 'success',
+              text: 'Password changed successfully.',
+            });
+          } catch (error) {
+            let message = error.message || 'An unexpected error occurred.';
+
+            if (error.details) {
+              message = error.details.map(detail => `${detail.field}: ${detail.message}`).join(', ');
+            }
+
+            useMessagesStore().add({
+              color: 'error',
+              text: message,
+            });
+
+            this.isSubmitting = false;
+          }
           
         } else {
-          console.log("Form validation failed.");
+          useMessagesStore().add({
+            color: 'error',
+            text: 'Error changing password.',
+          });
         }
 
       },

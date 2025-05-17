@@ -16,7 +16,7 @@
                 </v-col>
                 <v-col>
                   
-                    <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" autocomplete="family-name" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name":rules="lastNameRules" counter required>
+                    <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" autocomplete="family-name" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name" :rules="lastNameRules" counter required>
                     </v-text-field>
                   
                 </v-col>
@@ -47,9 +47,13 @@
 </template>
 
 <script>
+import { useMessagesStore } from '@/stores/messages';
+import { useUsersStore } from '@/stores/usersStore';
+
   export default {
     data() {
       return {
+        useUsersStore: useUsersStore(),
         form: null,
         FirstName: "",
         LastName: "",
@@ -70,49 +74,101 @@
           (v) => v.length <= 20 || "Last Name must be less than 20 characters",
           (v) => v.length >= 4 || "Last Name must be more than 4 characters",
         ],
+        data: {
+          firstName: "",
+          lastName: "",
+          email: "",
+        },
       }
     },
     methods: {
-      formSubmit() {
+      async formSubmit() {
         // Handle form submission logic here
         if (this.$refs.form.validate()) {
+          if(this.FirstName.length > 20 || this.FirstName.length < 4) {
+            useMessagesStore().add({
+              color: 'error',
+              text: 'First name must be less than 20 characters and more than 4.',
+            });
+            return;
+          }
+
+          if(this.LastName.length > 20 || this.LastName.length < 4) {
+            useMessagesStore().add({
+              color: 'error',
+              text: 'Last name must be less than 20 characters and more than 4.',
+            });
+            return;
+          }
+          
           const fullName = `${this.FirstName.trim()} ${this.LastName.trim()}`.trim();
 
           if (fullName.length > 40 || fullName.length < 4) {
-            console.error("Full name must be less than 40 characters and more than 4.");
+            useMessagesStore().add({
+              color: 'error',
+              text: 'Full name must be less than 40 characters and more than 4.',
+            });
             return;
           }
           if (this.Email.length > 45 || this.Email.length < 4) {
-            console.error("Email must be less than 45 characters and more than 4.");
+            useMessagesStore().add({
+              color: 'error',
+              text: 'Email must be less than 45 characters and more than 4.',
+            });
             return;
           }
           
           this.isSubmitting = true;
 
-          setTimeout(() => {
-            this.isSubmitting = false;
+          this.data = {
+            name: fullName,
+            email: this.Email,
+          };
 
-            console.log("Form submitted with data:", {
-              nome: fullName,
-              email: this.Email,
+          try {
+            await this.useUsersStore.updateUser(this.data);
+            this.isSubmitting = false;
+            useMessagesStore().add({
+              color: 'success',
+              text: 'Account information updated successfully.',
             });
-            // Chamar API para atualizar os dados do usuário 
-          }, 1500);
+            this.isSubmitting = false;
+          } catch (error) {
+            let message = error.message || 'An unexpected error occurred.';
+
+            if (error.details) {
+              message = error.details.map(detail => `${detail.field}: ${detail.message}`).join(', ');
+            }
+
+            useMessagesStore().add({
+              color: 'error',
+              text: message,
+            });
+
+            this.isSubmitting = false;
+          }
           
         } else {
-          console.log("Form validation failed.");
+          useMessagesStore().add({
+            color: 'error',
+            text: 'Error updating account information.',
+          });
         }
 
       },
     },
     mounted() {
       console.log('✅ AccountInformationView mounted!');
-    }
+      const fullName = this.useUsersStore.user.name || '';
+      const first = fullName.split(' ')[0];
+      const last = fullName.split(' ')[1];
+      this.FirstName = first || '';
+      this.LastName = last || '';
+      this.Email = this.useUsersStore.user.email || '';
+    },
   }
 </script>
 
 <style scoped>
-  /* .formContainer {
-    background-color: transparent;
-  } */
+
 </style>
