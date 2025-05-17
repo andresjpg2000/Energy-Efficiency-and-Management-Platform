@@ -100,7 +100,7 @@ export default {
         hide-details="auto"
         variant="outlined"
         color="primary"
-        auto-complete="email"
+        autocomplete="email"
       ></v-text-field>
     </div>
     <div>
@@ -115,7 +115,7 @@ export default {
         hide-details="auto"
         :type="show1 ? 'text' : 'password'"
         class="mt-2"
-        auto-complete="current-password"
+        autocomplete="current-password"
       >   
       <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">

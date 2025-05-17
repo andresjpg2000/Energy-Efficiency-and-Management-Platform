@@ -44,7 +44,7 @@ export default {
     </div>
     <v-col cols="12">
       <div class="pt-6 pl-6">
-        <Logo />
+        <!-- <Logo /> -->
       </div>
     </v-col>
     <!---Register Part-->

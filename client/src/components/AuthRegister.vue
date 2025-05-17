@@ -131,6 +131,7 @@ export default {
         variant="outlined"
         color="primary"
         @input="email"
+        autocomplete="email"
       ></v-text-field>
     </div>
     <div class="mb-6">
@@ -146,6 +147,7 @@ export default {
         :type="show1 ? 'text' : 'password'"
         class="mt-2"
         @input="password"
+        autocomplete="new-password"
       >
         <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">

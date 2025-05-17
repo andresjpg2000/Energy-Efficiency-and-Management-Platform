@@ -9,10 +9,12 @@
             <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
               <v-row>
                 <v-col>
-                  
+                  <!-- This field is hidden to improve UX  -->
+                  <v-text-field variant="outlined" label="username" density="default" v-model="userEmail" type="text" autocomplete="username" name="username" style="display: none;">
+                  </v-text-field>
+
                   <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
                   </v-text-field>
-                  
                 </v-col>
               </v-row>
 
@@ -54,6 +56,7 @@ import { useUsersStore } from '@/stores/usersStore';
         useMessagesStore: useMessagesStore(),
         form: null,
         isSubmitting: false,
+        userEmail: "",
         CurrentPassword: "",
         NewPassword: "",
         ConfirmPassword: "",
@@ -139,6 +142,7 @@ import { useUsersStore } from '@/stores/usersStore';
       },
     },
     mounted() {
+      this.userEmail = this.useUsersStore.user.email;
       console.log('✅ SecuritySettingsView mounted!');
     }
   }
