@@ -134,19 +134,19 @@ let addgivenEnergies = async (req, res) => {
 
   if (!id_equipment || !value) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value are required",
+      message: "Equipament ID and Value are required",
     });
   }
 
   if (isNaN(id_equipment) || isNaN(value)) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value must be numbers",
+      message: "Equipament ID and Value must be numbers",
     });
   }
 
   if ( id_equipment < 0 || value < 0) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value must be positive numbers",
+      message: "Equipament ID and Value must be positive numbers",
     });
   }
 
