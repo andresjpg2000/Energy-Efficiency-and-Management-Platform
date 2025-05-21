@@ -48,12 +48,15 @@
 
 <script>
 import { useMessagesStore } from '@/stores/messages';
-import { useUsersStore } from '@/stores/usersStore';
+import { useUsersStore } from '@/stores/users';
+import { getToken } from '@/stores/token.js';
+
   export default {
     data() {
       return {
         useUsersStore: useUsersStore(),
         useMessagesStore: useMessagesStore(),
+        token: getToken(),
         form: null,
         isSubmitting: false,
         userEmail: "",
@@ -108,7 +111,7 @@ import { useUsersStore } from '@/stores/usersStore';
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
-                'authorization': `Bearer ${this.useUsersStore.token}`,
+                'authorization': `Bearer ${this.token}`,
               },
               body: JSON.stringify(this.data),
             });

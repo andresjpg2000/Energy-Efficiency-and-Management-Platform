@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useUsersStore } from './usersStore.js'
+import { useUsersStore } from './users.js'
 
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({

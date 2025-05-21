@@ -48,13 +48,13 @@
 </template>
 
 <script>
-import { useUsersStore } from '@/stores/usersStore';
+import { getToken } from '@/stores/token.js';
 
 export default {
 
   data() {
     return {
-      usersStore: useUsersStore(),
+      token: getToken(),
       headers: [
         { title: 'ID', key: 'id_user' },
         { title: 'NAME', key: 'name' },
@@ -84,7 +84,7 @@ export default {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.usersStore.token}`,
+            'authorization': `Bearer ${this.token}`,
           },
         });
 
@@ -118,7 +118,7 @@ export default {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.usersStore.token}`,
+            'authorization': `Bearer ${this.token}`,
           },
         });
 
@@ -139,7 +139,7 @@ export default {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.usersStore.token}`,
+            'authorization': `Bearer ${this.token}`,
           },
           body: JSON.stringify({
             name: this.form.name,

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { useUsersStore } from './usersStore';
+import { getToken } from '@/stores/token.js'
 
 export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({
@@ -29,8 +29,7 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async addSupplier(supplier) {
-      const usersStore = useUsersStore(); // get usersStore instance here
-      const token = usersStore.token;
+      const token = getToken();
       try {
         const response = await fetch('http://localhost:3000/suppliers', {
           method: 'POST',
@@ -54,8 +53,7 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async updateSupplier(supplier) {
-      const usersStore = useUsersStore(); // get usersStore instance here
-      const token = usersStore.token;
+      const token = getToken();
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${supplier.id}`, {
           method: 'PATCH',
@@ -78,8 +76,7 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async deleteSupplier(id) {
-      const usersStore = useUsersStore(); // get usersStore instance here
-      const token = usersStore.token;
+      const token = getToken();
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${id}`, {
           method: 'DELETE',

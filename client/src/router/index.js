@@ -4,7 +4,8 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
-import { useUsersStore } from '@/stores/usersStore'
+import { useAuthStore } from '@/stores/auth'
+import { useUsersStore } from '@/stores/users'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,7 +86,8 @@ const router = createRouter({
 })
 
 router.beforeEach(async(to, from, next) => {
-  const usersStore = useUsersStore()
+  const authStore = useAuthStore();
+  const usersStore = useUsersStore();
   // Update the document title based on the route
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
@@ -94,18 +96,18 @@ router.beforeEach(async(to, from, next) => {
   const needsAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
   try {
-    if (usersStore.checkToken()) {
+    if (authStore.checkToken()) {
       // logout the user if token is expired
-      await usersStore.logout();
+      await authStore.logout();
     }
 
-    if (!usersStore.userFetched && usersStore.token && !usersStore.checkToken()) {  
+    if (!usersStore.userFetched && authStore.token && !authStore.checkToken()) {  
       await usersStore.fetchUser(); 
     }
-    if ((to.name == 'login' || to.name == 'register') && usersStore.isLoggedIn) {
+    if ((to.name == 'login' || to.name == 'register') && authStore.isLoggedIn) {
     return next({ name: 'home' })
     }
-    if (needsAuth && !usersStore.isLoggedIn) {
+    if (needsAuth && !authStore.isLoggedIn) {
       return next({ name: 'login' })
     } 
     if (needsAdmin && !usersStore.isAdmin) {
@@ -117,7 +119,6 @@ router.beforeEach(async(to, from, next) => {
   } catch (error) {
     console.error('Error in router:', error);
     usersStore.user = null;
-    usersStore.tokenTimer = null;
     usersStore.userFetched = true;
     if (needsAuth) {
       return next({ name: 'login' });

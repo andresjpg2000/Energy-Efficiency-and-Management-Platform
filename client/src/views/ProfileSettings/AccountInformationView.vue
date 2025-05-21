@@ -48,7 +48,7 @@
 
 <script>
 import { useMessagesStore } from '@/stores/messages';
-import { useUsersStore } from '@/stores/usersStore';
+import { useUsersStore } from '@/stores/users';
 
   export default {
     data() {

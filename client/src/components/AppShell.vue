@@ -113,7 +113,8 @@
 </template>
 
 <script >
-import { useUsersStore } from '@/stores/usersStore';
+import { useUsersStore } from '@/stores/users';
+import { useAuthStore } from '@/stores/auth';
 import { useDisplay } from 'vuetify'
 import { watch } from 'vue'
 
@@ -153,8 +154,8 @@ import { watch } from 'vue'
     },
     methods: {
       logout () {
-        
-        this.usersStore.logout();
+        const authStore = useAuthStore();
+        authStore.logout();
         
         setTimeout(() => {
           this.$router.push('/login');
