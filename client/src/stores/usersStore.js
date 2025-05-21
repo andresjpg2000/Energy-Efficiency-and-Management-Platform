@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
+import { jwtDecode } from 'jwt-decode';
 
 export const useUsersStore = defineStore('user', {
   state: () => ({
     user: null,
-    tokenTimer: null,
+    token: null,
     userFetched: false, // prevent loop error when trying to fetch user data with a expired token
   }),
   getters: {
@@ -14,26 +15,31 @@ export const useUsersStore = defineStore('user', {
     getUserEmail: (state) => state.user?.email || null,
   },  
   actions: {
+    setToken(token) {
+      // Used in AuthLogin to read the token from the response and persist it
+      this.token = token;
+    },
     async logout() {
       try {
+        if (!this.token || this.checkToken()) {
+          this.clearUser();
+          return;
+        }
         const response = await fetch('http://localhost:3000/auth/logout', {
           method: 'POST',
-          credentials: 'include',
+          headers: {
+            'authorization': `Bearer ${this.token}`,
+          },
         });
 
         if (!response.ok) {
           if (response.status === 401) {
-            // User is not logged in
-            this.user = null;
-            this.userFetched = true;
-            sessionStorage.setItem('isLoggedIn', 'false'); 
+            this.clearUser();
             return;
           }
           throw new Error('Failed to logout');
         }
-        this.user = null;
-        // Treat a logout as a fresh start
-        sessionStorage.setItem('isLoggedIn', 'false'); 
+        this.clearUser();
       } catch (error) {
         console.log(error);
       } finally {
@@ -41,39 +47,57 @@ export const useUsersStore = defineStore('user', {
       }
     },
     async fetchUser() {
+      if (!this.token || this.checkToken()) {
+          this.clearUser();
+          return false;
+        }
+      
       try {
         const response = await fetch('http://localhost:3000/auth/me', {
           method: 'GET',
-          credentials: 'include',
+          headers: {
+            'authorization': `Bearer ${this.token}`,
+          },
         });
 
         if (!response.ok) {
-          this.user = null;
-          this.tokenTimer = null;
+          this.clearUser();
           throw new Error('Failed to fetch user data');
         }
         const data = await response.json();
         this.user = data;
-        this.tokenTimer = Date.now();
       } catch (error) {
         console.log(error);
-        this.user = null;
-        this.tokenTimer = null;
+        this.clearUser();
         return false;
+      } finally {
+        this.userFetched = true;
       }
     },
     checkToken() {
-      const now = Date.now();
-      const expirationTime = 60*60 *1000; // 1 hour
-      return !this.tokenTimer || (now - this.tokenTimer) > expirationTime;
+      if (!this.token) {
+        return true;
+      }
+
+      try {
+        const { exp } = jwtDecode(this.token);
+        if (!exp) {
+          return true;
+        }
+
+        return Date.now() >= exp * 1000;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return true;
+      }
     },
     async updateUser(userData) {
       const response = await fetch(`http://localhost:3000/users/${this.user.id_user}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'authorization': `Bearer ${this.token}`,
         },
-        credentials: 'include',
         body: JSON.stringify(userData),
       });
 
@@ -86,8 +110,16 @@ export const useUsersStore = defineStore('user', {
       }
 
       await this.fetchUser(); // await here to make sure it's done before UI update
-  }
-
-
   },
+  clearUser() {
+    this.user = null;
+    this.token = null;
+    sessionStorage.removeItem('user');
+  },
+  },
+  persist: {
+    enabled: true,
+    storage: sessionStorage,
+    pick: ['user', 'token'],
+  }
 })

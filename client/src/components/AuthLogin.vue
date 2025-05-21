@@ -40,7 +40,6 @@ export default {
               headers: {
                 'Content-Type': 'application/json',
               },
-              credentials: 'include',
               body: JSON.stringify({
                 email: this.username,
                 password: this.password,
@@ -64,9 +63,9 @@ export default {
               color: 'success',
               timeout: 3000,
             });
-
+          
+          await this.usersStore.setToken(data.accessToken);
           await this.usersStore.fetchUser();
-          sessionStorage.setItem('isLoggedIn', 'true');
           this.$router.push('/');
         } catch (error) {
           console.log(error);

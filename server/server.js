@@ -6,7 +6,7 @@ const { ValidationError, UniqueConstraintError } = require('sequelize');
 // const helmet = require('helmet'); security middleware
 // app.use(helmet());
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 
 // Testing connection
 (async () => {
@@ -20,7 +20,7 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 app.use(cors({
     origin: 'http://localhost:5173', // Allow all origins (for development purposes only, restrict in production)

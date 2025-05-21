@@ -92,20 +92,17 @@ router.beforeEach(async(to, from, next) => {
 
   const needsAuth = to.matched.some(record => record.meta.requiresAuth);
   const needsAdmin = to.matched.some(record => record.meta.requiresAdmin);
-  const isProtectedRoute = needsAuth || needsAdmin;
-  const persistedLogin = sessionStorage.getItem('isLoggedIn');
-
-  if (persistedLogin === 'false' && !isProtectedRoute) {
-    // skip when user enters the app for the first time, but not on a protected route
-    return next();
-  }
 
   try {
-    if ((!usersStore.user || usersStore.checkToken()) && !usersStore.userFetched) {
-      // get user data if user is not cached or token expired
-      await usersStore.fetchUser();
+    if (usersStore.checkToken()) {
+      // logout the user if token is expired
+      await usersStore.logout();
     }
-    if ((to.name == 'login' || to.name == 'register') && persistedLogin === 'true') {
+
+    if (!usersStore.userFetched && usersStore.token && !usersStore.checkToken()) {  
+      await usersStore.fetchUser(); 
+    }
+    if ((to.name == 'login' || to.name == 'register') && usersStore.isLoggedIn) {
     return next({ name: 'home' })
     }
     if (needsAuth && !usersStore.isLoggedIn) {
@@ -116,7 +113,7 @@ router.beforeEach(async(to, from, next) => {
     }
   
     return next()
-
+    
   } catch (error) {
     console.error('Error in router:', error);
     usersStore.user = null;

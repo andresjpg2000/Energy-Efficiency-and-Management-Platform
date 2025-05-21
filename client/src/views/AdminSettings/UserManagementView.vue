@@ -48,10 +48,13 @@
 </template>
 
 <script>
+import { useUsersStore } from '@/stores/usersStore';
+
 export default {
 
   data() {
     return {
+      usersStore: useUsersStore(),
       headers: [
         { title: 'ID', key: 'id_user' },
         { title: 'NAME', key: 'name' },
@@ -81,8 +84,8 @@ export default {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.usersStore.token}`,
           },
-          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -115,8 +118,8 @@ export default {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.usersStore.token}`,
           },
-          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -133,11 +136,11 @@ export default {
     async saveUser() {
         try {
         const response = await fetch(`http://localhost:3000/users/${this.editingUser.id_user}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${this.usersStore.token}`,
           },
-          credentials: 'include',
           body: JSON.stringify({
             name: this.form.name,
             email: this.form.email,

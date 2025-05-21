@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
+import { useUsersStore } from './usersStore';
 
 export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({
     suppliers: [],
     loading: false,
-    token: sessionStorage.getItem('token'),
   }),
   actions: {
     async fetchSuppliers(attributes) {
@@ -29,13 +29,14 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async addSupplier(supplier) {
+      const usersStore = useUsersStore(); // get usersStore instance here
+      const token = usersStore.token;
       try {
-
         const response = await fetch('http://localhost:3000/suppliers', {
           method: 'POST',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(supplier),
         })
@@ -53,12 +54,14 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async updateSupplier(supplier) {
+      const usersStore = useUsersStore(); // get usersStore instance here
+      const token = usersStore.token;
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${supplier.id}`, {
           method: 'PATCH',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(supplier),
         })
@@ -75,12 +78,14 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async deleteSupplier(id) {
+      const usersStore = useUsersStore(); // get usersStore instance here
+      const token = usersStore.token;
       try {
         const response = await fetch(`http://localhost:3000/suppliers/${id}`, {
           method: 'DELETE',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${token}`,
           },
         })
 

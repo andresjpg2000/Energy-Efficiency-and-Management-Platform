@@ -108,8 +108,8 @@ import { useUsersStore } from '@/stores/usersStore';
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${this.useUsersStore.token}`,
               },
-              credentials: 'include',
               body: JSON.stringify(this.data),
             });
             this.isSubmitting = false;
