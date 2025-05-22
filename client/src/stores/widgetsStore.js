@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUsersStore } from './users.js'
+import { useAuthStore } from './auth.js'
+import { URL } from '../utils/constants.js'
 
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({
@@ -10,6 +12,8 @@ export const useWidgetsStore = defineStore('widgets', {
   },  
   actions: {
     async fetchUserWidgets() {
+      const usersStore = useUsersStore();
+      const authStore = useAuthStore();
       const gridItems = [
         {
           type: 1,
@@ -68,47 +72,59 @@ export const useWidgetsStore = defineStore('widgets', {
           body: { x: 6, y: 3, w: 6, h: 3 }
         },
       ];
-      
-      try {
-        const usersStore = useUsersStore();
-        if (!usersStore.isLoggedIn) {
-          this.userWidgets = [];
-          return;
-        }
-        const response = await fetch(`http://localhost:3000/users/${usersStore.user.id_user}/widgets`, {
-          method: 'GET',
-          credentials: 'include',
+      if (this.userWidgets.length == 0) {
+        const response = await fetch(`${URL}/users/${usersStore.user.id_user}/widgets`, {
+            method: 'GET',
+            headers: {
+            'authorization': `Bearer ${authStore.token}`,
+          },
         });
-
         if (!response.ok) {
           throw new Error('Failed to fetch user widgets');
         }
-        const responseData = await response.json();
-        
-        const widgets = responseData.data.widgets || [];
+        let responseData = await response.json();
 
-        gridItems.forEach(widget => {
-          if (!responseData.data.widgets.includes(widget.title)) {
-            widgets.push(widget);
-          }
+        let widgets = responseData.data.widgets || [];
+
+        widgets.forEach(el => {
+          el.body = JSON.parse(el.body);
+          el.type = parseInt(el.type);
+          delete el.id_user;
+        });
+
+        gridItems.forEach(w => {
+          const jaExiste = widgets.some(widget => widget.title.trim() === w.title.trim());
+          console.log(jaExiste);
+
+          if (!jaExiste) {
+            console.log("NÃO EXISTE");
+            
+            widgets.push(w);
+            this.addWidget(w)
+          }   
+          
         });
 
         this.userWidgets = widgets;
 
-        console.log(this.userWidgets);
-        
-      } catch (error) {
-        console.log(error);
-        this.userWidgets = [];
+        console.log("all widgets", widgets);
+
+        console.log(this.userWidgets.length);
       }
     },
+
     async addWidget(widget) {
       try {
-        const response = await fetch('http://localhost:3000/widgets', {
+        const usersStore = useUsersStore();
+        const authStore = useAuthStore();
+        widget.id_user = usersStore.user.id_user;
+
+        const response = await fetch(`${URL}/widgets`, {
           method: 'POST',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'authorization': `Bearer ${usersStore.token}`,
           },
           body: JSON.stringify(widget),
         });

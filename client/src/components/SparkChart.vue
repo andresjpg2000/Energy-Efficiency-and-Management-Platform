@@ -16,7 +16,14 @@ export default {
   props: {
     body: {
       type: Object,
-      required: true,
+    },
+    earn: {
+      type: String,
+      default: 'Sparkline Chart',
+    },
+    name: {
+      type: String,
+      default: 'Subtitle',
     },
   },
   name: 'SparkChart',
@@ -28,12 +35,19 @@ export default {
       sparklineData: [47, 45, 54, 38, 56, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46]
     };
   },
+  mounted() {
+    // console.log(
+    //   'SparkChart mounted',
+    //   this.body
+    // );
+    
+  },
   computed: {
     chartSeries() {
       return [
         {
           name: 'Kw',
-          data: this.randomizeArray(this.body.data || this.sparklineData)
+          data: this.sparklineData
         }
       ];
     },
@@ -60,7 +74,7 @@ export default {
         },
         colors: ['#1da1d4'],
         title: {
-          text: this.body.earn,
+          text: this.earn,
           offsetX: 30,
           offsetY: 32,
           floating: true,
@@ -69,7 +83,7 @@ export default {
           }
         },
         subtitle: {
-          text: this.body.name,
+          text: this.name,
           floating: true,
           offsetX: 30,
           offsetY: 15,

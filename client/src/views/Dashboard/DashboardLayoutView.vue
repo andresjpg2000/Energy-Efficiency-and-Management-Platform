@@ -1,12 +1,14 @@
 <template>
-  <AppShell :items="items" :showSettings="true">
-    <router-view/>
+  <AppShell  :items="items" :showSettings="true">
+    <div v-if="isReady">
+      <router-view/>
+    </div>
   </AppShell>
 </template>
 
 <script >
 import AppShell from '@/components/AppShell.vue';
-
+import { useWidgetsStore } from '@/stores/widgetsStore';
   export default {
     name: 'DashboardLayoutView',
     components: {
@@ -14,6 +16,8 @@ import AppShell from '@/components/AppShell.vue';
     },
     data() {
       return {
+        isReady: false,
+        widgetsStore: useWidgetsStore(),
         items: [
           {
             title: 'My Dashboard',
@@ -53,10 +57,23 @@ import AppShell from '@/components/AppShell.vue';
       };
     },
     methods: {
-      // Define your methods here
+      async loadWidgets() {
+      try {
+        await this.widgetsStore.fetchUserWidgets();
+        this.isReady = true;
+      } catch (error) {
+        console.error("Erro ao carregar widgets", error);
+      }
+    }
     },
     mounted () {
     
+    },
+    created () {
+      this.loadWidgets();
+      
+      console.log("-----------------------created---------------------------------");
+      console.log(this.widgetsStore.userWidgets);
     },
   } 
 </script>

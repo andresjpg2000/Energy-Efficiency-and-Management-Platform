@@ -6,6 +6,8 @@ import SparkChart from '@/components/SparkChart.vue';
 import ColumnWiget from '@/components/Column.widget.vue';
 import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
 
+import { useWidgetsStore } from '@/stores/widgetsStore';
+
   export default {
     name: 'DashboardView',
     components: {
@@ -17,9 +19,11 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
     },
     data() {
       return {
+        widgetsStore: useWidgetsStore(), 
         gridItems: [
         {
           type: 1,
+          title: 'Corrent-Consumption',
           body:{
             name: 'Current Energy Consumption',
             earn: '4,42,236',
@@ -29,6 +33,7 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
         },
         {
           type: 1,
+          title: 'Energy-Production',
           body:{
             name: 'Renewable Energy Production',
             earn: '78,250',
@@ -38,6 +43,7 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
         },
         {
           type: 1,
+          title: 'Total-Consumption',
           body:{
             name: 'Total Consumption this year',
             earn: '18,800',
@@ -46,38 +52,74 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
         },
         {
           type: 1,
+          title: 'Total-Expenses',
           body:{  
             name: 'Expected Expenses (This Month)',
             earn: '$35,078',
-            color: 'error',
             x: 9, y: 0,
             w: 3, h: 2}
         },
         { type: 5,
+          title: "Graphic",
           body:{ x: 0, y: 6, w: 6, h: 3 }
         },
         { type: 2,
+          title: "Column",
           body:{ x: 0, y: 9, w: 12, h: 3 }
         },
         { type: 3,
+          title: "Vertical-Column",
           body:{ x: 6, y: 3, w: 6 , h: 3 }
         },
         ],
       };
     },
     methods: {
-      // Define your methods here
+     
+    },
+    created () {
+      // try {
+      //   this.widgetsStore.fetchUserWidgets();
+      // } catch (error) {
+      //   console.error("Error in created lifecycle hook:", error);
+      // }
+      // console.log("-----------------------created---------------------------------");
+      // console.log(this.widgetsStore.userWidgets);
     },
     mounted () {
+      // Initialize GridStack
       let grid = GridStack.init({
-          float: false,
-          cellHeight: '120px',
-          columnOpts: {
-            breakpointForWindow: true,  // test window vs grid size
-            breakpoints: [{w:700, c:1},{w:850, c:1},{w:950, c:6},{w:1100, c:9}]
-          },
-          disableResize: true,
-        });
+        float: false,
+        cellHeight: '120px',
+        columnOpts: {
+          breakpointForWindow: true,  // test window vs grid size
+          breakpoints: [{w:700, c:1},{w:850, c:1},{w:950, c:6},{w:1100, c:9}]
+        },
+        disableResize: true,
+      })
+
+      
+      
+      grid.on('dragstop', function(_, el) {
+        // You can handle dragstop event here if needed
+        // Example: let x = parseInt(el.getAttribute('gs-x')) || 0;
+        // let node = el.gridstackNode; // {x, y, width, height, id, ....}
+
+        console.log(el.id);
+        console.log(el.gridstackNode);
+        let updateWidget = {
+          id: el.id,
+          body:{
+            x: el.gridstackNode.x,
+            y: el.gridstackNode.y
+          }
+        }
+        console.log("updateWidget", updateWidget);
+        console.log("json: ", JSON.stringify(updateWidget));
+        
+        
+      });
+      
     },
   } 
 </script>
@@ -123,11 +165,11 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
     class="grid-stack"
   >
     
-    <div class="grid-stack-item" v-for="(item,i) in gridItems" :key="i" :gs-x="item.body.x" :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h">
+    <div class="grid-stack-item" v-for="(item,i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x" :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">
       <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
         <!-- <MinisWiget v-if="item.type == 1" :body="item.body"/> -->
         <graphic-wiget v-if="item.type == 5" />
-        <SparkChart v-if="item.type == 1" :body="item.body"/>
+        <SparkChart v-if="item.type == 1" :body="item.body" :earn="item.body.earn" :name="item.body.name"/>
         <ColumnWiget v-if="item.type == 2"/>
         <VerticalColumnWidget v-if="item.type == 3"/>
       </div>

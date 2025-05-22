@@ -33,7 +33,7 @@ module.exports = (sequelize) => {
             }
         },
         body: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSON,
         },
         type: {
             type: DataTypes.STRING,
