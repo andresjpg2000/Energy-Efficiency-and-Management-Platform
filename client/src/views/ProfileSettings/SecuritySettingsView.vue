@@ -49,7 +49,7 @@
 <script>
 import { useMessagesStore } from '@/stores/messages';
 import { useUsersStore } from '@/stores/users';
-import { getToken } from '@/stores/token.js';
+import { getToken } from '@/utils/token.js';
 
   export default {
     data() {

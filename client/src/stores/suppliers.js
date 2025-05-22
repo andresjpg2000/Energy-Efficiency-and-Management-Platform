@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getToken } from '@/stores/token.js'
+import { getToken } from '@/utils/token.js'
 
 export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({

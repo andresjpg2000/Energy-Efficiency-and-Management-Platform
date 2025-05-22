@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { getToken } from '@/stores/token.js';
+import { getToken } from '@/utils/token.js';
 
 export default {
 
