@@ -10,7 +10,7 @@
               <v-row>
                 <v-col>
                   
-                  <v-select variant="outlined" label="Energy Suppliers" density="default" v-model="selectedSupplier" :clearable="false" :multiple="false" placeholder="Choose your current energy supplier" :items="suppliers" class="" name="Suppliers" :rules="supplierRules">
+                  <v-select variant="outlined" label="Energy Suppliers" density="default" v-model="selectedSupplier" :clearable="false" :multiple="false" placeholder="Choose your current energy supplier" :items="formattedSuppliers" item-title="title" item-value="value" name="Suppliers" :rules="supplierRules">
                     
                   </v-select>
                   
@@ -36,10 +36,14 @@
 
 <script>
 import { useSuppliersStore } from "@/stores/suppliers.js";
+import { useHousingsStore } from "@/stores/housings.js";
+import { useMessagesStore } from "@/stores/messages.js";
   export default {
     data() {
       return {
         suppliersStore: useSuppliersStore(),
+        housingsStore: useHousingsStore(),
+        messagesStore: useMessagesStore(),
         form: null,
         isSubmitting: false,
         selectedSupplier: null,
@@ -50,7 +54,13 @@ import { useSuppliersStore } from "@/stores/suppliers.js";
     },
     computed: {
       suppliers() {
-        return this.suppliersStore.suppliers.map((supplier => `${supplier.enterprise} - ${supplier.cost_kWh} €/kWh`));
+        return this.suppliersStore.suppliers;
+      },
+      formattedSuppliers() {
+        return this.suppliers.map(supplier => ({
+          title: `${supplier.enterprise} - ${supplier.cost_kWh} €/kWh`,
+          value: supplier.id,
+        }));
       },
     },
     methods: {
@@ -60,33 +70,34 @@ import { useSuppliersStore } from "@/stores/suppliers.js";
         if (this.$refs.form.validate()) {
           
           if (!this.selectedSupplier) {
-            console.log("Please select an energy supplier.");
+            this.messagesStore.add({
+              color: 'error',
+              text: 'Please select an energy supplier.',
+            });
+            this.isSubmitting = false;
             return;
           }
 
-          // await fetch("http://localhost:3000/housings/", {
-          //   method: "PATCH",
-          //   headers: {
-          //     "Content-Type": "application/json",
-          //     credentials: "include",
-          //   },
-          //   body: JSON.stringify({
-          //     energy_supplier: this.selectedSupplier,
-          //   }),
-          // })
-          // .then((response) => {
-          //   if (response.ok) {
-          //     console.log("Energy supplier updated successfully.");
-          //     this.isSubmitting = false;
-          //     this.$router.push({ name: "ProfileSettings" });
-          //   } else {
-          //     console.error("Error updating energy supplier:", response.statusText);
-          //     this.isSubmitting = false;
-          //   }
-          // })
- 
+          try {
+            this.housingsStore.updateHousing({id_supplier: this.selectedSupplier})
+            this.messagesStore.add({
+              color: 'success',
+              text: 'Energy supplier updated successfully.',
+            });
+            this.isSubmitting = false;
+          } catch (error) {
+            this.messagesStore.add({
+              color: 'error',
+              text: 'Failed to update energy supplier. Please try again.',
+            });
+            this.isSubmitting = false;
+          }
+        
         } else {
-          console.log("Form validation failed.");
+          this.messagesStore.add({
+            color: 'error',
+            text: 'Please correct the errors in the form.',
+          });
           this.isSubmitting = false;
           return;
         }
@@ -94,7 +105,7 @@ import { useSuppliersStore } from "@/stores/suppliers.js";
       },
     },
     mounted() {
-      this.suppliersStore.fetchSuppliers("enterprise,cost_kWh");
+      this.suppliersStore.fetchSuppliers("id,enterprise,cost_kWh");
       console.log('✅ EnergyPreferenceView mounted!');
     }
   }

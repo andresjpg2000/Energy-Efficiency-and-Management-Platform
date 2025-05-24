@@ -77,6 +77,24 @@ module.exports = (sequelize) => {
                 }
             }
         },
+        id_supplier: {
+            type: DataTypes.INTEGER,
+            foreignKey: true,
+            references: {
+                model: 'suppliers', 
+                key: 'id_supplier', 
+            },
+            allowNull: true,
+            validate: {
+                isInt: {
+                  msg: "id_supplier must be an integer"
+                },
+                min: {
+                  args: [1],
+                  msg: "id_supplier must be greater than 0"
+                }
+            }
+        }
     }, {
         tableName: 'housings',
         timestamps: false, // Disable createdAt and updatedAt fields

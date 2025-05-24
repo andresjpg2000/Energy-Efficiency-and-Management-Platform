@@ -6,8 +6,8 @@ const auth = require('../middleware/auth.js');
 const validateIdParam = require('../middleware/validateIdParam.js');
 const verifyOwnership = require('../middleware/verifyOwnership.js'); 
 
-// Get all housings
-router.get('/', auth(true), housingsController.getAllHousings);
+// Get all housings. If the user is an admin, return all housings, otherwise return only the user's housings.
+router.get('/', auth(), housingsController.getAllHousings);
 
 // Get a housing by ID
 router.get('/:id_housing', auth(), validateIdParam("id_housing"), housingsController.getHousingById);

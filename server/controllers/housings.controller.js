@@ -23,7 +23,27 @@ async function checkIfUserIsTheOwner(user, id_housing) {
 // Get all housings
 const getAllHousings = async (req, res, next) => {
     try {
-        const housings = await Housing.findAll();
+        let housings = [];
+        // Remove comment code if you want to allow admins to fetch all housings
+        // if (req.user.admin) {
+        //    
+        //     housings = await Housing.findAll();
+        // } else {
+        //     housings = await Housing.findAll({
+        //         where: {
+        //             id_user: req.user.id_user,
+        //         },
+        //         attributes: ['id_housing', 'address', 'pc', 'building_type', 'id_user', 'id_supplier'],
+        //         order: [['id_housing', 'ASC']],
+        //     });
+        // }
+        housings = await Housing.findAll({
+            where: {
+                id_user: req.user.id_user,
+            },
+            attributes: ['id_housing', 'address', 'pc', 'building_type', 'id_user', 'id_supplier'],
+            order: [['id_housing', 'ASC']],
+        });
 
         if (!housings || housings.length === 0) {
             return res.status(404).json({ message: 'No housings found!' });
