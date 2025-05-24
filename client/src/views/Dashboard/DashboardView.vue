@@ -20,6 +20,7 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
     data() {
       return {
         widgetsStore: useWidgetsStore(), 
+        saveTimeout: null,
         gridItems: [
         {
           type: 1,
@@ -75,17 +76,27 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       };
     },
     methods: {
-     
+      
     },
-    created () {
-      // try {
-      //   this.widgetsStore.fetchUserWidgets();
-      // } catch (error) {
-      //   console.error("Error in created lifecycle hook:", error);
-      // }
-      // console.log("-----------------------created---------------------------------");
-      // console.log(this.widgetsStore.userWidgets);
-    },
+    
+    beforeRouteLeave(to, from, next) {
+      if (this.saveTimeout) {
+        clearTimeout(this.saveTimeout);
+        this.saveTimeout = null; // limpa o estado
+
+        this.widgetsStore.updateDBWidgets()
+          .then(() => {
+            console.log("Widgets atualizados com sucesso.");
+            next(); 
+          })
+          .catch((error) => {
+            console.error("Erro ao atualizar widgets antes de sair:", error);
+            next(); 
+          });
+      } else {
+        next();
+      }
+    }, 
     mounted () {
       // Initialize GridStack
       let grid = GridStack.init({
@@ -99,27 +110,21 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       })
 
       
-      
-      grid.on('dragstop', function(_, el) {
-        // You can handle dragstop event here if needed
-        // Example: let x = parseInt(el.getAttribute('gs-x')) || 0;
-        // let node = el.gridstackNode; // {x, y, width, height, id, ....}
+      grid.on('change', (event, items) => { 
+        items.forEach(item => {
+          console.log("Item moved:", item.el.id, "to", item.x, item.y);
+          
+          this.widgetsStore.updateWidget(item.x, item.y, item.el.id);
+          //this.widgetsStore.updateOneWidget(item.el.id, item.x, item.y); // envia todas as posições de uma vez
 
-        console.log(el.id);
-        console.log(el.gridstackNode);
-        let updateWidget = {
-          id: el.id,
-          body:{
-            x: el.gridstackNode.x,
-            y: el.gridstackNode.y
-          }
-        }
-        console.log("updateWidget", updateWidget);
-        console.log("json: ", JSON.stringify(updateWidget));
-        
-        
+        });
+
+        clearTimeout(this.saveTimeout);
+        this.saveTimeout = setTimeout(() => {
+          
+          this.widgetsStore.updateDBWidgets()
+        }, 10000);
       });
-      
     },
   } 
 </script>
@@ -160,18 +165,23 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
   <v-sheet
     color="#E0E0E0"
     rounded="lg"
-    height="100vh"
     width="100%"
     class="grid-stack"
   >
     
-    <div class="grid-stack-item" v-for="(item,i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x" :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">
+    <div class="grid-stack-item" v-for="(item,i) in widgetsStore.userWidgets" 
+    :key="i" 
+    :gs-x="item.body.x" 
+    :gs-y="item.body.y" 
+    :gs-w="item.body.w" 
+    :gs-h="item.body.h" 
+    :id="item.title">
       <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
         <!-- <MinisWiget v-if="item.type == 1" :body="item.body"/> -->
-        <graphic-wiget v-if="item.type == 5" />
-        <SparkChart v-if="item.type == 1" :body="item.body" :earn="item.body.earn" :name="item.body.name"/>
-        <ColumnWiget v-if="item.type == 2"/>
-        <VerticalColumnWidget v-if="item.type == 3"/>
+        <graphic-wiget lazyLoad v-if="item.type == 5" />
+        <SparkChart lazyLoad v-if="item.type == 1" :body="item.body" :earn="item.body.earn" :name="item.body.name"/>
+        <ColumnWiget lazyLoad v-if="item.type == 2"/>
+        <VerticalColumnWidget lazyLoad v-if="item.type == 3"/>
       </div>
     </div>      
   </v-sheet>

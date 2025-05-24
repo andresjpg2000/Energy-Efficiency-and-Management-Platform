@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
-import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
 import { useAuthStore } from '@/stores/auth'
@@ -15,7 +14,7 @@ const router = createRouter({
       name: 'home',
       component: DashboardLayoutView,
       children: [
-        { path: '', name: 'Dashboard', component: DashboardView }, // root "/"
+        { path: '', name: 'Dashboard', component: () => import('@/views/Dashboard/DashboardView.vue') }, // root "/"
         { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
         { path: 'Forecasts', name: 'Forecasts', component: () => import('../views/Dashboard/ForecastsView.vue') },
         { path: 'Reports', name: 'Reports', component: () => import('../views/Dashboard/ReportsView.vue') },

@@ -3,6 +3,15 @@
     <div v-if="isReady">
       <router-view/>
     </div>
+    <div v-else class="loading-container">
+      <div style="width: 100%;" class="d-flex justify-center w-100">
+        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+      </div>
+      <v-skeleton-loader type="card"></v-skeleton-loader>
+      <v-skeleton-loader type="card"></v-skeleton-loader>
+    </div>
   </AppShell>
 </template>
 
@@ -58,16 +67,13 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
     },
     methods: {
       async loadWidgets() {
-      try {
-        await this.widgetsStore.fetchUserWidgets();
-        this.isReady = true;
-      } catch (error) {
-        console.error("Erro ao carregar widgets", error);
+        try {
+          await this.widgetsStore.fetchUserWidgets();
+          this.isReady = true;
+        } catch (error) {
+          console.error("Erro ao carregar widgets", error);
+        }
       }
-    }
-    },
-    mounted () {
-    
     },
     created () {
       this.loadWidgets();
