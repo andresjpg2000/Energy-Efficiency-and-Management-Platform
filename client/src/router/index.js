@@ -4,7 +4,6 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
 import { useAuthStore } from '@/stores/auth'
-import { useUsersStore } from '@/stores/users'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,7 +85,6 @@ const router = createRouter({
 
 router.beforeEach(async(to, from, next) => {
   const authStore = useAuthStore();
-  const usersStore = useUsersStore();
   // Update the document title based on the route
   const defaultTitle = 'AMA ';
   document.title = to.meta.title || defaultTitle;
@@ -100,17 +98,13 @@ router.beforeEach(async(to, from, next) => {
       // logout the user if token is expired
       await authStore.logout();
     }
-
-    if (!usersStore.userFetched && authStore.token && !isTokenExpired) {  
-      await usersStore.fetchUser(); 
-    }
     if ((to.name == 'login' || to.name == 'register') && authStore.isLoggedIn) {
     return next({ name: 'home' })
     }
     if (needsAuth && !authStore.isLoggedIn) {
       return next({ name: 'login' })
     } 
-    if (needsAdmin && !usersStore.isAdmin) {
+    if (needsAdmin && !authStore.isAdmin) {
       return next({ name: 'Forbidden' })
     }
   
@@ -118,8 +112,8 @@ router.beforeEach(async(to, from, next) => {
     
   } catch (error) {
     console.error('Error in router:', error);
-    usersStore.user = null;
-    usersStore.userFetched = true;
+    authStore.user = null;
+    authStore.userFetched = true;
     if (needsAuth) {
       return next({ name: 'login' });
     } else {

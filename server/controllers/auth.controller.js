@@ -27,13 +27,24 @@ async function login(req, res, next) {
       process.env.JWT_SECRET, 
       { expiresIn: process.env.JWT_EXPIRATION,}
     );
-
-    return res.status(200).json({success: true, accessToken:token});
+    
+    return res.status(200).json(
+      {
+        success: true,
+        accessToken:token,
+        user: {
+          id_user: user.id_user,
+          name: user.name,
+          email: user.email,
+          admin: user.admin,
+        }
+      }
+    );
   } catch (error) {
     if (error instanceof ValidationError) {
-      res.status(400).json({ success: false, msg: error.map(e => e.message) });
+      return res.status(400).json({ success: false, msg: error.map(e => e.message) });
     } else {
-      res.status(500).json({ success: false, msg: error.message || "Some error occurred at login."});
+      return res.status(500).json({ success: false, msg: error.message || "Some error occurred at login."});
     };
   }
 }
@@ -61,14 +72,14 @@ async function getUserInfo(req, res, next) {
       admin: user.admin,
     })
   } catch (err) {
-    res.status(401).json({ message: 'Invalid or expire token' });
+    return res.status(401).json({ message: 'Invalid or expire token' });
   }
 }
 
 // Function to logout the user
 async function logout(req, res) {
   // incomplete
-  res.json({ message: 'Logout successful' });
+  return res.json({ message: 'Logout successful' });
 }
 
 module.exports = {

@@ -8,10 +8,7 @@ export const useUsersStore = defineStore('user', {
     userFetched: false, // prevent loop error when trying to fetch user data with a expired token
   }),
   getters: {
-    isAdmin: (state) => state.user?.admin || false,
-    getUsername: (state) => state.user?.name || null,
-    getUserId: (state) => state.user?.id_user || null,
-    getUserEmail: (state) => state.user?.email || null,
+
   },  
   actions: {
     async fetchUser() {
@@ -19,9 +16,9 @@ export const useUsersStore = defineStore('user', {
       const authStore = useAuthStore();
       const token = authStore.token;
       if (!token || authStore.isTokenExpired()) {
-          this.clearUser();
-          return false;
-        }
+        authStore.logout();
+        return false;
+      }
       
       try {
         const response = await fetch('http://localhost:3000/auth/me', {
@@ -32,7 +29,6 @@ export const useUsersStore = defineStore('user', {
         });
 
         if (!response.ok) {
-          this.clearUser();
           messagesStore.add({
             color: 'error',
             text: 'Failed to fetch user data',
@@ -41,9 +37,9 @@ export const useUsersStore = defineStore('user', {
         }
         const data = await response.json();
         this.user = data;
+        return data; 
       } catch (error) {
         console.log(error);
-        this.clearUser();
         return false;
       } finally {
         this.userFetched = true;
@@ -52,7 +48,7 @@ export const useUsersStore = defineStore('user', {
     async updateUser(userData) {
       const authStore = useAuthStore();
       const token = authStore.token;
-      const response = await fetch(`http://localhost:3000/users/${this.user.id_user}`, {
+      const response = await fetch(`http://localhost:3000/users/${authStore.getUserId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -68,8 +64,8 @@ export const useUsersStore = defineStore('user', {
         error.details = errorData.details;
         throw error;
       }
-
-      await this.fetchUser(); // await here to make sure it's done before UI update
+      // This only updates the user in the store, the token payload only updates on next login
+      authStore.updateUserState(userData);
   },
   clearUser() {
     this.user = null;
@@ -79,6 +75,6 @@ export const useUsersStore = defineStore('user', {
   persist: {
     enabled: true,
     storage: sessionStorage,
-    pick: ['user', 'token'],
+    pick: ['user'],
   }
 })

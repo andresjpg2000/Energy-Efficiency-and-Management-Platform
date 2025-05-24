@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useUsersStore } from './users.js'
 import { useAuthStore } from './auth.js'
 import { URL } from '../utils/constants.js'
 
@@ -12,7 +11,6 @@ export const useWidgetsStore = defineStore('widgets', {
   },  
   actions: {
     async fetchUserWidgets() {
-      const usersStore = useUsersStore();
       const authStore = useAuthStore();
       const gridItems = [
         {
@@ -73,7 +71,7 @@ export const useWidgetsStore = defineStore('widgets', {
         },
       ];
       if (this.userWidgets.length == 0) {
-        const response = await fetch(`${URL}/users/${usersStore.user.id_user}/widgets`, {
+        const response = await fetch(`${URL}/users/${authStore.user.id_user}/widgets`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -128,7 +126,6 @@ export const useWidgetsStore = defineStore('widgets', {
     },
 
     async updateOneWidget(title,x,y) {
-      const usersStore = useUsersStore();
       const authStore = useAuthStore();
 
       const body = {
@@ -137,7 +134,7 @@ export const useWidgetsStore = defineStore('widgets', {
       };
       
       try {
-        const response = await fetch(`${URL}/widgets/${title}?id_user=${usersStore.user.id_user}`, {
+        const response = await fetch(`${URL}/widgets/${title}?id_user=${authStore.user.id_user}`, {
           method: 'PATCH',
           credentials: 'include',
           headers: {
@@ -160,13 +157,12 @@ export const useWidgetsStore = defineStore('widgets', {
     async updateDBWidgets() {
       console.log("updateDBWidgets");
       
-      const usersStore = useUsersStore();
       const authStore = useAuthStore();
 
       try {
         const promises = this.userWidgets.map(widget =>
           
-          fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${usersStore.user.id_user}`, {
+          fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${authStore.user.id_user}`, {
             method: 'PATCH',
             credentials: 'include',
             headers: {
@@ -191,9 +187,8 @@ export const useWidgetsStore = defineStore('widgets', {
 
     async addWidget(widget) {
       try {
-        const usersStore = useUsersStore();
         const authStore = useAuthStore();
-        widget.id_user = usersStore.user.id_user;
+        widget.id_user = authStore.user.id_user;
 
         const response = await fetch(`${URL}/widgets`, {
           method: 'POST',

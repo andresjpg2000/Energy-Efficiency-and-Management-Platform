@@ -48,13 +48,13 @@
 
 <script>
 import { useMessagesStore } from '@/stores/messages';
-import { useUsersStore } from '@/stores/users';
+import { useAuthStore } from '@/stores/auth';
 import { getToken } from '@/utils/token.js';
 
   export default {
     data() {
       return {
-        useUsersStore: useUsersStore(),
+        authStore: useAuthStore(),
         useMessagesStore: useMessagesStore(),
         token: getToken(),
         form: null,
@@ -105,9 +105,10 @@ import { getToken } from '@/utils/token.js';
             currentPassword: this.CurrentPassword,
             newPassword: this.NewPassword,
           };
-
+          console.log(this.token);
+          console.log("Data being sent:",this.data);
           try {
-            await fetch(`http://localhost:3000/users/${this.useUsersStore.user.id_user}/changePassword`, {
+            const response = await fetch(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
@@ -115,6 +116,12 @@ import { getToken } from '@/utils/token.js';
               },
               body: JSON.stringify(this.data),
             });
+
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.message || 'Failed to change password');
+            }
+
             this.isSubmitting = false;
             useMessagesStore().add({
               color: 'success',
@@ -145,7 +152,7 @@ import { getToken } from '@/utils/token.js';
       },
     },
     mounted() {
-      this.userEmail = this.useUsersStore.user.email;
+      this.userEmail = this.authStore.getUserEmail;
       console.log('✅ SecuritySettingsView mounted!');
     }
   }

@@ -113,7 +113,6 @@
 </template>
 
 <script >
-import { useUsersStore } from '@/stores/users';
 import { useAuthStore } from '@/stores/auth';
 import { useDisplay } from 'vuetify'
 import { watch } from 'vue'
@@ -138,16 +137,16 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       return {
         rail: true ,
         drawer: true,
-        usersStore: null,
         isMobile: false,
+        authStore: useAuthStore(),
       };
     },
     computed: {
       username () {
-        return this.usersStore.getUsername || '';
+        return this.authStore.getUsername || '';
       },
       isAdmin () {
-        return this.usersStore.isAdmin || false;
+        return this.authStore.isAdmin || false;
       },
       userInitials () {
         return this.username.split(' ').map(word => word[0]).join('').toUpperCase();
@@ -155,8 +154,7 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
     },
     methods: {
       logout () {
-        const authStore = useAuthStore();
-        authStore.logout();
+        this.authStore.logout();
 
         const widgetsStore = useWidgetsStore();
 
@@ -170,8 +168,6 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       },
     },
     created () {
-      this.usersStore = useUsersStore();
-
       // usar o helper de Vuetify
       const { smAndDown } = useDisplay()
 

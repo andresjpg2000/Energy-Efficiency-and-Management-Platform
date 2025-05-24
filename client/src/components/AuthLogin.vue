@@ -1,5 +1,4 @@
 <script>
-import { useUsersStore } from '@/stores/users';
 import { useMessagesStore } from '@/stores/messages.js';
 import { useAuthStore } from '@/stores/auth.js';
 
@@ -28,12 +27,10 @@ export default {
       };
     },
     methods: {
-      // Define your methods here
       async validate() {
         this.isSubmitting = true;
         const authStore = useAuthStore();
         const messagesStore = useMessagesStore();
-        const usersStore = useUsersStore();
         // this.$refs.form.validate(); // Validate the form
         try {
           
@@ -66,8 +63,7 @@ export default {
               timeout: 3000,
             });
           
-          await authStore.setToken(data.accessToken);
-          await usersStore.fetchUser();
+          await authStore.setUser(data);
           this.$router.push('/');
         } catch (error) {
           console.log(error);

@@ -49,11 +49,13 @@
 <script>
 import { useMessagesStore } from '@/stores/messages';
 import { useUsersStore } from '@/stores/users';
+import { useAuthStore } from '@/stores/auth';
 
   export default {
     data() {
       return {
         useUsersStore: useUsersStore(),
+        useAuthStore: useAuthStore(),
         form: null,
         FirstName: "",
         LastName: "",
@@ -159,12 +161,12 @@ import { useUsersStore } from '@/stores/users';
     },
     mounted() {
       console.log('✅ AccountInformationView mounted!');
-      const fullName = this.useUsersStore.user.name || '';
+      const fullName = this.useAuthStore.user.name || '';
       const first = fullName.split(' ')[0];
       const last = fullName.split(' ')[1];
       this.FirstName = first || '';
       this.LastName = last || '';
-      this.Email = this.useUsersStore.user.email || '';
+      this.Email = this.useAuthStore.user.email || '';
     },
   }
 </script>
