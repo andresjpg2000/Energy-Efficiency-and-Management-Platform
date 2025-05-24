@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getToken } from '@/utils/token.js'
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export const useHousingsStore = defineStore('housings', {
   state: () => ({
@@ -10,15 +10,11 @@ export const useHousingsStore = defineStore('housings', {
   actions: {
     async fetchHousings() {
       this.loading = true
-      let token = getToken();
       try {
-        const response = await fetch(`http://localhost:3000/housings`, {
+        const response = await fetchWithAuth(`http://localhost:3000/housings`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${token}`,
-          }
         })
+
         if (!response.ok) {
           const data = await response.json()
           throw new Error(data.message || 'Network response was not ok')
@@ -56,19 +52,14 @@ export const useHousingsStore = defineStore('housings', {
     //   }
     // },
     async updateHousing(housing) {
-      const token = getToken();
       if (this.isFirstRun) {
         this.isFirstRun = false;
         await this.fetchHousings();
       }
       let id_housing = this.housings[0].id_housing;
       try {
-        const response = await fetch(`http://localhost:3000/housings/${id_housing}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/housings/${id_housing}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${token}`,
-          },
           body: JSON.stringify(housing),
         })
 

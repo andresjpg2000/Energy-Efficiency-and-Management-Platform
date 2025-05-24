@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken } from '@/utils/token.js'
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({
@@ -29,14 +30,9 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async addSupplier(supplier) {
-      const token = getToken();
       try {
-        const response = await fetch('http://localhost:3000/suppliers', {
+        const response = await fetchWithAuth('http://localhost:3000/suppliers', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${token}`,
-          },
           body: JSON.stringify(supplier),
         })
 
@@ -53,14 +49,9 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async updateSupplier(supplier) {
-      const token = getToken();
       try {
-        const response = await fetch(`http://localhost:3000/suppliers/${supplier.id}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/suppliers/${supplier.id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${token}`,
-          },
           body: JSON.stringify(supplier),
         })
 
@@ -76,14 +67,9 @@ export const useSuppliersStore = defineStore('suppliers', {
       }
     },
     async deleteSupplier(id) {
-      const token = getToken();
       try {
-        const response = await fetch(`http://localhost:3000/suppliers/${id}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/suppliers/${id}`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${token}`,
-          },
         })
 
         if (!response.ok) {

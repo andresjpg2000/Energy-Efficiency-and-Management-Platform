@@ -17,5 +17,4 @@ export function getToken() {
     return null;
   }
 
-  return token;
 }
