@@ -83,7 +83,6 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       if (this.saveTimeout) {
         clearTimeout(this.saveTimeout);
         this.saveTimeout = null; // limpa o estado
-
         this.widgetsStore.updateDBWidgets()
           .then(() => {
             console.log("Widgets atualizados com sucesso.");
@@ -115,14 +114,13 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
           console.log("Item moved:", item.el.id, "to", item.x, item.y);
           
           this.widgetsStore.updateWidget(item.x, item.y, item.el.id);
-          //this.widgetsStore.updateOneWidget(item.el.id, item.x, item.y); // envia todas as posições de uma vez
-
+          
+          this.widgetsStore.changedWidgets.add(item.el.id);
         });
 
         clearTimeout(this.saveTimeout);
         this.saveTimeout = setTimeout(() => {
-          
-          this.widgetsStore.updateDBWidgets()
+          this.widgetsStore.updateDBWidgets(); // converter Set para Array
         }, 10000);
       });
     },

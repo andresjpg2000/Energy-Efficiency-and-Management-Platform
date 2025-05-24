@@ -5,6 +5,7 @@ import { URL } from '../utils/constants.js'
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({
     userWidgets: [],
+    changedWidgets: new Set(),// para armazenar widgets alterados, set so permite valores únicos
   }),
   persist: true,
   getters: {
@@ -156,28 +157,33 @@ export const useWidgetsStore = defineStore('widgets', {
 
     async updateDBWidgets() {
       console.log("updateDBWidgets");
-      
       const authStore = useAuthStore();
+      const cw = Array.from(this.changedWidgets); // Converte o Set para um Array
 
       try {
-        const promises = this.userWidgets.map(widget =>
-          
-          fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${authStore.user.id_user}`, {
-            method: 'PATCH',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              'authorization': `Bearer ${authStore.token}`,
-            },
-            body: JSON.stringify(widget.body),
-          })
-        );
+        const promises = this.userWidgets
+          .filter(widget => cw.includes(widget.title))
+          .map(widget =>
+            fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${authStore.user.id_user}`, {
+              method: 'PATCH',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${authStore.token}`,
+              },
+              body: JSON.stringify(widget.body),
+            })
+          );
 
         const responses = await Promise.all(promises);
 
+        this.changedWidgets.clear(); // Limpa o conjunto após a atualização
+
         responses.forEach((response, index) => {
+          const widgetTitle = cw[index];
+    	    console.log(`Response for widget "${widgetTitle}":`, response.status);
           if (!response.ok) {
-            console.error(`Erro ao atualizar widget "${this.userWidgets[index].title}":`, response.statusText);
+            console.error(`Erro ao atualizar widget "${changedWidgets[index]}":`, response.statusText);
           }
         });
       } catch (error) {
