@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', {
     token: sessionStorage.getItem('token') || null,
   }),
   getters: {
-    isLoggedIn: (state) => !!state.token && !state.checkToken(),
+    isLoggedIn: (state) => !!state.token && !state.isTokenExpired(),
   },
   actions: {
     setToken(token) {
@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = null;
       sessionStorage.removeItem('token'); // Clear token from session storage
     },
-    checkToken() {
+    isTokenExpired() {
       // Check if the token is expired
       if (!this.token) {
         return true;
@@ -59,11 +59,11 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       const messagesStore = useMessagesStore();
+      if (!this.token || this.isTokenExpired()) {
+        this.clearToken();
+        return;
+      }
       try {
-        if (!this.token || this.checkToken()) {
-          this.clearToken();
-          return;
-        }
         const response = await fetch('http://localhost:3000/auth/logout', {
           method: 'POST',
           headers: {
@@ -73,6 +73,7 @@ export const useAuthStore = defineStore('auth', {
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Token not valid on server
             this.clearToken();
             return;
           }
@@ -82,16 +83,21 @@ export const useAuthStore = defineStore('auth', {
           });
           throw new Error('Failed to logout');
         }
+        // Logout successful
         this.clearToken();
+        // Clear user data from session storage
+        sessionStorage.removeItem('user');
         messagesStore.add({
           color: 'success',
           text: 'Logout successful',
         });
       } catch (error) {
-        console.log(error);
-      } finally {
-        this.clearToken();
-      }
+        console.error(error);
+        messagesStore.add({
+          color: 'error',
+          text: 'Failed to logout',
+        });
+      } 
     },    
     
   },

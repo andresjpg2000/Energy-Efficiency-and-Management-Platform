@@ -94,14 +94,15 @@ router.beforeEach(async(to, from, next) => {
 
   const needsAuth = to.matched.some(record => record.meta.requiresAuth);
   const needsAdmin = to.matched.some(record => record.meta.requiresAdmin);
+  const isTokenExpired = authStore.isTokenExpired();
 
   try {
-    if (authStore.checkToken()) {
+    if (isTokenExpired) {
       // logout the user if token is expired
       await authStore.logout();
     }
 
-    if (!usersStore.userFetched && authStore.token && !authStore.checkToken()) {  
+    if (!usersStore.userFetched && authStore.token && !isTokenExpired) {  
       await usersStore.fetchUser(); 
     }
     if ((to.name == 'login' || to.name == 'register') && authStore.isLoggedIn) {

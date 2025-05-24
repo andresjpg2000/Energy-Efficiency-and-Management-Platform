@@ -18,7 +18,7 @@ export const useUsersStore = defineStore('user', {
       const messagesStore = useMessagesStore();
       const authStore = useAuthStore();
       const token = authStore.token;
-      if (!token || authStore.checkToken()) {
+      if (!token || authStore.isTokenExpired()) {
           this.clearUser();
           return false;
         }
@@ -50,7 +50,6 @@ export const useUsersStore = defineStore('user', {
       }
     },
     async updateUser(userData) {
-      const messagesStore = useMessagesStore();
       const authStore = useAuthStore();
       const token = authStore.token;
       const response = await fetch(`http://localhost:3000/users/${this.user.id_user}`, {
