@@ -67,58 +67,35 @@ let addWidgets = async (req, res) => {
 }
 
 let updateWidgets = async (req, res) => {
-    const { title } = req.params;
-    const { id_user } = req.query; 
-    const { body, type } = req.body;
+  const { title } = req.params;
+  const { id_user } = req.query;
+  const { x, y } = req.body;
 
-    if (req.body.title) {
-        return res.status(400).json({
-            message: "Title cannot be updated",
-        });
-    }
+  if (!id_user || !title) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-    if (req.body.id_user) {
-        return res.status(400).json({
-            message: "id_user cannot be updated",
-        });
-    }
+  try {
+    const widget = await Widgets.findOne({ where: { id_user, title } });
+    if (!widget) return res.status(404).json({ message: "Widget not found" });
 
-    if (!id_user || !title || !body ) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
+    let parsed;
     try {
-        const widget = await Widgets.findOne({
-            where: {
-                id_user,
-                title
-            }
-        });
-
-        if (!widget) {
-            return res.status(404).json({
-                message: "Widget not found"
-            });
-        }
-
-        widget.body = body;
-        widget.type = type || widget.type;
-
-        await widget.save();
-
-        return res.status(200).json({
-            message: "Widget updated successfully",
-            data: widget
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error updating widget",
-            error: error.message
-        });
+      parsed = JSON.parse(widget.body);
+    } catch {
+      parsed = {};  // se não for JSON válido
     }
-}
+    parsed.x = x;
+    parsed.y = y;
+
+    widget.body = parsed;
+    await widget.save();
+
+    return res.status(200).json({ message: "Widget updated", data: widget });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating widget", error: error.message });
+  }
+};
 
 let deleteWidgets = async (req, res) => {
     const { id_user } = req.query;// token verificar aqui

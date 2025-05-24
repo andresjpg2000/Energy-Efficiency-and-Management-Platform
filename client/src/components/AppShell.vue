@@ -117,6 +117,7 @@ import { useUsersStore } from '@/stores/users';
 import { useAuthStore } from '@/stores/auth';
 import { useDisplay } from 'vuetify'
 import { watch } from 'vue'
+import { useWidgetsStore } from '@/stores/widgetsStore';
 
   export default {
     name: 'AppShell',
@@ -156,6 +157,11 @@ import { watch } from 'vue'
       logout () {
         const authStore = useAuthStore();
         authStore.logout();
+
+        const widgetsStore = useWidgetsStore();
+
+        widgetsStore.updateDBWidgets();
+        widgetsStore.userWidgets = [];
         
         setTimeout(() => {
           this.$router.push('/login');

@@ -76,7 +76,8 @@ export const useWidgetsStore = defineStore('widgets', {
         const response = await fetch(`${URL}/users/${usersStore.user.id_user}/widgets`, {
             method: 'GET',
             headers: {
-            'authorization': `Bearer ${authStore.token}`,
+              'Content-Type': 'application/json',
+              'authorization': `Bearer ${authStore.token}`,
           },
         });
         if (!response.ok) {
@@ -87,7 +88,11 @@ export const useWidgetsStore = defineStore('widgets', {
         let widgets = responseData.data.widgets || [];
 
         widgets.forEach(el => {
+          console.log(el.body);
+          
           el.body = JSON.parse(el.body);
+          console.log(el.body);
+
           el.type = parseInt(el.type);
           delete el.id_user;
         });
@@ -113,6 +118,77 @@ export const useWidgetsStore = defineStore('widgets', {
       }
     },
 
+    updateWidget(x,y,title) {
+      this.userWidgets.forEach(widget => {
+        if (widget.title == title) {
+          widget.body.x = x;
+          widget.body.y = y;
+        }
+      });
+    },
+
+    async updateOneWidget(title,x,y) {
+      const usersStore = useUsersStore();
+      const authStore = useAuthStore();
+
+      const body = {
+        x: x,
+        y: y
+      };
+      
+      try {
+        const response = await fetch(`${URL}/widgets/${title}?id_user=${usersStore.user.id_user}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${authStore.token}`,
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update widget');
+        }
+        const data = await response.json();
+        console.log("Widget updated", data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async updateDBWidgets() {
+      console.log("updateDBWidgets");
+      
+      const usersStore = useUsersStore();
+      const authStore = useAuthStore();
+
+      try {
+        const promises = this.userWidgets.map(widget =>
+          
+          fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${usersStore.user.id_user}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'authorization': `Bearer ${authStore.token}`,
+            },
+            body: JSON.stringify(widget.body),
+          })
+        );
+
+        const responses = await Promise.all(promises);
+
+        responses.forEach((response, index) => {
+          if (!response.ok) {
+            console.error(`Erro ao atualizar widget "${this.userWidgets[index].title}":`, response.statusText);
+          }
+        });
+      } catch (error) {
+        console.error("Erro de rede ao atualizar widgets:", error);
+      }
+    },
+
     async addWidget(widget) {
       try {
         const usersStore = useUsersStore();
@@ -124,7 +200,7 @@ export const useWidgetsStore = defineStore('widgets', {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': `Bearer ${usersStore.token}`,
+            'authorization': `Bearer ${authStore.token}`,
           },
           body: JSON.stringify(widget),
         });
