@@ -1,49 +1,44 @@
 <template>
-  <div class="main-container">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh;">
-      <v-col cols="12" md="8" lg="6">
-        <v-card class="pa-4 formContainer">
-          <v-card-title class="text-h5">Security Settings</v-card-title>
-          <v-divider></v-divider>
-          
-            <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
-              <v-row>
-                <v-col>
-                  <!-- This field is hidden to improve UX  -->
-                  <v-text-field variant="outlined" label="username" density="default" v-model="userEmail" type="text" autocomplete="username" name="username" style="display: none;">
-                  </v-text-field>
-
-                  <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="New Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-
-                <v-col>
-                  <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                 
-                  <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
-                  
-                </v-col>
-              </v-row>
-            </v-form>
-         
-        </v-card>
-      </v-col>
+  <v-container class="mt-4 container">
+    <v-row justify="space-between" align="center" class="mb-4">
+      <h1 class="text-h5">Security Settings</h1>
     </v-row>
-    
-  </div>
+    <v-card class="pa-4">
+      <p class="text-subtitle-1 mb-4">Change your password</p>
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
+          <v-col>
+            <!-- This field is hidden to improve UX  -->
+            <v-text-field variant="outlined" label="username" density="default" v-model="userEmail" type="text" autocomplete="username" name="username" style="display: none;">
+            </v-text-field>
+
+            <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="New Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+
+          <v-col>
+            <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+            
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>

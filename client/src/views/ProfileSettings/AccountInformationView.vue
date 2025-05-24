@@ -1,49 +1,36 @@
 <template>
-  <div class="main-container">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh;">
-      <v-col cols="12" md="8" lg="6">
-        <v-card class="pa-4 formContainer">
-          <v-card-title class="text-h5">Account Information</v-card-title>
-          <v-divider></v-divider>
-          
-            <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
-              <v-row>
-                <v-col>
-                  
-                    <v-text-field variant="outlined" label="First Name" density="default" v-model="FirstName" autocomplete="given-name" placeholder="John" type="text" hint="" :persistent-hint="false" class="" name="First Name" :rules="firstNameRules" counter required>
-                    </v-text-field>
-                  
-                </v-col>
-                <v-col>
-                  
-                    <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" autocomplete="family-name" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name" :rules="lastNameRules" counter required>
-                    </v-text-field>
-                  
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                 
-                    <v-text-field variant="outlined" label="Email" density="default" v-model="Email" autocomplete="email" placeholder="example@example.com" type="text" hint="" :persistent-hint="false" class="" name="Email" :rules="emailRules" counter required>
-                    </v-text-field>
-                  
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                 
-                  <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
-                  
-                </v-col>
-              </v-row>
-            </v-form>
-         
-        </v-card>
-      </v-col>
+  
+  <v-container class="mt-4 container">
+    <v-row justify="space-between" align="center" class="mb-4">
+      <h1 class="text-h5">User Management</h1>
     </v-row>
-    
-  </div>
+    <v-card class="pa-4">
+      <p class="text-subtitle-1 mb-4">Update your account information</p>
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
+          <v-col>
+              <v-text-field variant="outlined" label="First Name" density="default" v-model="FirstName" autocomplete="given-name" placeholder="John" type="text" hint="" :persistent-hint="false" class="" name="First Name" :rules="firstNameRules" counter required>
+              </v-text-field>
+          </v-col>
+          <v-col>
+              <v-text-field variant="outlined" label="Last Name" density="default" v-model="LastName" autocomplete="family-name" placeholder="Doe" type="text" hint="" :persistent-hint="false" class="" name="Last Name" :rules="lastNameRules" counter required>
+              </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+              <v-text-field variant="outlined" label="Email" density="default" v-model="Email" autocomplete="email" placeholder="example@example.com" type="text" hint="" :persistent-hint="false" class="" name="Email" :rules="emailRules" counter required>
+              </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -171,6 +158,6 @@ import { useAuthStore } from '@/stores/auth';
   }
 </script>
 
-<style scoped>
+<style>
 
 </style>
