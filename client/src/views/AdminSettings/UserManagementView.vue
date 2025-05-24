@@ -1,7 +1,7 @@
 <template>
-  <v-container class="mt-4 container">
+  <v-container class="container">
     <v-row justify="space-between" align="center" class="mb-4">
-      <h1 class="text-h5">User Management</h1>
+      <h1 class="text-h5 pl-4">User Management</h1>
     </v-row>
 
     <v-data-table-server

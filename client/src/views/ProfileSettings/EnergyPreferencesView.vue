@@ -1,7 +1,7 @@
 <template>
-  <v-container class="mt-4 container">
+  <v-container class="container">
     <v-row justify="space-between" align="center" class="mb-4">
-      <h1 class="text-h5">Energy Preferences</h1>
+      <h1 class="text-h5 pl-4">Energy Preferences</h1>
     </v-row>
     <v-card class="pa-4">
       <p class="text-subtitle-1 mb-4">Select your current energy supplier</p>

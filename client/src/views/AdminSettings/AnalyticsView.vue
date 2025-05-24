@@ -1,7 +1,7 @@
 <template>
-  <v-container class="mt-4 container">
+  <v-container class="container">
     <v-row justify="space-between" align="center" class="mb-4">
-      <h1 class="text-h5">Analytics</h1>
+      <h1 class="text-h5 pl-4">Analytics</h1>
     </v-row>
     <v-card class="pa-4">
       <v-form ref="form" @submit.prevent="formSubmit">
