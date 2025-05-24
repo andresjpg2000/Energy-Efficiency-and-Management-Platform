@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import DashboardLayoutView from '@/views/Dashboard/DashboardLayoutView.vue'
 
 import { useAuthStore } from '@/stores/auth'
 
@@ -11,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: DashboardLayoutView,
+      component: () => import('@/views/Dashboard/DashboardLayoutView.vue'),
       children: [
         { path: '', name: 'Dashboard', component: () => import('@/views/Dashboard/DashboardView.vue') }, // root "/"
         { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
@@ -32,12 +29,12 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: () => import('@/views/LoginView.vue'),
     },
     {
       path: '/register',
       name: 'register',
-      component: RegisterView,
+      component: () => import('@/views/RegisterView.vue'),
     },
     {
       path: '/settings',
