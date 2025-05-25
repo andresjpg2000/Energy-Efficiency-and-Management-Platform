@@ -60,7 +60,7 @@ async function createNotification(req, res, next) {
 // Get all notifications for a specific user
 // async function getNotificationsByUser(req, res, next) {
 //   try {
-//     const { id_user } = req.params;
+//     const { id_user } = req.params.id_user;
 
 //     // Validate user exists
 //     const user = await User.findByPk(id_user);

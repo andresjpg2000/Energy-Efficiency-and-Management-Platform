@@ -16,7 +16,7 @@ router.post("/", usersController.createUser);
 // Atualizar dados de um utilizador (Apenas o próprio ou admin)
 // router.put("/:id_user", authenticate, usersController.updateUser);
 
-// Atualizar parcialmente dados de um utilizador (Apenas o próprio ou admin)
+// Atualizar parcialmente dados de um utilizador
 router.patch("/:id_user", authenticate, usersController.updateUser);
 
 // Atualizar password de um utilizador (Apenas o próprio ou admin) - recebe currentPassword e newPassword
