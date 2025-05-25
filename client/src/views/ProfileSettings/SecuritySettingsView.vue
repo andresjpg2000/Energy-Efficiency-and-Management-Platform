@@ -44,14 +44,13 @@
 <script>
 import { useMessagesStore } from '@/stores/messages';
 import { useAuthStore } from '@/stores/auth';
-import { getToken } from '@/utils/token.js';
+import  { fetchWithAuth } from '@/utils/fetchWithAuth.js';
 
   export default {
     data() {
       return {
         authStore: useAuthStore(),
         useMessagesStore: useMessagesStore(),
-        token: getToken(),
         form: null,
         isSubmitting: false,
         userEmail: "",
@@ -69,8 +68,6 @@ import { getToken } from '@/utils/token.js';
       async formSubmit() {
         // Handle form submission logic here
         if (this.$refs.form.validate()) {
-          
-          // Trocar isto para verificar se o campo é igual à password na base de dados
           if (this.CurrentPassword.length > 10 || this.CurrentPassword.length == 0) {
             console.error("Current password must be less than 10 characters and cannot be empty.");
             return;
@@ -93,22 +90,14 @@ import { getToken } from '@/utils/token.js';
             });
             return;
           }
-
           this.isSubmitting = true;
-
           this.data = {
             currentPassword: this.CurrentPassword,
             newPassword: this.NewPassword,
           };
-          console.log(this.token);
-          console.log("Data being sent:",this.data);
           try {
-            const response = await fetch(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
+            const response = await fetchWithAuth(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
               method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${this.token}`,
-              },
               body: JSON.stringify(this.data),
             });
 

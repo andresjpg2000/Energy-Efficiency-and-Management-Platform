@@ -15,7 +15,5 @@ async function authorizeAdmin(req, res, next) {
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
-  // If not, redirect to the login page (handled on front-end) or send an error response
-  return res.status(403).json({ success: false, message: 'Forbidden: You do not have permission to access this resource.'});
 }
 module.exports = authorizeAdmin;
