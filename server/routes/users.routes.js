@@ -5,37 +5,37 @@ const authenticate = require("../middleware/auth.js");
 const authorizeAdmin = require("../middleware/authorizeAdmin.js");
 
 // Listar todos os utilizadores (só admin)
-router.get("/", authenticate(), authorizeAdmin, usersController.getAllUsers);
+router.get("/", authenticate, authorizeAdmin, usersController.getAllUsers);
 
 // Obter um utilizador por ID (Apenas o próprio ou admin)
-router.get("/:id_user", authenticate(), usersController.getUserById);
+router.get("/:id_user", authenticate, usersController.getUserById);
 
 // Criar um novo utilizador (Sem autenticação)
 router.post("/", usersController.createUser);
 
 // Atualizar dados de um utilizador (Apenas o próprio ou admin)
-// router.put("/:id_user", authenticate(), usersController.updateUser);
+// router.put("/:id_user", authenticate, usersController.updateUser);
 
 // Atualizar parcialmente dados de um utilizador (Apenas o próprio ou admin)
-router.patch("/:id_user", authenticate(), usersController.updateUser);
+router.patch("/:id_user", authenticate, usersController.updateUser);
 
 // Atualizar password de um utilizador (Apenas o próprio ou admin) - recebe currentPassword e newPassword
-router.patch("/:id_user/changePassword", authenticate(), usersController.updateUserPassword);
+router.patch("/:id_user/changePassword", authenticate, usersController.updateUserPassword);
 
 // Eliminar um utilizador (Apenas admins)
-router.delete("/:id_user", authenticate(true), usersController.deleteUser);
+router.delete("/:id_user", authenticate, authorizeAdmin, usersController.deleteUser);
 
 // Obter widgets de um utilizador (Apenas o próprio)
 router.get(
   "/:id_user/widgets",
-  authenticate(),
+  authenticate,
   usersController.getAllUserWidgets
 );
 
 // Obter Notifications de um Utilizador (Apenas o próprio)
 router.get(
   "/:id_user/notifications",
-  authenticate(),
+  authenticate,
   usersController.getAllUserNotifications
 );
 

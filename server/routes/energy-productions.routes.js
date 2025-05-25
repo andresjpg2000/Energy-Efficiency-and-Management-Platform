@@ -6,12 +6,12 @@ const auth = require('../middleware/auth.js');
 const validateIdParam = require('../middleware/validateIdParam.js');
 
 // Get all energy consumptions
-router.get('/', auth(), energyProductions.getAllEnergyProductions);
+router.get('/', auth, energyProductions.getAllEnergyProductions);
 
 // Add a new energy consumption
-router.post('/', auth(), energyProductions.addEnergyProduction);
+router.post('/', auth, energyProductions.addEnergyProduction);
 
 // Delete an energy consumption by ID
-router.delete('/:id', auth(), validateIdParam("id"), energyProductions.deleteEnergyProduction);
+router.delete('/:id', auth, validateIdParam("id"), energyProductions.deleteEnergyProduction);
 
 module.exports = router;

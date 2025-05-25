@@ -15,7 +15,7 @@ async function login(req, res, next) {
       return res.status(401).json({ message: 'Invalid email' });
     }
 
-    const isPasswordValid = await bcrypt.compareSync(password, user.password); // Compare the password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the password with the hashed password in the database
 
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid password' });
@@ -23,7 +23,7 @@ async function login(req, res, next) {
 
     const token = jwt.sign
     (
-      { id_user: user.id_user, name: user.name, admin: user.admin },
+      { id_user: user.id_user},
       process.env.JWT_SECRET, 
       { expiresIn: process.env.JWT_EXPIRATION,}
     );

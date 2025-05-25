@@ -5,9 +5,9 @@ const auth = require("../middleware/auth.js");
 const validateIdParam = require("../middleware/validateIdParam.js");
 
 // Create a new notification
-router.post("/", auth(), notificationsController.createNotification);
+router.post("/", auth, notificationsController.createNotification);
 
 // Delete a notification by ID
-router.delete("/:id_notification", auth(), validateIdParam("id_notification"), notificationsController.deleteNotification);
+router.delete("/:id_notification", auth, validateIdParam("id_notification"), notificationsController.deleteNotification);
 
 module.exports = router;
