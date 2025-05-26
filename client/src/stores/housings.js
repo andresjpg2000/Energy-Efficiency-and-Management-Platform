@@ -4,6 +4,7 @@ import { fetchWithAuth } from '@/utils/fetchWithAuth';
 export const useHousingsStore = defineStore('housings', {
   state: () => ({
     housings: [],
+    selectedHousingId: null,
     loading: false,
     isFirstRun: true,
   }),
@@ -52,11 +53,7 @@ export const useHousingsStore = defineStore('housings', {
     //   }
     // },
     async updateHousing(housing) {
-      if (this.isFirstRun) {
-        this.isFirstRun = false;
-        await this.fetchHousings();
-      }
-      let id_housing = this.housings[0].id_housing;
+      let id_housing = this.selectedHousingId;
       try {
         const response = await fetchWithAuth(`http://localhost:3000/housings/${id_housing}`, {
           method: 'PATCH',
@@ -96,5 +93,9 @@ export const useHousingsStore = defineStore('housings', {
     //     throw error
     //   } 
     // }
+  },
+  persist: {
+    storage: sessionStorage,
+    paths: ['housings', 'selectedHousingId'],
   },
 });

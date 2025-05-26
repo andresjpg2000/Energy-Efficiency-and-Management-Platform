@@ -24,7 +24,7 @@ import { useHousingsStore } from '@/stores/housings';
         widgetsStore: useWidgetsStore(), 
         saveTimeout: null,
         changedWidgets: new Set(),// para armazenar widgets alterados, set so permite valores únicos
-        selectHouse: 3, // para armazenar a casa selecionada
+        selectHouse: null, // para armazenar a casa selecionada
         grid: null, // para armazenar a instância do GridStack
         doEnable: true,
         float: false, // para controlar o modo de flutuação
@@ -66,8 +66,6 @@ import { useHousingsStore } from '@/stores/housings';
       this.housingsStore.fetchHousings()
         .then(() => {
           console.log("Houses loaded");
-          console.log(this.housingsStore.housings[0]);
-          this.selectHouse = this.housingsStore.housings[0].id_housing; // Define a primeira casa como selecionada, se existir
         })
         .catch(error => {
           console.error("Error loading houses:", error);
@@ -113,7 +111,7 @@ import { useHousingsStore } from '@/stores/housings';
       <v-expansion-panel-text>
         <v-row>
           <v-col cols="12" md="6">
-            <v-chip-group mandatory selected-class="text-success" v-model="selectHouse">
+            <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
               <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg" :value="house.id_housing" >{{ house.building_type }}</v-chip>
             </v-chip-group>
           </v-col>
