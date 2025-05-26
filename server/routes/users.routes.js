@@ -39,4 +39,11 @@ router.get(
   usersController.getAllUserNotifications
 );
 
+// Obter todas as housings de um utilizador (Apenas o próprio)
+router.get(
+  "/:id_user/housings",
+  authenticate(),
+  usersController.getAllUserHouses
+);
+
 module.exports = router;

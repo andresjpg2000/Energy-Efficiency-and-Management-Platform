@@ -55,6 +55,17 @@ db.User.hasMany(db.Notifications, {
   sourceKey: "id_user",
   onDelete: "CASCADE", // Delete all notifications when a user is deleted
 });
+db.User.hasMany(db.Housing, {
+  foreignKey: "id_user",
+  sourceKey: "id_user",
+  onDelete: "CASCADE", // Delete all housings when a user is deleted
+});
+
+db.Housing.belongsTo(db.User, {
+  foreignKey: "id_user",
+  targetKey: "id_user",
+});
+
 db.Notifications.belongsTo(db.User, {
   foreignKey: "id_user",
   targetKey: "id_user",

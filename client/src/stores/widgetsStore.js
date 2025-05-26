@@ -5,7 +5,6 @@ import { URL } from '../utils/constants.js'
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({
     userWidgets: [],
-    changedWidgets: new Set(),// para armazenar widgets alterados, set so permite valores únicos
   }),
   persist: true,
   getters: {
@@ -155,14 +154,12 @@ export const useWidgetsStore = defineStore('widgets', {
       }
     },
 
-    async updateDBWidgets() {
+    async updateDBWidgets(changedWidgets = this.userWidgets.map(widget => widget.title)) {
       console.log("updateDBWidgets");
       const authStore = useAuthStore();
-      const cw = Array.from(this.changedWidgets); // Converte o Set para um Array
-
       try {
         const promises = this.userWidgets
-          .filter(widget => cw.includes(widget.title))
+          .filter(widget => changedWidgets.includes(widget.title))
           .map(widget =>
             fetch(`${URL}/widgets/${widget.title.trim()}?id_user=${authStore.user.id_user}`, {
               method: 'PATCH',
@@ -177,11 +174,8 @@ export const useWidgetsStore = defineStore('widgets', {
 
         const responses = await Promise.all(promises);
 
-        this.changedWidgets.clear(); // Limpa o conjunto após a atualização
-
         responses.forEach((response, index) => {
-          const widgetTitle = cw[index];
-    	    console.log(`Response for widget "${widgetTitle}":`, response.status);
+          console.log(`Response for widget "${changedWidgets[index]}":`, response.status);
           if (!response.ok) {
             console.error(`Erro ao atualizar widget "${changedWidgets[index]}":`, response.statusText);
           }

@@ -7,6 +7,7 @@ import ColumnWiget from '@/components/Column.widget.vue';
 import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
 
 import { useWidgetsStore } from '@/stores/widgetsStore';
+import { useHousingsStore } from '@/stores/housings';
 
   export default {
     name: 'DashboardView',
@@ -19,73 +20,37 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
     },
     data() {
       return {
+        housingsStore: useHousingsStore(),
         widgetsStore: useWidgetsStore(), 
         saveTimeout: null,
-        gridItems: [
-        {
-          type: 1,
-          title: 'Corrent-Consumption',
-          body:{
-            name: 'Current Energy Consumption',
-            earn: '4,42,236',
-            x: 0, y: 0,
-            w: 3, h: 2
-          }
-        },
-        {
-          type: 1,
-          title: 'Energy-Production',
-          body:{
-            name: 'Renewable Energy Production',
-            earn: '78,250',
-            x: 3, y: 0,
-            w: 3, h: 2
-        }
-        },
-        {
-          type: 1,
-          title: 'Total-Consumption',
-          body:{
-            name: 'Total Consumption this year',
-            earn: '18,800',
-            x: 6, y: 0,
-            w: 3, h: 2}
-        },
-        {
-          type: 1,
-          title: 'Total-Expenses',
-          body:{  
-            name: 'Expected Expenses (This Month)',
-            earn: '$35,078',
-            x: 9, y: 0,
-            w: 3, h: 2}
-        },
-        { type: 5,
-          title: "Graphic",
-          body:{ x: 0, y: 6, w: 6, h: 3 }
-        },
-        { type: 2,
-          title: "Column",
-          body:{ x: 0, y: 9, w: 12, h: 3 }
-        },
-        { type: 3,
-          title: "Vertical-Column",
-          body:{ x: 6, y: 3, w: 6 , h: 3 }
-        },
-        ],
+        changedWidgets: new Set(),// para armazenar widgets alterados, set so permite valores únicos
+        selectHouse: 3, // para armazenar a casa selecionada
+        grid: null, // para armazenar a instância do GridStack
+        doEnable: true,
+        float: false, // para controlar o modo de flutuação
       };
     },
     methods: {
-      
+      remove(){
+        this.doEnable = !this.doEnable; // alterna o estado de remoção
+        this.grid.movable(this.doEnable); // define se os widgets são estáticos ou não
+        
+      },
+      alterFloat() {
+        this.float = !this.float; // alterna o estado de flutuação
+        this.grid.float(this.float); 
+        console.log("Float mode:", this.float);
+        
+      }
     },
-    
     beforeRouteLeave(to, from, next) {
       if (this.saveTimeout) {
         clearTimeout(this.saveTimeout);
         this.saveTimeout = null; // limpa o estado
-        this.widgetsStore.updateDBWidgets()
+        this.widgetsStore.updateDBWidgets([...this.changedWidgets])
           .then(() => {
             console.log("Widgets atualizados com sucesso.");
+            this.changedWidgets.clear(); // Limpa o Set após salvar
             next(); 
           })
           .catch((error) => {
@@ -96,31 +61,42 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
         next();
       }
     }, 
-    mounted () {
+    created () {
+      // Carrega os houses do usuário
+      this.housingsStore.fetchHousings()
+        .then(() => {
+          console.log("Houses loaded");
+          console.log(this.housingsStore.housings[0]);
+          this.selectHouse = this.housingsStore.housings[0].id_housing; // Define a primeira casa como selecionada, se existir
+        })
+        .catch(error => {
+          console.error("Error loading houses:", error);
+        });
+    },
+    
+    mounted () {      
       // Initialize GridStack
-      let grid = GridStack.init({
+      this.grid = GridStack.init({
         float: false,
         cellHeight: '120px',
         columnOpts: {
-          breakpointForWindow: true,  // test window vs grid size
           breakpoints: [{w:700, c:1},{w:850, c:1},{w:950, c:6},{w:1100, c:9}]
         },
-        disableResize: true,
       })
 
-      
-      grid.on('change', (event, items) => { 
+      this.grid.on('change', (event, items) => { 
         items.forEach(item => {
           console.log("Item moved:", item.el.id, "to", item.x, item.y);
           
           this.widgetsStore.updateWidget(item.x, item.y, item.el.id);
           
-          this.widgetsStore.changedWidgets.add(item.el.id);
+          this.changedWidgets.add(item.el.id);
         });
 
         clearTimeout(this.saveTimeout);
         this.saveTimeout = setTimeout(() => {
-          this.widgetsStore.updateDBWidgets(); // converter Set para Array
+          this.widgetsStore.updateDBWidgets([...this.changedWidgets]); // converter Set para Array
+          this.changedWidgets.clear(); // Limpa o Set após salvar
         }, 10000);
       });
     },
@@ -137,23 +113,30 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
       <v-expansion-panel-text>
         <v-row>
           <v-col cols="12" md="6">
-            <v-chip-group mandatory class="chips" selected-class="scheduleSelected">
-              <v-chip class="scheduleDays" rounded="lg" value="7" >house 1</v-chip>
-              <v-chip class="scheduleDays" rounded="lg" value="8" >house 2</v-chip>
-              <v-chip class="scheduleDays" rounded="lg" value="9">house 3</v-chip>
+            <v-chip-group mandatory selected-class="text-success" v-model="selectHouse">
+              <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg" :value="house.id_housing" >{{ house.building_type }}</v-chip>
             </v-chip-group>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-end">
             <v-btn
+              density="comfortable"
               class="mx-4"
-              color="primary"
+              color="success"
+              rounded="lg"
+              variant="tonal"
+              @click="alterFloat"
+              :text="float ? 'Disable Float' : 'Enable Float'"
             ></v-btn>
             <v-btn
+              density="comfortable"
               class="mx-4"
-              color="primary"
+              color="success"
+              rounded="lg"
+              variant="outlined"
+              @click="remove"
             >
               <v-icon class="pr-3" left>mdi-pencil</v-icon>
-              Edit Mode
+              {{ doEnable ? 'Disable Edit mode' : 'Enable Edit mode' }}
             </v-btn>
           </v-col>
         </v-row>
@@ -167,7 +150,7 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
     class="grid-stack"
   >
     
-    <div class="grid-stack-item" v-for="(item,i) in widgetsStore.userWidgets" 
+    <div class="grid-stack-item widgets" v-for="(item,i) in widgetsStore.userWidgets" 
     :key="i" 
     :gs-x="item.body.x" 
     :gs-y="item.body.y" 
@@ -193,5 +176,8 @@ import { useWidgetsStore } from '@/stores/widgetsStore';
 
   .v-overlay-container {
     z-index: 9999 !important;
+  }
+  .selected {
+    background-color: #00863a !important;
   }
 </style>
