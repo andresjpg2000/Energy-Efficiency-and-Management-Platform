@@ -42,7 +42,7 @@ router.get(
 // Obter todas as housings de um utilizador (Apenas o próprio)
 router.get(
   "/:id_user/housings",
-  authenticate(),
+  authenticate,
   usersController.getAllUserHouses
 );
 
