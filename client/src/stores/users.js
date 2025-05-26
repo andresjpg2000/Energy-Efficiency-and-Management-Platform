@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { useMessagesStore } from './messages';
 import { useAuthStore } from './auth';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { getToken } from '@/utils/token';
 
 export const useUsersStore = defineStore('user', {
   state: () => ({
@@ -14,18 +16,15 @@ export const useUsersStore = defineStore('user', {
     async fetchUser() {
       const messagesStore = useMessagesStore();
       const authStore = useAuthStore();
-      const token = authStore.token;
+      const token = getToken();
       if (!token || authStore.isTokenExpired()) {
         authStore.logout();
         return false;
       }
       
       try {
-        const response = await fetch('http://localhost:3000/auth/me', {
+        const response = await fetchWithAuth('http://localhost:3000/auth/me', {
           method: 'GET',
-          headers: {
-            'authorization': `Bearer ${token}`,
-          },
         });
 
         if (!response.ok) {
@@ -47,13 +46,8 @@ export const useUsersStore = defineStore('user', {
     },
     async updateUser(userData) {
       const authStore = useAuthStore();
-      const token = authStore.token;
-      const response = await fetch(`http://localhost:3000/users/${authStore.getUserId}`, {
+      const response = await fetchWithAuth(`http://localhost:3000/users/${authStore.getUserId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify(userData),
       });
 

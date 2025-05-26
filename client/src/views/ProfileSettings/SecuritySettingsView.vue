@@ -1,62 +1,56 @@
 <template>
-  <div class="main-container">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh;">
-      <v-col cols="12" md="8" lg="6">
-        <v-card class="pa-4 formContainer">
-          <v-card-title class="text-h5">Security Settings</v-card-title>
-          <v-divider></v-divider>
-          
-            <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
-              <v-row>
-                <v-col>
-                  <!-- This field is hidden to improve UX  -->
-                  <v-text-field variant="outlined" label="username" density="default" v-model="userEmail" type="text" autocomplete="username" name="username" style="display: none;">
-                  </v-text-field>
-
-                  <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="New Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-
-                <v-col>
-                  <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                 
-                  <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
-                  
-                </v-col>
-              </v-row>
-            </v-form>
-         
-        </v-card>
-      </v-col>
+  <v-container class="container">
+    <v-row justify="space-between" align="center" class="mb-4">
+      <h1 class="text-h5 pl-4">Security Settings</h1>
     </v-row>
-    
-  </div>
+    <v-card class="pa-4">
+      <p class="text-subtitle-1 mb-4">Change your password</p>
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
+          <v-col>
+            <!-- This field is hidden to improve UX  -->
+            <v-text-field variant="outlined" label="username" density="default" v-model="userEmail" type="text" autocomplete="username" name="username" style="display: none;">
+            </v-text-field>
+
+            <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="New Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+
+          <v-col>
+            <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword" placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+            
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
 import { useMessagesStore } from '@/stores/messages';
 import { useAuthStore } from '@/stores/auth';
-import { getToken } from '@/utils/token.js';
+import  { fetchWithAuth } from '@/utils/fetchWithAuth.js';
 
   export default {
     data() {
       return {
         authStore: useAuthStore(),
         useMessagesStore: useMessagesStore(),
-        token: getToken(),
         form: null,
         isSubmitting: false,
         userEmail: "",
@@ -74,8 +68,6 @@ import { getToken } from '@/utils/token.js';
       async formSubmit() {
         // Handle form submission logic here
         if (this.$refs.form.validate()) {
-          
-          // Trocar isto para verificar se o campo é igual à password na base de dados
           if (this.CurrentPassword.length > 10 || this.CurrentPassword.length == 0) {
             console.error("Current password must be less than 10 characters and cannot be empty.");
             return;
@@ -98,22 +90,14 @@ import { getToken } from '@/utils/token.js';
             });
             return;
           }
-
           this.isSubmitting = true;
-
           this.data = {
             currentPassword: this.CurrentPassword,
             newPassword: this.NewPassword,
           };
-          console.log(this.token);
-          console.log("Data being sent:",this.data);
           try {
-            const response = await fetch(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
+            const response = await fetchWithAuth(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
               method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${this.token}`,
-              },
               body: JSON.stringify(this.data),
             });
 

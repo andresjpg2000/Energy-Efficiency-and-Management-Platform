@@ -1,37 +1,38 @@
 <template>
-  <div class="main-container">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh;">
-      <v-col cols="12" md="8" lg="6">
-        <v-card class="pa-4 formContainer">
-          <v-card-title class="text-h5">Energy Preferences</v-card-title>
-          <v-divider></v-divider>
-          
-            <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
-              <v-row>
-                <v-col>
-                  
-                  <v-select variant="outlined" label="Energy Suppliers" density="default" v-model="selectedSupplier" :clearable="false" :multiple="false" placeholder="Choose your current energy supplier" :items="formattedSuppliers" item-title="title" item-value="value" name="Suppliers" :rules="supplierRules">
-                    
-                  </v-select>
-                  
-                </v-col>
-    
-              </v-row>
-
-              <v-row>
-                <v-col>
-                 
-                  <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
-                  
-                </v-col>
-              </v-row>
-            </v-form>
-         
-        </v-card>
-      </v-col>
+  <v-container class="container">
+    <v-row justify="space-between" align="center" class="mb-4">
+      <h1 class="text-h5 pl-4">Energy Preferences</h1>
     </v-row>
-    
-  </div>
+    <v-card class="pa-4">
+      <p class="text-subtitle-1 mb-4">Select your current energy supplier</p>
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
+          <v-col>
+            <v-select 
+              variant="outlined" 
+              label="Energy Suppliers" 
+              density="default" 
+              v-model="selectedSupplier" 
+              :clearable="false" 
+              :multiple="false" 
+              placeholder="Choose your current energy supplier" 
+              :items="formattedSuppliers" item-title="title" 
+              item-value="value" name="Suppliers" 
+              :rules="supplierRules"
+            >
+            </v-select>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">
+              Save Changes
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>

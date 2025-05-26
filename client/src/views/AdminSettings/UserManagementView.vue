@@ -1,7 +1,7 @@
 <template>
-  <v-container class="mt-4 container">
+  <v-container class="container">
     <v-row justify="space-between" align="center" class="mb-4">
-      <h1 class="text-h5">User Management</h1>
+      <h1 class="text-h5 pl-4">User Management</h1>
     </v-row>
 
     <v-data-table-server
@@ -48,13 +48,12 @@
 </template>
 
 <script>
-import { getToken } from '@/utils/token.js';
+import { fetchWithAuth } from '@/utils/fetchWithAuth.js';
 
 export default {
 
   data() {
     return {
-      token: getToken(),
       headers: [
         { title: 'ID', key: 'id_user' },
         { title: 'NAME', key: 'name' },
@@ -80,12 +79,8 @@ export default {
     async fetchUsers() {
       this.loading = true
       try {
-        const response = await fetch(`http://localhost:3000/users?limit=${this.itemsPerPage}&page=${this.page}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/users?limit=${this.itemsPerPage}&page=${this.page}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
-          },
         });
 
         if (!response.ok) {
@@ -114,12 +109,8 @@ export default {
       // Not working because of relation with housings. Must delete housings from the user first
       
       try {
-        const response = await fetch(`http://localhost:3000/users/${user.id_user}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/users/${user.id_user}`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
-          },
         });
 
         if (!response.ok) {
@@ -135,12 +126,8 @@ export default {
     },
     async saveUser() {
         try {
-        const response = await fetch(`http://localhost:3000/users/${this.editingUser.id_user}`, {
+        const response = await fetchWithAuth(`http://localhost:3000/users/${this.editingUser.id_user}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': `Bearer ${this.token}`,
-          },
           body: JSON.stringify({
             name: this.form.name,
             email: this.form.email,
@@ -185,6 +172,6 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 
 </style>

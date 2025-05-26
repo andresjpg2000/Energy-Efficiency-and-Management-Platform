@@ -1,46 +1,30 @@
 <template>
-  <div class="main-container">
-    <v-row class="d-flex justify-center align-center" style="height: 100vh;">
-      <v-col cols="12" md="8" lg="6">
-        <v-card class="pa-4 formContainer">
-          <v-card-title class="text-h5">Analytics</v-card-title>
-          <v-divider></v-divider>
-          
-            <v-form ref="form" class="mt-8" @submit.prevent="formSubmit">
-              <v-row>
-                <v-col>
-                  
-                    
-                  
-                </v-col>
-                <v-col>
-                  
-                    
-                  
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                 
-                    
-                  
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                 
-                  <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
-                  
-                </v-col>
-              </v-row>
-            </v-form>
-         
-        </v-card>
-      </v-col>
+  <v-container class="container">
+    <v-row justify="space-between" align="center" class="mb-4">
+      <h1 class="text-h5 pl-4">Analytics</h1>
     </v-row>
-    
-  </div>
+    <v-card class="pa-4">
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
+          <v-col>
+        
+          </v-col>
+          <v-col>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -81,6 +65,6 @@
   }
 </script>
 
-<style scoped>
+<style>
 
 </style>

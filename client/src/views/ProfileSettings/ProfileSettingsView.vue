@@ -22,6 +22,11 @@ import AppShell from '@/components/AppShell.vue';
             exact: true,
           },
           {
+            title: 'Security Settings',
+            prependIcon: 'mdi-shield-outline',
+            to: '/settings/security-settings',
+          },
+          {
             title: 'Energy Preferences',
             prependIcon: 'mdi-lightning-bolt-outline',
             to: '/settings/energy-preferences',
@@ -31,17 +36,6 @@ import AppShell from '@/components/AppShell.vue';
             prependIcon: 'mdi-bell-outline',
             to: '/settings/notification-settings',
           },
-          {
-            title: 'Security Settings',
-            prependIcon: 'mdi-shield-outline',
-            to: '/settings/security-settings',
-          },
-          {
-            title: 'Theme & Accessibility',
-            prependIcon: 'mdi-palette-outline',
-            to: '/settings/theme-accessibility',
-          },
-          
         ],
       };
     },
@@ -55,5 +49,7 @@ import AppShell from '@/components/AppShell.vue';
 </script>
 
 <style>
- 
+.container {
+  max-width: 1200px;
+}
 </style>

@@ -16,14 +16,14 @@ import AppShell from '@/components/AppShell.vue';
             exact: true,
           },
           {
-            title: 'Energy Data Monitoring',
-            prependIcon: 'mdi-lightning-bolt-outline', // See aggregated data (global, by region, by household), detect anomalies, export data (csv, or other formats)
-            to: '/admin/energy-monitoring',
-          },
-          {
             title: 'System Settings',
             prependIcon: 'mdi-cog-outline', // Manage system settings, configure system parameters, manage system updates, like first time setup messages etc...
             to: '/admin/system-settings',
+          },
+          {
+            title: 'Energy Data Monitoring',
+            prependIcon: 'mdi-lightning-bolt-outline', // See aggregated data (global, by region, by household), detect anomalies, export data (csv, or other formats)
+            to: '/admin/energy-monitoring',
           },
           {
             title: 'Analytics Overview', // Visual charts, graphs, and reports, like energy consumption trends, user activity trends, etc.
@@ -51,5 +51,7 @@ import AppShell from '@/components/AppShell.vue';
 </template>
 
 <style>
-
+.container {
+  max-width: 1200px;
+}
 </style>

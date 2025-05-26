@@ -46,7 +46,6 @@ const router = createRouter({
         { path: 'energy-preferences', name: 'energy-preferences', component: () => import('../views/ProfileSettings/EnergyPreferencesView.vue') },
         { path: 'notification-settings', name: 'notification-settings', component: () => import('../views/ProfileSettings/NotificationSettingsView.vue') },
         { path: 'security-settings', name: 'security-settings', component: () => import('../views/ProfileSettings/SecuritySettingsView.vue') },
-        { path: 'theme-accessibility', name: 'theme-accessibility', component: () => import('../views/ProfileSettings/ThemeAccessibilityView.vue') },
       ],
       meta: {
         requiresAuth: true,

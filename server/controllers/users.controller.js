@@ -174,19 +174,19 @@ async function createUser(req, res, next) {
 // Atualizar dados de um utilizador
 async function updateUser(req, res, next) {
   try {
-    const { id_user } = req.params;
+    const id_user = req.params.id_user;
     // Verificar se o utilizador é o próprio ou admin
-    if (id_user !== req.user.id_user && !req.user.admin) {
+    if (id_user != req.user.id_user) {
       return res.status(403).json({ message: "Forbidden" });
     }
-    const { email, name, password, admin } = req.body;
+    const { email, name, password } = req.body;
 
     const user = await User.findByPk(id_user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const updateData = { email, name, admin };
+    const updateData = { email, name };
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10); // Encriptar a password
@@ -202,9 +202,9 @@ async function updateUser(req, res, next) {
 // Atualizar password de um utilizador
 async function updateUserPassword(req, res, next) {
   try {
-    const { id_user } = req.params;
+    const id_user = req.params.id_user;
     // Verificar se o utilizador é o próprio ou admin
-    if (id_user !== req.user.id_user && !req.user.admin) {
+    if (id_user != req.user.id_user) {
       return res.status(403).json({ message: "Forbidden" });
     }
     const user = await User.findByPk(id_user);
@@ -219,7 +219,7 @@ async function updateUserPassword(req, res, next) {
     );
 
     if (!passwordMatches) {
-      return res.status(401).json({ message: "Invalid current password" });
+      return res.status(403).json({ message: "Invalid current password" });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10); // Encriptar a password
