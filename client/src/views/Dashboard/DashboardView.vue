@@ -8,6 +8,8 @@ import VerticalColumnWidget from '@/components/VerticalColumn.widget.vue';
 
 import { useWidgetsStore } from '@/stores/widgetsStore';
 import { useHousingsStore } from '@/stores/housings';
+import { useSuppliersStore } from '@/stores/suppliers.js';
+import { useAuthStore } from '@/stores/auth.js';
 
   export default {
     name: 'DashboardView',
@@ -21,14 +23,36 @@ import { useHousingsStore } from '@/stores/housings';
     data() {
       return {
         housingsStore: useHousingsStore(),
-        widgetsStore: useWidgetsStore(), 
+        suppliersStore: useSuppliersStore(),
+        widgetsStore: useWidgetsStore(),
+        authStore: useAuthStore(), 
         saveTimeout: null,
         changedWidgets: new Set(),// para armazenar widgets alterados, set so permite valores únicos
         selectHouse: null, // para armazenar a casa selecionada
         grid: null, // para armazenar a instância do GridStack
         doEnable: true,
         float: false, // para controlar o modo de flutuação
+        openDialog: false, // para controlar o estado do diálogo
+        housing: {
+          address: '',
+          pc: '',
+          location: '',
+          selectedSupplier: null,
+          building_type: '',
+          id_user: null,
+        },
       };
+    },
+    computed: {
+      suppliers() {
+        return this.suppliersStore.suppliers;
+      },
+      formattedSuppliers() {
+        return this.suppliers.map(supplier => ({
+          title: `${supplier.enterprise} - ${supplier.cost_kWh} €/kWh`,
+          value: supplier.id,
+        }));
+      },
     },
     methods: {
       remove(){
@@ -41,7 +65,34 @@ import { useHousingsStore } from '@/stores/housings';
         this.grid.float(this.float); 
         console.log("Float mode:", this.float);
         
-      }
+      },
+      addHousing() {
+        this.housing.id_user = this.authStore.getUserId;        try {
+          this.housingsStore.addHousing(this.housing)
+        } catch (error) {
+          console.error("Error adding housing:", error);
+          return;
+        } finally {
+          this.openDialog = false;
+          this.housing = {
+            address: '',
+            pc: '',
+            location: '',
+            selectedSupplier: null,
+            building_type: '',
+          };
+        }
+      },
+      closeDialog() {
+        this.openDialog = false;
+        this.housing = {
+          address: '',
+          pc: '',
+          location: '',
+          selectedSupplier: null,
+          building_type: '',
+        };
+      },
     },
     beforeRouteLeave(to, from, next) {
       if (this.saveTimeout) {
@@ -73,6 +124,8 @@ import { useHousingsStore } from '@/stores/housings';
     },
     
     mounted () {      
+      // Fetch suppliers
+      this.suppliersStore.fetchSuppliers("id,enterprise,cost_kWh");
       // Initialize GridStack
       this.grid = GridStack.init({
         float: false,
@@ -113,6 +166,7 @@ import { useHousingsStore } from '@/stores/housings';
           <v-col cols="12" md="6">
             <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
               <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg" :value="house.id_housing" >{{ house.building_type }}</v-chip>
+              <v-chip :value="null" :ripple="false" rounded="lg" @click="openDialog=true" color="primary"><v-icon>mdi-plus</v-icon></v-chip>
             </v-chip-group>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-end">
@@ -164,6 +218,47 @@ import { useHousingsStore } from '@/stores/housings';
       </div>
     </div>      
   </v-sheet>
+  <!-- Dialog for Adding/Editing House -->
+  <v-dialog v-model="openDialog" max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h6">Add Housing</span>
+      </v-card-title>
+
+      <v-card-text>
+        <v-text-field v-model="housing.address" variant="outlined" label="Address" required></v-text-field>
+        <v-text-field v-model="housing.pc" variant="outlined" label="Postal Code" required></v-text-field>
+        <v-text-field v-model="housing.location" variant="outlined" label="Location" required></v-text-field>
+        <v-select 
+          variant="outlined" 
+          label="Energy Suppliers" 
+          density="default" 
+          v-model="housing.selectedSupplier" 
+          :clearable="false" 
+          :multiple="false" 
+          placeholder="Choose your current energy supplier" 
+          :items="formattedSuppliers" item-title="title" 
+          item-value="value" name="Suppliers" 
+        >
+        </v-select>
+        <v-select 
+          variant="outlined" 
+          label="Building Type" 
+          density="default" 
+          v-model="housing.building_type" 
+          :clearable="false" 
+          :multiple="false" 
+          placeholder="Choose the type of building"
+          :items="['flat', 'house', 'studio']" 
+        ></v-select>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text @click="closeDialog">Cancel</v-btn>
+        <v-btn color="primary" @click="addHousing">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style>

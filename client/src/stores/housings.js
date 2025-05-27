@@ -28,30 +28,26 @@ export const useHousingsStore = defineStore('housings', {
         this.loading = false
       }
     },
-    // async addHousing(housing) {
-    //   const token = getToken();
-    //   try {
-    //     const response = await fetch('http://localhost:3000/housings', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'authorization': `Bearer ${token}`,
-    //       },
-    //       body: JSON.stringify(housing),
-    //     })
+    async addHousing(housing) {
+      console.log('housing', housing);
+      try {
+        const response = await fetchWithAuth('http://localhost:3000/housings', {
+          method: 'POST',
+          body: JSON.stringify(housing),
+        })
 
-    //     if (!response.ok) {
-    //       const data = await response.json()
-    //       throw new Error(data.message || 'Network response was not ok')
-    //     }
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || 'Network response was not ok')
+        }
 
-    //     const newHousing = await response.json()
-    //     this.housings.push(newHousing.data);
+        const newHousing = await response.json()
+        this.housings.push(newHousing.data);
 
-    //   } catch (error) {
-    //     throw error
-    //   }
-    // },
+      } catch (error) {
+        throw error
+      }
+    },
     async updateHousing(housing) {
       let id_housing = this.selectedHousingId;
       try {

@@ -1,4 +1,4 @@
-const { Housing } = require('../models/index.js');
+const { Housing, PostalCode } = require('../models/index.js');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 const { Op } = require('sequelize');
 
@@ -237,12 +237,19 @@ const getHousingById = async (req, res, next) => {
 
 // Create a new housing
 const createHousing = async (req, res, next) => {
+    console.log("Creating housing with body:", req.body);
+
     if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type) {
         return res.status(400).json({ message: 'Address, postal code, and building type are required!' });
     }
     
     try {
         const userID = req.user.id_user;
+
+        const [postalCode] = await PostalCode.findOrCreate({
+            where: { pc: req.body.pc },
+            defaults: { location: req.body.location },
+        });
       
         const newHousing = await Housing.create({
             address: req.body.address,

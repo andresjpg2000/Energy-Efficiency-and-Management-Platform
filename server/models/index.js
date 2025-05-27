@@ -14,6 +14,7 @@ db.GivenEnergies = require("./given-energies.model.js")(sequelize);
 db.User = require("./users.model.js")(sequelize);
 db.EnergyEquipment = require("./energy-equipments.model.js")(sequelize);
 db.Notifications = require("./notifications.model.js")(sequelize);
+db.PostalCode = require("./postal-code.model.js")(sequelize);
 
 // Define associations between models
 db.Housing.hasMany(db.EnergyConsumption, {
@@ -25,6 +26,14 @@ db.Housing.hasMany(db.EnergyEquipment, {
   foreignKey: "housing",
   sourceKey: "id_housing",
   onDelete: "CASCADE", // Delete all energy consumptions when a housing is deleted
+});
+db.Housing.belongsTo(db.PostalCode, {
+  foreignKey: "pc",
+  targetKey: "pc",
+});
+db.PostalCode.hasMany(db.Housing, {
+  foreignKey: "pc",
+  sourceKey: "pc",
 });
 db.EnergyConsumption.belongsTo(db.Housing, {
   foreignKey: "id_housing",
