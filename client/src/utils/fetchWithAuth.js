@@ -4,18 +4,22 @@ import { useMessagesStore } from '@/stores/messages';
 export async function fetchWithAuth(url, options = {}) {
   const messagesStore = useMessagesStore();
   const token = getToken();
-  const authorization = token ? `Bearer ${token}`: null;
+  const authorization = token ? `Bearer ${token}` : null;
 
   const headers = {
     ...options.headers,
     'Content-Type': 'application/json',
     'authorization': `${authorization}`,
+    'Accept-Encoding': 'gzip, deflate, br',
   }
 
   const response = await fetch(url, {
     ...options,
     headers,
   });
+
+  const encoding = response.headers.get('content-encoding');
+  console.log('Resposta comprimida com:', encoding); // ← 'gzip', 'br', etc
 
   if (response.status === 401) {
     messagesStore.add({

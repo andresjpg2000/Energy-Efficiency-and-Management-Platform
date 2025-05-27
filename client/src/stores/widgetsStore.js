@@ -8,7 +8,7 @@ export const useWidgetsStore = defineStore('widgets', {
   }),
   persist: true,
   getters: {
-  },  
+  },
   actions: {
     async fetchUserWidgets() {
       const authStore = useAuthStore();
@@ -27,7 +27,7 @@ export const useWidgetsStore = defineStore('widgets', {
           type: 1,
           title: 'Energy-Production',
           body: {
-            name: 'Renewable Energy Production',
+            name: 'Energy Production Today',
             earn: '78,250',
             x: 3, y: 0,
             w: 3, h: 2
@@ -72,10 +72,10 @@ export const useWidgetsStore = defineStore('widgets', {
       ];
       if (this.userWidgets.length == 0) {
         const response = await fetch(`${URL}/users/${authStore.user.id_user}/widgets`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'authorization': `Bearer ${authStore.token}`,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${authStore.token}`,
           },
         });
         if (!response.ok) {
@@ -87,7 +87,7 @@ export const useWidgetsStore = defineStore('widgets', {
 
         widgets.forEach(el => {
           console.log(el.body);
-          
+
           el.body = JSON.parse(el.body);
           console.log(el.body);
 
@@ -101,11 +101,11 @@ export const useWidgetsStore = defineStore('widgets', {
 
           if (!jaExiste) {
             console.log("NÃO EXISTE");
-            
+
             widgets.push(w);
             this.addWidget(w)
-          }   
-          
+          }
+
         });
 
         this.userWidgets = widgets;
@@ -116,7 +116,7 @@ export const useWidgetsStore = defineStore('widgets', {
       }
     },
 
-    updateWidget(x,y,title) {
+    updateWidget(x, y, title) {
       this.userWidgets.forEach(widget => {
         if (widget.title == title) {
           widget.body.x = x;
@@ -125,14 +125,14 @@ export const useWidgetsStore = defineStore('widgets', {
       });
     },
 
-    async updateOneWidget(title,x,y) {
+    async updateOneWidget(title, x, y) {
       const authStore = useAuthStore();
 
       const body = {
         x: x,
         y: y
       };
-      
+
       try {
         const response = await fetch(`${URL}/widgets/${title}?id_user=${authStore.user.id_user}`, {
           method: 'PATCH',
