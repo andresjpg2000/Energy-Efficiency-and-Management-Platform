@@ -53,12 +53,12 @@ let getAllUserWidgets = async (req, res, next) => {
   }
 };
 
-// Obter todas as notificações do utilizador
 let getAllUserNotifications = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id_user, {
       attributes: ["id_user"],
     });
+
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -67,22 +67,27 @@ let getAllUserNotifications = async (req, res, next) => {
 
     // lazy loading
     const notifications = await user.getNotifications({
-      attributes: ["id_notification", "type", "id_consumption", "message",],
+      attributes: ["id_notification", "type", "id_consumption", "message"],
+      order: [["id_notification", "DESC"]],
     });
 
-    notifications.forEach(nt => {
-             nt.dataValues.links = [
-                { rel: "delete", href: `/notifications/${nt.id_notification}`, method: "DELETE" },
-            ]
-        });
+    notifications.forEach((n) => {
+      n.dataValues.links = [
+        {
+          rel: "delete",
+          href: `/notifications/${n.id_notification}`,
+          method: "DELETE",
+        },
+      ];
+    });
 
     user.dataValues.notifications = notifications;
+
     res.status(200).json({
       data: user,
     });
   } catch (err) {
     console.error("Error fetching Users Notifications:", err);
-
     next(err);
   }
 };
@@ -101,17 +106,26 @@ let getAllUserHouses = async (req, res, next) => {
 
     // lazy loading
     const houses = await user.getHousings({
-      attributes: ["id_housing","address", "pc", "building_type", "id_supplier",],
+      attributes: [
+        "id_housing",
+        "address",
+        "pc",
+        "building_type",
+        "id_supplier",
+      ],
     });
 
-    houses.forEach(h => {
-             h.dataValues.links = [
-                { rel: "delete", href: `/housing/${h.id_housing}`, method: "DELETE" },
-                { rel: "update", href: `/housing/${h.id_housing}`, method: "PUT" },
-                { rel: "parcialUpdate", href: `/housing/${h.id_housing}`, method: "PATCH" },
-
-            ]
-        });
+    houses.forEach((h) => {
+      h.dataValues.links = [
+        { rel: "delete", href: `/housing/${h.id_housing}`, method: "DELETE" },
+        { rel: "update", href: `/housing/${h.id_housing}`, method: "PUT" },
+        {
+          rel: "parcialUpdate",
+          href: `/housing/${h.id_housing}`,
+          method: "PATCH",
+        },
+      ];
+    });
 
     user.dataValues.houses = houses;
     res.status(200).json({
@@ -187,6 +201,9 @@ async function updateUser(req, res, next) {
     }
 
     const updateData = { email, name };
+    if (req.body.notification_settings) {
+      updateData.notification_settings = req.body.notification_settings;
+    }
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10); // Encriptar a password
@@ -231,6 +248,7 @@ async function updateUserPassword(req, res, next) {
     next(error);
   }
 }
+
 // Eliminar um utilizador
 async function deleteUser(req, res, next) {
   try {
@@ -256,5 +274,5 @@ module.exports = {
   getAllUserWidgets,
   getAllUserNotifications,
   updateUserPassword,
-  getAllUserHouses
+  getAllUserHouses,
 };
