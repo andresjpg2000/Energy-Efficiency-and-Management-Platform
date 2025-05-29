@@ -76,6 +76,11 @@ const router = createRouter({
       name: 'Forbidden',
       component: () => import('../views/ForbiddenView.vue'),
     },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/ResetPassword.vue'),
+    },
   ],
 })
 
@@ -94,7 +99,7 @@ router.beforeEach(async(to, from, next) => {
       // logout the user if token is expired
       await authStore.logout();
     }
-    if ((to.name == 'login' || to.name == 'register') && authStore.isLoggedIn) {
+    if ((to.name == 'login' || to.name == 'register' || to.name == 'reset-password') && authStore.isLoggedIn) {
     return next({ name: 'home' })
     }
     if (needsAuth && !authStore.isLoggedIn) {

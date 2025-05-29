@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto'); // to generate reset tokens
 const { User } = require('../models/index.js');
 const { ValidationError } = require('sequelize');
+const mailSender = require('../mailSender.js');
 
 async function login(req, res, next) {
   try {
@@ -82,8 +84,71 @@ async function logout(req, res) {
   return res.json({ message: 'Logout successful' });
 }
 
+// Function to send reset password email
+async function resetPasswordEmail(req, res) {
+  if (!req.body || !req.body.email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+  const user = await User.findOne({ where: {email:req.body.email} });
+
+  // Showing the same message regardless of whether the user exists or not to prevent user enumeration attacks
+  if (!user) {
+    return res.status(404).json({ message: 'Password reset link sent to your email' });
+  }
+
+  try {
+    // Generate a reset token and store it in the user 
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiration = new Date(Date.now() + 60*60*1000) // reset token valid for 1 hour
+    console.log(`Reset token for user ${user.id_user}: ${resetToken}, saving...`);
+    user.reset_token = resetToken;
+    user.reset_token_expires = expiration;
+    // update user in the database
+    await user.save();
+    console.log(`Reset token for user ${user.id_user} saved successfully.`);
+    // send email with link to reset password
+    const resetLink = `${process.env.FRONTEND_URL}reset-password?token=${resetToken}`;
+    await mailSender.sendResetPasswordEmail(user.email, resetLink);
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error sending password reset email', error: error.message });
+  }
+}
+
+// function to actually reset the password
+async function resetPassword(req, res) {
+  if (!req.body || !req.body.token || !req.body.newPassword) {
+    return res.status(400).json({ message: 'Token and new password are required' });
+  }
+  const { token, newPassword } = req.body;
+
+  if (newPassword.length < 8 || newPassword.length > 100) {
+    return res.status(400).json({ message: 'Password must be between 8 and 100 characters' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { reset_token: token } });
+    if (!user || !user.reset_token_expires || user.reset_token_expires < new Date()) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.reset_token = null; // clear the reset token
+    user.reset_token_expires = null; // clear the expiration date
+    await user.save();
+
+    return res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error resetting password', error: error.message });
+  }
+}
+
 module.exports = {
   login,
   getUserInfo,
+  resetPasswordEmail,
+  resetPassword,
   logout,
 };

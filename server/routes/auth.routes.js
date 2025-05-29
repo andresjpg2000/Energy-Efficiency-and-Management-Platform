@@ -7,6 +7,10 @@ router.post('/login', authController.login);
 
 router.get('/me', authenticate, authController.getUserInfo);
 
-router.post('/logout', authenticate, authController.logout);
+router.post('/logout', authenticate, authController.logout); // tirar isto
+
+router.post('/reset-password-email', authController.resetPasswordEmail);
+
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;
