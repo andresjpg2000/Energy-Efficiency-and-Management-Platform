@@ -41,6 +41,10 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: false,
       },
+      notification_settings: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
     },
     {
       tableName: "users",

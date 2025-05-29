@@ -1,12 +1,16 @@
 // Import the users data model
-const e = require('cors');
-const { EnergyProductions, EnergyEquipment, Housing } = require('../models/index.js');
-const { Op } = require('sequelize');
-
+const e = require("cors");
+const {
+  EnergyProductions,
+  EnergyEquipment,
+  Housing,
+  User,
+  Notification,
+} = require("../models/index.js");
+const { Op } = require("sequelize");
 
 // get all energy returns
 let getAllEnergyProductions = async (req, res) => {
-
   if (!req.query.userId) {
     return res.status(400).json({
       message: "user ID is required",
@@ -20,44 +24,46 @@ let getAllEnergyProductions = async (req, res) => {
 
   //verify what type of query is asked and get the equipments
   try {
-    if (!req.query.equipmentId && !req.query.houseId) {  
+    if (!req.query.equipmentId && !req.query.houseId) {
       /// all user equipments
       equipments = await allUserEquipments(parseInt(req.query.userId));
-    }else if (!req.query.equipmentId && req.query.houseId) {
+    } else if (!req.query.equipmentId && req.query.houseId) {
       // equipments of a house
-      equipments = await allequipmentsHouse(parseInt(req.query.houseId), parseInt(req.query.userId));
+      equipments = await allequipmentsHouse(
+        parseInt(req.query.houseId),
+        parseInt(req.query.userId)
+      );
     } else if (req.query.equipmentId && !req.query.houseId) {
       // one equipment
       const eq = await EnergyEquipment.findOne({
         where: {
           id_equipment: parseInt(req.query.equipmentId),
-        }
+        },
       });
       if (!eq) {
-        return res.status(404).json({   
+        return res.status(404).json({
           message: "Equipment not found",
         });
       }
       const hs = await Housing.findOne({
         where: {
           id_housing: eq.housing,
-          id_user: parseInt(req.query.userId)
-        }
+          id_user: parseInt(req.query.userId),
+        },
       });
-      
+
       if (!hs) {
         return res.status(403).json({
           message: "House does not belong to the user",
         });
       }
 
-      equipments.push(parseInt(req.query.equipmentId),);
-    }else{
+      equipments.push(parseInt(req.query.equipmentId));
+    } else {
       return res.status(400).json({
         message: "cant use user ID and house ID at the same time",
       });
     }
-    
   } catch (error) {
     next(error);
   }
@@ -97,19 +103,16 @@ let getAllEnergyProductions = async (req, res) => {
     filterEnergy = await EnergyProductions.findAll({
       where: {
         id_equipment: {
-          [Op.in]: equipments
+          [Op.in]: equipments,
         },
         date: {
-          [Op.and]: [
-            { [Op.gte]: start },
-            { [Op.lte]: end }
-          ]
-        }
+          [Op.and]: [{ [Op.gte]: start }, { [Op.lte]: end }],
+        },
       },
       limit: limit || null,
-      order: [['date', 'ASC']]
+      order: [["date", "ASC"]],
     });
-  }catch(err){
+  } catch (err) {
     return res.status(500).json({
       message: "Error retrieving energy returns",
       error: err.message,
@@ -126,7 +129,7 @@ let getAllEnergyProductions = async (req, res) => {
       data: filterEnergy,
     });
   }
-}
+};
 
 let addEnergyProduction = async (req, res) => {
   const { id_equipment, date, value } = req.body;
@@ -151,7 +154,6 @@ let addEnergyProduction = async (req, res) => {
     });
   }
 
-
   let finalDate = date ? new Date(date) : new Date();
 
   // check if the date is valid
@@ -166,7 +168,7 @@ let addEnergyProduction = async (req, res) => {
     id_equipment,
     date: finalDate,
   };
-  try{
+  try {
     // create the new energy return
     const createdEnergyReturn = await EnergyProductions.create(newEnergyProd);
 
@@ -174,18 +176,45 @@ let addEnergyProduction = async (req, res) => {
       message: "Energy return created",
       data: createdEnergyReturn,
     });
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
       message: "Error creating energy return",
       error: err.message,
     });
   }
-}
+  try {
+    const equipment = await EnergyEquipment.findByPk(
+      createdEnergyReturn.id_equipment
+    );
+    const housing = await Housing.findByPk(equipment.housing);
+    const user = await User.findByPk(housing.id_user);
+    const prefs = user.notification_settings;
+
+    if (
+      prefs?.alerts &&
+      prefs.thresholds?.generation &&
+      createdEnergyReturn.value < prefs.thresholds.generation
+    ) {
+      const date = new Date(createdEnergyReturn.date).toLocaleDateString(
+        "pt-PT"
+      );
+      const value = createdEnergyReturn.value.toFixed(2).replace(".", ",");
+
+      await Notification.create({
+        type: "Alert",
+        id_user: user.id_user,
+        message: `Produção insuficiente: apenas ${value} kWh gerados em ${date}.`,
+      });
+    }
+  } catch (alertError) {
+    console.error("Erro ao gerar alerta de produção:", alertError);
+  }
+};
 
 let deleteEnergyProduction = async (req, res, next) => {
   try {
     // energy id
-    const id  = parseInt(req.params.id);
+    const id = parseInt(req.params.id);
 
     // check if the id is a number
     const energy = await EnergyProductions.findByPk(id);
@@ -202,39 +231,37 @@ let deleteEnergyProduction = async (req, res, next) => {
       error: error.message,
     });
   }
-}
+};
 
-async function allUserEquipments(user)  {
-  
+async function allUserEquipments(user) {
   const houses = await Housing.findAll({
     where: {
-      id_user: user
-    }
+      id_user: user,
+    },
   });
 
-  const houseIds = houses.map(h => h.id_housing);
+  const houseIds = houses.map((h) => h.id_housing);
 
   let equipments = await EnergyEquipment.findAll({
     where: {
       housing: {
-        [Op.in]: houseIds
+        [Op.in]: houseIds,
       },
-    }
+    },
   });
 
-  equipments = equipments.map(e => e.id_equipment);
-
+  equipments = equipments.map((e) => e.id_equipment);
 
   return equipments;
 }
 
-async function allequipmentsHouse(house,user)  {
+async function allequipmentsHouse(house, user) {
   const hs = await Housing.findOne({
     where: {
       id_housing: house,
-      id_user: user
-    }
-  }); 
+      id_user: user,
+    },
+  });
   if (!hs) {
     const error = new Error("House does not belong to the user");
     error.statusCode = 403;
@@ -242,17 +269,16 @@ async function allequipmentsHouse(house,user)  {
   }
   const equipments = await EnergyEquipment.findAll({
     where: {
-      housing: house
-    }
+      housing: house,
+    },
   });
-  const equipmentIds = equipments.map(e => e.id_equipment);
-  
+  const equipmentIds = equipments.map((e) => e.id_equipment);
+
   return equipmentIds;
 }
 
-
 module.exports = {
-    getAllEnergyProductions,
-    addEnergyProduction,
-    deleteEnergyProduction,
+  getAllEnergyProductions,
+  addEnergyProduction,
+  deleteEnergyProduction,
 };

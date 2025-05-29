@@ -72,10 +72,6 @@ export default {
         }
       
     },
-    mounted() {
-      // Code to run when the component is mounted
-    },
-    
   }
 }
 </script>

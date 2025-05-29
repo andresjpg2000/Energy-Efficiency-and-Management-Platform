@@ -6,22 +6,25 @@
     <v-card class="pa-4">
       <p class="text-subtitle-1 mb-4">Choose your notification preferences</p>
       <v-form ref="form" @submit.prevent="formSubmit">
-        <v-row>
-          <v-col>
-            <v-switch v-model="Alerts" label="Alerts" :inset="false" :indeterminate="false" hint="Would you like to receive alerts?" :persistent-hint="true">
-            </v-switch>
-          </v-col>
-          <v-col>
-            <v-switch v-model="Information" label="Information" :inset="false" :indeterminate="false" color="undefined" hint="Would you like to receive informative notifications?" :persistent-hint="true">
-            </v-switch>
-          </v-col>
-        </v-row>
+
         <v-row class="mt-8">
           <v-col>
-            <v-select variant="outlined" label="Notification Frequency" density="default" v-model="NotificationFrequency" :clearable="false" :multiple="false" placeholder="Instant" :items="NotificationFrequencyItems" hint="Choose how often you would like to receive notifications." :persistent-hint="true" class="" name="NotificationFrequency">
-            </v-select>
+            <v-select
+              variant="outlined"
+              label="Notification Frequency"
+              density="default"
+              v-model="NotificationFrequency"
+              :clearable="false"
+              :multiple="false"
+              placeholder="Instant"
+              :items="NotificationFrequencyItems"
+              hint="Choose how often you would like to receive notifications."
+              :persistent-hint="true"
+              name="NotificationFrequency"
+            />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
             <v-number-input
@@ -41,10 +44,16 @@
             />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyConsumption" aria-label="Toggle Energy Consumption Alerts" :inset="false" :indeterminate="false" color="undefined" hint="Would you like to receive Threshold Energy Consumption alerts?" :persistent-hint="false">
-            </v-switch>
+            <v-switch
+              v-model="ToggleThresholdEnergyConsumption"
+              aria-label="Toggle Energy Consumption Alerts"
+              :inset="false"
+              :indeterminate="false"
+              hint="Enable or disable this alert"
+            />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
             <v-number-input
@@ -59,14 +68,19 @@
               :max="1000"
               :step="10"
               placeholder="100"
-              class=""
             />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyGeneration" aria-label="Toggle Energy Generation Alerts" :inset="false" :indeterminate="false" color="undefined" hint="Would you like to receive Threshold Energy Generation alerts?" :persistent-hint="false">
-            </v-switch>
+            <v-switch
+              v-model="ToggleThresholdEnergyGeneration"
+              aria-label="Toggle Energy Generation Alerts"
+              :inset="false"
+              :indeterminate="false"
+              hint="Enable or disable this alert"
+            />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
             <v-number-input
@@ -85,102 +99,167 @@
             />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyCosts" aria-label="Toggle Energy Cost Alerts" :inset="false" :indeterminate="false" color="undefined" hint="Would you like to receive Threshold Energy Cost alerts?" :persistent-hint="false">
-            </v-switch>
+            <v-switch
+              v-model="ToggleThresholdEnergyCosts"
+              aria-label="Toggle Energy Cost Alerts"
+              :inset="false"
+              :indeterminate="false"
+              hint="Enable or disable this alert"
+            />
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
-            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+            <v-btn
+              color="primary"
+              :loading="isSubmitting"
+              block
+              class="mt-4"
+              variant="flat"
+              size="large"
+              @click="formSubmit"
+            >
+              Save Changes
+            </v-btn>
           </v-col>
         </v-row>
       </v-form>
     </v-card>
-  </v-container> 
+  </v-container>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        form: null,
-        isSubmitting: false,
-        Alerts: true,
-        Information: true,
-        NotificationFrequencyItems: [
-          { title: 'Every 15 minutes', value: '15_min' },
-          { title: 'Every 30 minutes', value: '30_min' },
-          { title: 'Hourly', value: 'hourly' },
-          { title: 'Daily', value: 'daily' },
-          { title: 'Weekly', value: 'weekly' },
-          { title: 'Monthly', value: 'monthly' },
-          { title: 'Instantly', value: 'instant' },
-        ],
-        NotificationFrequency: 'instant',
-        ThresholdEnergyConsumption: 100,
-        ToggleThresholdEnergyConsumption: true,
-        ThresholdCosts: 50,
-        ToggleThresholdEnergyCosts: true,
-        ThresholdEnergyGeneration: 20,
-        ToggleThresholdEnergyGeneration: true,
-      };
-    },
-    methods: {
-      formSubmit() {
-        // Handle form submission logic here
-        if (this.$refs.form.validate()) {
-          this.isSubmitting = true;
+import { useAuthStore } from "@/stores/auth";
 
-          setTimeout(() => {
-            this.isSubmitting = false;
+export default {
+  data() {
+    return {
+      form: null,
+      isSubmitting: false,
+      Alerts: true,
+      NotificationFrequencyItems: [
+        { title: "Every 15 minutes", value: "15_min" },
+        { title: "Every 30 minutes", value: "30_min" },
+        { title: "Hourly", value: "hourly" },
+        { title: "Daily", value: "daily" },
+        { title: "Weekly", value: "weekly" },
+        { title: "Monthly", value: "monthly" },
+        { title: "Instantly", value: "instant" },
+      ],
+      NotificationFrequency: "instant",
+      ThresholdEnergyConsumption: 100,
+      ToggleThresholdEnergyConsumption: true,
+      ThresholdCosts: 50,
+      ToggleThresholdEnergyCosts: true,
+      ThresholdEnergyGeneration: 20,
+      ToggleThresholdEnergyGeneration: true,
+    };
+  },
 
-            console.log("Form submitted with data:", {
-              Alerts: this.Alerts,
-              Information: this.Information,
-              NotificationFrequency: this.NotificationFrequency,
-              ThresholdEnergyConsumption: this.ThresholdEnergyConsumption,
-              ToggleThresholdEnergyConsumption: this.ToggleThresholdEnergyConsumption,
-              ThresholdCosts: this.ThresholdCosts,
-              ToggleThresholdEnergyCosts: this.ToggleThresholdEnergyCosts,
-              ThresholdEnergyGeneration: this.ThresholdEnergyGeneration,
-              ToggleThresholdEnergyGeneration: this.ToggleThresholdEnergyGeneration,
-            });
+  methods: {
+    async formSubmit() {
+      if (this.$refs.form.validate()) {
+        this.isSubmitting = true;
 
-            // Store the updated values in local storage
-            localStorage.setItem(
-              'NotificationSettings',
-              JSON.stringify({
-                Alerts: this.Alerts,
-                Information: this.Information,
-                NotificationFrequency: this.NotificationFrequency,
-                ThresholdEnergyConsumption: this.ThresholdEnergyConsumption,
-                ToggleThresholdEnergyConsumption: this.ToggleThresholdEnergyConsumption,
-                ThresholdCosts: this.ThresholdCosts,
-                ToggleThresholdEnergyCosts: this.ToggleThresholdEnergyCosts,
-                ThresholdEnergyGeneration: this.ThresholdEnergyGeneration,
-                ToggleThresholdEnergyGeneration: this.ToggleThresholdEnergyGeneration,
-              })
-            );
-          }, 1500);
-        } else {
-          console.log("Form validation failed.");
+        const authStore = useAuthStore();
+
+        const thresholds = {};
+        if (this.ToggleThresholdEnergyConsumption) {
+          thresholds.consumption = this.ThresholdEnergyConsumption;
         }
+        if (this.ToggleThresholdEnergyGeneration) {
+          thresholds.generation = this.ThresholdEnergyGeneration;
+        }
+        if (this.ToggleThresholdEnergyCosts) {
+          thresholds.cost = this.ThresholdCosts;
+        }
+
+        const payload = {
+          notification_settings: {
+            alerts: this.Alerts,
+            frequency: this.NotificationFrequency,
+            thresholds,
+          },
+        };
+
+        try {
+          const response = await fetch(`/users/${authStore.user.id_user}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authStore.token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+          }
+
+          this.$toast?.success("Notification preferences updated!");
+        } catch (err) {
+          console.error("Failed to update preferences:", err);
+          this.$toast?.error("Failed to update preferences.");
+        } finally {
+          this.isSubmitting = false;
+        }
+      } else {
+        console.log("Form validation failed.");
+      }
+    },
+  },
+
+  mounted() {
+    const authStore = useAuthStore();
+
+    fetch(`/users/${authStore.user.id_user}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authStore.token}`,
       },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user data: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const prefs = data.notification_settings;
+        if (!prefs) return;
+
+        this.Alerts = prefs.alerts ?? true;
+        this.NotificationFrequency = prefs.frequency ?? "instant";
+
+        if (prefs.thresholds) {
+          this.ToggleThresholdEnergyConsumption =
+            prefs.thresholds.consumption != null;
+          this.ThresholdEnergyConsumption = prefs.thresholds.consumption ?? 100;
+
+          this.ToggleThresholdEnergyGeneration =
+            prefs.thresholds.generation != null;
+          this.ThresholdEnergyGeneration = prefs.thresholds.generation ?? 20;
+
+          this.ToggleThresholdEnergyCosts = prefs.thresholds.cost != null;
+          this.ThresholdCosts = prefs.thresholds.cost ?? 50;
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading notification preferences:", err);
+        this.$toast?.error("Failed to load notification settings.");
+      });
+  },
+
+  watch: {
+    Alerts(newValue) {
+      this.ToggleThresholdEnergyConsumption = newValue;
+      this.ToggleThresholdEnergyCosts = newValue;
+      this.ToggleThresholdEnergyGeneration = newValue;
     },
-    mounted() {
-      console.log('✅ NotificationSettingsView mounted!');
-    },
-    watch: {
-      Alerts(newValue) {
-        this.ToggleThresholdEnergyConsumption = newValue;
-        this.ToggleThresholdEnergyCosts = newValue;
-        this.ToggleThresholdEnergyGeneration = newValue;
-      },
-    },
-  };
+  },
+};
 </script>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>
