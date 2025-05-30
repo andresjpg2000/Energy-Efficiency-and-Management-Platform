@@ -5,9 +5,9 @@ const authenticate = require('../middleware/auth.js');
 
 router.post('/login', authController.login); 
 
-router.get('/me', authenticate, authController.getUserInfo);
+router.post('/refresh-token', authController.refreshToken);
 
-router.post('/logout', authenticate, authController.logout); // tirar isto
+router.get('/me', authenticate, authController.getUserInfo);
 
 router.post('/reset-password-email', authController.resetPasswordEmail);
 

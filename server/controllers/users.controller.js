@@ -191,10 +191,15 @@ async function updateUser(req, res, next) {
     const id_user = req.params.id_user;
     // Verificar se o utilizador é o próprio ou admin
     if (id_user != req.user.id_user) {
-      return res.status(403).json({ message: "Forbidden" });
+      // Se não for o próprio utilizador, verificar se é admin
+      const user = await User.findByPk(req.user.id_user, {
+        attributes: ['id_user', 'admin']
+      });
+      if (!user || !user.admin) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
     }
-    const { email, name, password } = req.body;
-
+    const { email, name, password, admin} = req.body;
     const user = await User.findByPk(id_user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -207,6 +212,10 @@ async function updateUser(req, res, next) {
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10); // Encriptar a password
+    }
+
+    if (admin !== undefined) {
+      updateData.admin = admin;
     }
 
     await user.update(updateData);

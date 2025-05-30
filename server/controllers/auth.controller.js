@@ -29,11 +29,19 @@ async function login(req, res, next) {
       process.env.JWT_SECRET, 
       { expiresIn: process.env.JWT_EXPIRATION,}
     );
+
+    const refreshToken = jwt.sign
+    (
+      { id_user: user.id_user },
+      process.env.JWT_REFRESH_SECRET, 
+      { expiresIn: process.env.JWT_REFRESH_EXPIRATION }
+    );
     
     return res.status(200).json(
       {
         success: true,
         accessToken:token,
+        refreshToken: refreshToken,
         user: {
           id_user: user.id_user,
           name: user.name,
@@ -48,6 +56,48 @@ async function login(req, res, next) {
     } else {
       return res.status(500).json({ success: false, msg: error.message || "Some error occurred at login."});
     };
+  }
+}
+
+// Function to refresh the token
+async function refreshToken(req, res) {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Unauthorized: no refresh token provided' });  
+  }
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    // Check if the user exists, in case the user was deleted before the token expired
+    const user = await User.findByPk(decoded.id_user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Generate a new access token
+    const newAccessToken = jwt.sign(
+      { id_user: user.id_user },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRATION }
+    );
+    // Generate a new refresh token for extra security
+    const newRefreshToken = jwt.sign(
+      { id_user: user.id_user },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRATION }
+    );
+
+    return res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id_user: user.id_user,
+        name: user.name,
+        email: user.email,
+        admin: user.admin,
+      }
+    });
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid or expired refresh token' });
   }
 }
 
@@ -77,13 +127,6 @@ async function getUserInfo(req, res, next) {
     return res.status(401).json({ message: 'Invalid or expire token' });
   }
 }
-
-// Function to logout the user
-async function logout(req, res) {
-  // incomplete
-  return res.json({ message: 'Logout successful' });
-}
-
 // Function to send reset password email
 async function resetPasswordEmail(req, res) {
   if (!req.body || !req.body.email) {
@@ -147,8 +190,8 @@ async function resetPassword(req, res) {
 
 module.exports = {
   login,
+  refreshToken,
   getUserInfo,
   resetPasswordEmail,
   resetPassword,
-  logout,
 };

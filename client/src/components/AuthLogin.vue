@@ -136,7 +136,7 @@ export default {
 
 <template>
   <div class="d-flex justify-space-between align-center bg-transparent">
-    <h3 class="text-h3 text-center mb-0" v-if="this.forgotPassword">Forgot Password</h3>
+    <h3 class="text-h3 text-center mb-0" v-if="this.forgotPassword">Reset Password</h3>
     <h3 class="text-h3 text-center mb-0" v-else>Login</h3>
     <router-link to="/register" class="text-primary text-decoration-none" v-if="!this.forgotPassword">Don't Have an account?</router-link>
   </div>

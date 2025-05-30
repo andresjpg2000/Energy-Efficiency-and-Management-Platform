@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { jwtDecode } from 'jwt-decode';
 import { useMessagesStore } from './messages';
 import router from '@/router';
+import { URL } from '../utils/constants.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: null,
+    refreshToken: null,
     user: null, 
     userFetched: false, // Prevent loop error when trying to fetch user data with an expired token
   }),
@@ -29,6 +31,7 @@ export const useAuthStore = defineStore('auth', {
     setUser(userData) {
       // Used in AuthLogin to read the token from the response
       this.token = userData.accessToken;
+      this.refreshToken = userData.refreshToken;
       this.user = userData.user;
       this.userFetched = true;
       // Set a timeout to clear the token when it expires
@@ -37,17 +40,30 @@ export const useAuthStore = defineStore('auth', {
         if (!exp) {
           return;
         }
-        const expirationTime = exp * 1000 - Date.now();
-        setTimeout(() => {
-          const messagesStore = useMessagesStore();
-          messagesStore.add({
-            color: 'error',
-            text: 'Session expired, please login again',
-          });
-          this.clearToken();
-          this.clearUser();
-          this.logout();
-          router.push({ name: 'login' });
+        const expirationTime = exp * 1000 - Date.now() - 1000; // 1 second before expiration
+        setTimeout(async () => {
+          const refreshed = await this.refreshAccessToken();
+          console.log(refreshed);
+          if (!refreshed) {
+            // if the token couldnt be refreshed, logout
+            const messagesStore = useMessagesStore();
+            messagesStore.add({
+              color: 'error',
+              text: 'Session expired, please login again',
+            });
+            this.clearToken();
+            this.clearUser();
+            this.logout();
+            router.push({ name: 'login' });
+          } else {
+            // If the token was refreshed, update the user state and restart timeout
+            // NOTE: even if the timeout doesnt call the refreshAcessToken, backend handles the token expiration
+            this.setUser({
+              accessToken: this.token,
+              refreshToken: this.refreshToken,
+              user: this.user,
+            })
+          }
         }, expirationTime);
       } catch (error) {
         console.error('Error decoding token:', error);
@@ -56,81 +72,84 @@ export const useAuthStore = defineStore('auth', {
     clearToken() {
       // Reset token and clear it from session storage, used in logout
       this.token = null;
+      this.refreshToken = null;
       sessionStorage.removeItem('token'); // Clear token from session storage
+      sessionStorage.removeItem('refreshToken'); // Clear refresh token from session storage
     },
     clearUser() {
       this.user = null;
       sessionStorage.removeItem('user');
     },
     isTokenExpired() {
-      // Check if the token is expired
-      if (!this.token) {
-        return true;
-      }
-      try {
-        const { exp } = this.decodedToken;
-        if (!exp) {
-          return true;
-        }
-        return Date.now() >= exp * 1000;
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return true;
-      }
+      if (!this.token) return true;
+      const decoded = this.decodedToken;
+      if (!decoded || !decoded.exp) return true;
+
+      // Token is expired if current time is past the expiration timestamp
+      return Date.now() >= decoded.exp * 1000;
     },
-    async logout() {
+    logout() {
       const messagesStore = useMessagesStore();
-      if (!this.token || this.isTokenExpired()) {
-        this.clearToken();
-        this.clearUser();
-        return;
-      }
+      // Logout successful
+      this.clearToken();
+      this.clearUser();
+      messagesStore.add({
+        color: 'success',
+        text: 'Logout successful',
+      });
+    },
+    updateUserState(updatedUser) {
+      // Update the user state with the updated user data - used in the usersStore
+      this.user = { ...this.user, ...updatedUser };
+    },
+    async refreshAccessToken() {
+      const messagesStore = useMessagesStore();
       try {
-        const response = await fetch('http://localhost:3000/auth/logout', {
+        const response = await fetch(`${URL}/auth/refresh-token`, {
           method: 'POST',
           headers: {
-            'authorization': `Bearer ${this.token}`,
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({
+            refreshToken: this.refreshToken,
+          }),
         });
-
         if (!response.ok) {
           if (response.status === 401) {
             // Token not valid on server
             this.clearToken();
             this.clearUser();
-            return;
+            return false;
           }
+          
           messagesStore.add({
             color: 'error',
-            text: 'Failed to logout',
+            text: 'Failed to refresh access token',
           });
-          throw new Error('Failed to logout');
+          throw new Error('Failed to refresh access token');
         }
-        // Logout successful
+
+        const data = await response.json();
+        this.token = data.accessToken;
+        this.refreshToken = data.refreshToken;
+
+        return true;
+      } catch (error) {
+        console.error('Error refreshing access token:', error);
         this.clearToken();
         this.clearUser();
-        // Clear user data from session storage
-        sessionStorage.removeItem('user');
-        messagesStore.add({
-          color: 'success',
-          text: 'Logout successful',
-        });
-      } catch (error) {
-        console.error(error);
+        const messagesStore = useMessagesStore();
         messagesStore.add({
           color: 'error',
-          text: 'Failed to logout',
+          text: 'Failed to refresh access token',
         });
-      } 
-    },
-    updateUserState(updatedUser) {
-      // Update the user state with the updated user data
-      this.user = { ...this.user, ...updatedUser };
+        return false;
+      }
     }    
   },
   persist: {
     enabled: true,
     storage: sessionStorage,
-    pick: ['user','token'],
+    pick: ['user','token', 'refreshToken'],
   }
 });

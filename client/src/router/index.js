@@ -95,9 +95,12 @@ router.beforeEach(async(to, from, next) => {
   const isTokenExpired = authStore.isTokenExpired();
 
   try {
-    if (isTokenExpired) {
-      // logout the user if token is expired
-      await authStore.logout();
+    if (isTokenExpired && authStore.refreshToken) {
+      const refreshed = await authStore.refreshAccessToken();
+      if (!refreshed) {
+        // logout the user if token is expired
+        await authStore.logout();
+      }
     }
     if ((to.name == 'login' || to.name == 'register' || to.name == 'reset-password') && authStore.isLoggedIn) {
     return next({ name: 'home' })
