@@ -180,7 +180,9 @@ export default {
       const widgetsStore = useWidgetsStore();
 
       widgetsStore.updateDBWidgets();
-      widgetsStore.userWidgets = [];
+      
+      localStorage.clear();
+      sessionStorage.clear();
 
       setTimeout(() => {
         this.$router.push("/login");

@@ -164,6 +164,7 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
                 },
             },
             attributes: ['id_consumption', 'value', 'date'],
+            order: [['date', 'ASC']],
         });
 
         consumptions.forEach(eq => {

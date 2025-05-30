@@ -1,15 +1,18 @@
 <template>
   <AppShell :items="items" :showSettings="true">
-    <div v-if="isReady">
+    <div v-if="isReady == true">
       <router-view />
     </div>
     <div v-else class="loading-container">
-      <div style="width: 100%" class="d-flex justify-center w-100">
+      <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
         <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
         <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
         <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
       </div>
-      <v-skeleton-loader type="card"></v-skeleton-loader>
+      <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
+        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+      </div>
       <v-skeleton-loader type="card"></v-skeleton-loader>
     </div>
   </AppShell>
@@ -18,6 +21,11 @@
 <script>
 import AppShell from "@/components/AppShell.vue";
 import { useWidgetsStore } from "@/stores/widgetsStore";
+import { useConsumptionStore } from "@/stores/consumptionStore";
+import { useHousingsStore } from "@/stores/housings.js";
+import { useEquipmentsStore } from "@/stores/equipmentsStore.js";
+import { useProductionsStore } from "@/stores/productionsStore.js";
+
 export default {
   name: "DashboardLayoutView",
   components: {
@@ -26,7 +34,11 @@ export default {
   data() {
     return {
       isReady: false,
+      equipmentsStore: useEquipmentsStore(),
+      productionsStore: useProductionsStore(),
       widgetsStore: useWidgetsStore(),
+      housingsStore: useHousingsStore(),
+      consumptionStore: useConsumptionStore(),
       items: [
         {
           title: "My Dashboard",
@@ -64,11 +76,18 @@ export default {
   },
   methods: {
     async loadWidgets() {
+
       try {
         await this.widgetsStore.fetchUserWidgets();
+        await this.housingsStore.fetchHousings();
+
+        await this.equipmentsStore.fetchEquipments(); 
+        await this.productionsStore.fetchProductions();
+        await this.consumptionStore.fetchConsumption(); 
+
         this.isReady = true;
       } catch (error) {
-        console.error("Erro ao carregar widgets", error);
+        console.error("Erro ao carregar dados:", error);
       }
     },
   },

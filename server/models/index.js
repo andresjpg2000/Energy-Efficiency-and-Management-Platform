@@ -35,6 +35,7 @@ db.PostalCode.hasMany(db.Housing, {
   foreignKey: "pc",
   sourceKey: "pc",
 });
+
 db.EnergyConsumption.belongsTo(db.Housing, {
   foreignKey: "id_housing",
   targetKey: "id_housing",
@@ -44,6 +45,17 @@ db.EnergyConsumption.belongsTo(db.Housing, {
 db.EnergyEquipment.belongsTo(db.Housing, {
   foreignKey: "housing",
   targetKey: "id_housing",
+});
+
+// Energy Equipment and Energy Productions
+db.EnergyEquipment.hasMany(db.EnergyProductions, {
+  foreignKey: "id_equipment",
+  sourceKey: "id_equipment",
+  onDelete: "CASCADE", // Delete all productions when an equipment is deleted
+});
+db.EnergyProductions.belongsTo(db.EnergyEquipment, {
+  foreignKey: "id_equipment",
+  targetKey: "id_equipment",
 });
 
 // Energy Equipment and Given Energies

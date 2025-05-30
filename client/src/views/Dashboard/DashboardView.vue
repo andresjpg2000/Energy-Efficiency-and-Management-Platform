@@ -94,14 +94,15 @@ export default {
     },
   },
   beforeRouteLeave(to, from, next) {
-    if (this.saveTimeout) {
+    if (this.saveTimeout && window.innerWidth > 950) {
       clearTimeout(this.saveTimeout);
-      this.saveTimeout = null; // limpa o estado
+      this.saveTimeout = null;
+
       this.widgetsStore
         .updateDBWidgets([...this.changedWidgets])
         .then(() => {
           console.log("Widgets atualizados com sucesso.");
-          this.changedWidgets.clear(); // Limpa o Set após salvar
+          this.changedWidgets.clear();
           next();
         })
         .catch((error) => {
@@ -114,14 +115,6 @@ export default {
   },
   created() {
     // Carrega os houses do usuário
-    this.housingsStore
-      .fetchHousings()
-      .then(() => {
-        console.log("Houses loaded");
-      })
-      .catch((error) => {
-        console.error("Error loading houses:", error);
-      });
   },
 
   mounted() {
@@ -150,10 +143,13 @@ export default {
         this.changedWidgets.add(item.el.id);
       });
 
-      clearTimeout(this.saveTimeout);
       this.saveTimeout = setTimeout(() => {
-        this.widgetsStore.updateDBWidgets([...this.changedWidgets]); // converter Set para Array
-        this.changedWidgets.clear(); // Limpa o Set após salvar
+        if (window.innerWidth > 950) {
+          this.widgetsStore.updateDBWidgets([...this.changedWidgets]);
+          this.changedWidgets.clear();
+        } else {
+          console.log("📱 Mobile width detected. Not saving widget positions.");
+        }
       }, 10000);
     });
   },
@@ -233,7 +229,7 @@ export default {
         <SparkChart
           lazyLoad
           v-if="item.type == 1"
-          :body="item.body"
+          :title="item.title"
           :earn="item.body.earn"
           :name="item.body.name"
         />

@@ -86,22 +86,15 @@ export const useWidgetsStore = defineStore('widgets', {
         let widgets = responseData.data.widgets || [];
 
         widgets.forEach(el => {
-          console.log(el.body);
-
           el.body = JSON.parse(el.body);
-          console.log(el.body);
-
           el.type = parseInt(el.type);
           delete el.id_user;
         });
 
         gridItems.forEach(w => {
           const jaExiste = widgets.some(widget => widget.title.trim() === w.title.trim());
-          console.log(jaExiste);
 
           if (!jaExiste) {
-            console.log("NÃO EXISTE");
-
             widgets.push(w);
             this.addWidget(w)
           }
@@ -109,10 +102,6 @@ export const useWidgetsStore = defineStore('widgets', {
         });
 
         this.userWidgets = widgets;
-
-        console.log("all widgets", widgets);
-
-        console.log(this.userWidgets.length);
       }
     },
 

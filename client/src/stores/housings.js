@@ -5,12 +5,11 @@ export const useHousingsStore = defineStore('housings', {
   state: () => ({
     housings: [],
     selectedHousingId: null,
-    loading: false,
+    loaded: false,
     isFirstRun: true,
   }),
   actions: {
     async fetchHousings() {
-      this.loading = true
       try {
         const response = await fetchWithAuth(`http://localhost:3000/housings`, {
           method: 'GET',
@@ -22,10 +21,12 @@ export const useHousingsStore = defineStore('housings', {
         }
         const data = await response.json()
         this.housings = data.data;
+        this.selectedHousingId = this.housings.length > 0 ? this.housings[0].id_housing : null;
+        console.log('Housings fetched successfully:', this.selectedHousingId);
       } catch (error) {
         throw error;
       } finally {
-        this.loading = false
+        this.loaded = true
       }
     },
     async addHousing(housing) {

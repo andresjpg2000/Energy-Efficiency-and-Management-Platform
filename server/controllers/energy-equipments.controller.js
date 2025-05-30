@@ -166,7 +166,7 @@ async function getEnergyProductionsOfEquipment(req, res, next) {
     }
 
     // Get the energy productions for the equipment within the specified date range
-    const givenEnergy = await equipment.getEnergyProductions({
+    const EnergyProductions = await equipment.getEnergyProductions({
       where:{
         date: {
           [Op.and]: [
@@ -175,11 +175,11 @@ async function getEnergyProductionsOfEquipment(req, res, next) {
           ]
         }
       },
-      attributes: ['id', 'value','date'],
+      attributes: ['id_production', 'value','date'],
     });
 
     // Add the energy productions to the equipment object
-    equipment.dataValues.givenEnergy = givenEnergy;
+    equipment.dataValues.EnergyProductions = EnergyProductions;
 
     res.status(200).json({ data: equipment });
   } catch (error) {
