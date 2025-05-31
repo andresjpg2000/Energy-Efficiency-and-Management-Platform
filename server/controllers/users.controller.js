@@ -12,7 +12,7 @@ async function getAllUsers(req, res, next) {
     const { count, rows } = await User.findAndCountAll({
       limit: limit,
       offset: offset,
-      attributes: { exclude: ["password, 'reset_token', 'reset_token_expires'"] }, // Excluir a password da resposta
+      attributes: { exclude: ["password"] }, // Excluir a password da resposta
     });
     res.status(200).json({
       users: rows,
