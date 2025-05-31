@@ -1,6 +1,7 @@
 <script>
 import { useMessagesStore } from "@/stores/messages.js";
 import { useAuthStore } from "@/stores/auth.js";
+import { URL } from '../utils/constants.js';
 
 export default {
   name: "AuthLogin",
@@ -36,7 +37,7 @@ export default {
       const messagesStore = useMessagesStore();
       // this.$refs.form.validate(); // Validate the form
       try {
-        const response = await fetch("http://localhost:3000/auth/login", {
+        const response = await fetch(`${URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -93,7 +94,7 @@ export default {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/auth/reset-password-email",
+          `${URL}/auth/reset-password-email`,
           {
             method: "POST",
             headers: {

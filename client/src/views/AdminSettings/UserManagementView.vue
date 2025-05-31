@@ -49,6 +49,7 @@
 
 <script>
 import { fetchWithAuth } from '@/utils/fetchWithAuth.js';
+import { URL } from '@/utils/constants.js';
 
 export default {
 
@@ -79,7 +80,7 @@ export default {
     async fetchUsers() {
       this.loading = true
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/users?limit=${this.itemsPerPage}&page=${this.page}`, {
+        const response = await fetchWithAuth(`${URL}/users?limit=${this.itemsPerPage}&page=${this.page}`, {
           method: 'GET',
         });
 
@@ -109,7 +110,7 @@ export default {
       // Not working because of relation with housings. Must delete housings from the user first
       
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/users/${user.id_user}`, {
+        const response = await fetchWithAuth(`${URL}/users/${user.id_user}`, {
           method: 'DELETE',
         });
 
@@ -126,7 +127,7 @@ export default {
     },
     async saveUser() {
         try {
-        const response = await fetchWithAuth(`http://localhost:3000/users/${this.editingUser.id_user}`, {
+        const response = await fetchWithAuth(`${URL}/users/${this.editingUser.id_user}`, {
           method: 'PATCH',
           body: JSON.stringify({
             name: this.form.name,

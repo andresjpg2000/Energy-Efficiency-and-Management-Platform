@@ -2,6 +2,8 @@
 import AuthFooter from "../components/AuthFooter.vue";
 import { useAuthStore } from "../stores/auth";
 import { useMessagesStore } from "../stores/messages";
+import { URL } from "../utils/constants";
+
 export default {
   name: "LoginView",
   components: {
@@ -37,7 +39,7 @@ export default {
 
         try {
           
-          const response = await fetch('http://localhost:3000/auth/reset-password', {
+          const response = await fetch(`${URL}/auth/reset-password`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

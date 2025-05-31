@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { URL } from '@/utils/constants.js';
 
 export const useHousingsStore = defineStore('housings', {
   state: () => ({
@@ -11,7 +12,7 @@ export const useHousingsStore = defineStore('housings', {
   actions: {
     async fetchHousings() {
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/housings`, {
+        const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'GET',
         })
 
@@ -32,7 +33,7 @@ export const useHousingsStore = defineStore('housings', {
     async addHousing(housing) {
       console.log('housing', housing);
       try {
-        const response = await fetchWithAuth('http://localhost:3000/housings', {
+        const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'POST',
           body: JSON.stringify(housing),
         })
@@ -52,7 +53,7 @@ export const useHousingsStore = defineStore('housings', {
     async updateHousing(housing) {
       let id_housing = this.selectedHousingId;
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/housings/${id_housing}`, {
+        const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
           method: 'PATCH',
           body: JSON.stringify(housing),
         })
@@ -71,7 +72,7 @@ export const useHousingsStore = defineStore('housings', {
     // async deleteHousing(id) {
     //   const token = getToken();
     //   try {
-    //     const response = await fetch(`http://localhost:3000/housings/${id_housing}`, {
+    //     const response = await fetch(`${URL}/housings/${id_housing}`, {
     //       method: 'DELETE',
     //       headers: {
     //         'Content-Type': 'application/json',

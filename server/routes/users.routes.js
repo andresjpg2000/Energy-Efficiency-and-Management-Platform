@@ -10,9 +10,6 @@ router.get("/", authenticate, authorizeAdmin, usersController.getAllUsers);
 // Obter um utilizador por ID (Apenas o próprio ou admin)
 router.get("/:id_user", authenticate, usersController.getUserById);
 
-// Criar um novo utilizador (Sem autenticação)
-router.post("/", usersController.createUser);
-
 // Atualizar dados de um utilizador (Apenas o próprio ou admin)
 // router.put("/:id_user", authenticate, usersController.updateUser);
 

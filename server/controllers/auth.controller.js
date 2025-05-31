@@ -1,11 +1,39 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto'); // to generate reset tokens
 const { User } = require('../models/index.js');
 const { ValidationError } = require('sequelize');
 const mailSender = require('../mailSender.js');
-const { decode } = require('punycode');
-const { type } = require('os');
+
+// Criar um novo utilizador
+async function register(req, res, next) {
+  try {
+    const { email, name, password, admin } = req.body;
+
+    if (!email || !name || !password) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Verificar se o email já está registado
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
+
+    const newUser = await User.create({
+      email,
+      name,
+      password: hashedPassword,
+      admin: admin || 0,
+    });
+    res
+      .status(201)
+      .json({ message: "User created successfully", id_user: newUser.id_user });
+  } catch (error) {
+    next(error);
+  }
+}
 
 async function login(req, res, next) {
   try {
@@ -199,6 +227,7 @@ async function resetPassword(req, res) {
 }
 
 module.exports = {
+  register,
   login,
   refreshToken,
   getUserInfo,

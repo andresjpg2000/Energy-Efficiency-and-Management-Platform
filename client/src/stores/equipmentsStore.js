@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useHousingsStore } from './housings.js'
+import { URL } from '../utils/constants.js';
 
 export const useEquipmentsStore = defineStore('equipments', {
   state: () => ({
@@ -11,7 +12,7 @@ export const useEquipmentsStore = defineStore('equipments', {
     async fetchEquipments() {
       try {
         const housingsStore = useHousingsStore();
-        const response = await fetchWithAuth(`http://localhost:3000/housings/${housingsStore.selectedHousingId}/equipments`, {
+        const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/equipments`, {
           method: 'GET',
         })
 

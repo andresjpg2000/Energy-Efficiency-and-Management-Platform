@@ -45,6 +45,7 @@
 import { useMessagesStore } from '@/stores/messages';
 import { useAuthStore } from '@/stores/auth';
 import  { fetchWithAuth } from '@/utils/fetchWithAuth.js';
+import { URL } from '@/utils/constants.js';
 
   export default {
     data() {
@@ -96,7 +97,7 @@ import  { fetchWithAuth } from '@/utils/fetchWithAuth.js';
             newPassword: this.NewPassword,
           };
           try {
-            const response = await fetchWithAuth(`http://localhost:3000/users/${this.authStore.getUserId}/changePassword`, {
+            const response = await fetchWithAuth(`${URL}/users/${this.authStore.getUserId}/changePassword`, {
               method: 'PATCH',
               body: JSON.stringify(this.data),
             });

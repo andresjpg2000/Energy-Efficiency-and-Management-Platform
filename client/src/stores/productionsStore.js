@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useEquipmentsStore } from './equipmentsStore';
+import { URL } from '../utils/constants.js';
 
 export const useProductionsStore = defineStore('productions', {
   state: () => ({
@@ -21,7 +22,7 @@ export const useProductionsStore = defineStore('productions', {
 
       try {
         const fetches = equipmentsStore.equipments.map((eq) =>
-          fetchWithAuth(`http://localhost:3000/energy-equipments/${eq.id_equipment}/energy-productions?start=${start.toISOString()}&end=${end.toISOString()}`)
+          fetchWithAuth(`${URL}/energy-equipments/${eq.id_equipment}/energy-productions?start=${start.toISOString()}&end=${end.toISOString()}`)
             .then(async (res) => {
               if (!res.ok) {
                 const data = await res.json();

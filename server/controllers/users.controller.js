@@ -154,37 +154,6 @@ async function getUserById(req, res, next) {
   }
 }
 
-// Criar um novo utilizador
-async function createUser(req, res, next) {
-  try {
-    const { email, name, password, admin } = req.body;
-
-    if (!email || !name || !password) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    // Verificar se o email já está registado
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({ message: "Email already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10); // Encriptar a password
-
-    const newUser = await User.create({
-      email,
-      name,
-      password: hashedPassword,
-      admin: admin || 0,
-    });
-    res
-      .status(201)
-      .json({ message: "User created successfully", id_user: newUser.id_user });
-  } catch (error) {
-    next(error);
-  }
-}
-
 // Atualizar dados de um utilizador
 async function updateUser(req, res, next) {
   try {
@@ -277,7 +246,6 @@ async function deleteUser(req, res, next) {
 module.exports = {
   getAllUsers,
   getUserById,
-  createUser,
   updateUser,
   deleteUser,
   getAllUserWidgets,

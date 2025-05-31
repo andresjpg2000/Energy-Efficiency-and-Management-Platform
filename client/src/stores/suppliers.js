@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { getToken } from '@/utils/token.js'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { URL } from '../utils/constants.js';
 
 export const useSuppliersStore = defineStore('suppliers', {
   state: () => ({
@@ -12,7 +12,7 @@ export const useSuppliersStore = defineStore('suppliers', {
       const query = attributes ? `?attributes=${encodeURIComponent(attributes)}` : '';
       this.loading = true
       try {
-        const response = await fetch(`http://localhost:3000/suppliers${query}`)
+        const response = await fetch(`${URL}/suppliers${query}`)
 
         if (!response.ok) {
           const data = await response.json()
@@ -31,7 +31,7 @@ export const useSuppliersStore = defineStore('suppliers', {
     },
     async addSupplier(supplier) {
       try {
-        const response = await fetchWithAuth('http://localhost:3000/suppliers', {
+        const response = await fetchWithAuth(`${URL}/suppliers`, {
           method: 'POST',
           body: JSON.stringify(supplier),
         })
@@ -50,7 +50,7 @@ export const useSuppliersStore = defineStore('suppliers', {
     },
     async updateSupplier(supplier) {
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/suppliers/${supplier.id}`, {
+        const response = await fetchWithAuth(`${URL}/suppliers/${supplier.id}`, {
           method: 'PATCH',
           body: JSON.stringify(supplier),
         })
@@ -68,7 +68,7 @@ export const useSuppliersStore = defineStore('suppliers', {
     },
     async deleteSupplier(id) {
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/suppliers/${id}`, {
+        const response = await fetchWithAuth(`${URL}/suppliers/${id}`, {
           method: 'DELETE',
         })
 

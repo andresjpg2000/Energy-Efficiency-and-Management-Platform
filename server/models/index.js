@@ -96,7 +96,7 @@ db.Notifications.belongsTo(db.User, {
 db.User.hasMany(db.widgets, {
   foreignKey: "id_user",
   sourceKey: "id_user",
-  onDelete: "CASCADE", // Delete all notifications when a user is deleted
+  onDelete: "CASCADE", // Delete all widgets when a user is deleted
 });
 db.widgets.belongsTo(db.User, {
   foreignKey: "id_user",

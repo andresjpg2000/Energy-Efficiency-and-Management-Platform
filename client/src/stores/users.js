@@ -3,6 +3,7 @@ import { useMessagesStore } from './messages';
 import { useAuthStore } from './auth';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { getToken } from '@/utils/token';
+import { URL } from '../utils/constants.js';
 
 export const useUsersStore = defineStore('user', {
   state: () => ({
@@ -23,7 +24,7 @@ export const useUsersStore = defineStore('user', {
       }
       
       try {
-        const response = await fetchWithAuth('http://localhost:3000/auth/me', {
+        const response = await fetchWithAuth(`${URL}/auth/me`, {
           method: 'GET',
         });
 
@@ -46,7 +47,7 @@ export const useUsersStore = defineStore('user', {
     },
     async updateUser(userData) {
       const authStore = useAuthStore();
-      const response = await fetchWithAuth(`http://localhost:3000/users/${authStore.getUserId}`, {
+      const response = await fetchWithAuth(`${URL}/users/${authStore.getUserId}`, {
         method: 'PATCH',
         body: JSON.stringify(userData),
       });

@@ -1,5 +1,6 @@
 <script>
 import { useMessagesStore } from '@/stores/messages.js';
+import { URL } from '@/utils/constants.js';
 
 export default {
   name: 'HomeView',
@@ -37,7 +38,7 @@ export default {
         
         try {
           
-          const response = await fetch('http://localhost:3000/users', {
+          const response = await fetch(`${URL}/auth/register`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useHousingsStore } from './housings.js'
+import { URL } from '../utils/constants.js';
 
 export const useConsumptionStore = defineStore('consumption', {
   state: () => ({
@@ -21,7 +22,7 @@ export const useConsumptionStore = defineStore('consumption', {
       start.setHours(0, 0, 0, 0); // 00:00:00.000
 
       try {
-        const response = await fetchWithAuth(`http://localhost:3000/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
+        const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
           method: 'GET',
         })
 
@@ -52,7 +53,7 @@ export const useConsumptionStore = defineStore('consumption', {
 
       try {
         const response = await fetchWithAuth(
-          `http://localhost:3000/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
+          `${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
           { method: 'GET' }
         );
 
