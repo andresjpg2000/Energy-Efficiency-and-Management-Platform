@@ -11,6 +11,7 @@
 
 <script>
 import { useConsumptionStore } from "@/stores/consumptionStore";
+import { useProductionsStore } from "@/stores/productionsStore";
 import ApexChart from "vue3-apexcharts";
 
 export default {
@@ -32,26 +33,54 @@ export default {
     apexchart: ApexChart,
   },
   beforeMount() {
-    console.log("name:", this.title);
-    console.log("data:", this.consumptionStore.data);
-
+    ///////////////// total consumption
     if (this.title == "Total-Consumption") {
-      this.data = this.consumptionStore.data.map((c) => c.value);
+      this.data = this.consumptionStore.data.map((c) => c.value);// ver melhor, muitos dados
+
+      this.total = this.data.reduce((total, c) => total + c, 0);
+      ///////////////// corrent consumption
     } else if (this.title == "Corrent-Consumption") {
       const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
-
       this.data = this.consumptionStore.data
         .filter((c) => c.date.startsWith(today))
         .map((c) => c.value);
+
+      this.total = this.data.reduce((total, c) => total + c, 0);
+      ///////////////// energy production today
+    } else if (this.title == "Energy-Production") {
+      const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+
+      this.data = this.productionsStore.data
+        .filter((c) => c.date.startsWith(today))
+        .map((c) => c.value);
+      console.log("data production today:", this.data);
+      this.total = this.data.reduce((total, c) => total + c, 0);
+      ///////////////// total expenses
+    } else if (this.title == "Total-Expenses") {
+      const thisMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      console.log("thisMonth:", thisMonth);
+
+      const productionData = (this.productionsStore.data || [])
+        .filter((p) => p.date?.startsWith(thisMonth))
+        .reduce((total, p) => total + (p.value || 0), 0);
+
+      const consumptionData = (this.consumptionStore.data || [])
+        .filter((c) => c.date?.startsWith(thisMonth))
+        .reduce((total, c) => total + (c.production || 0), 0);
+
+      console.log("productionData:", productionData);
+      console.log("consumptionData:", consumptionData);
+
+      this.total = productionData - consumptionData;//multiplicação e validação aqui
     }
-    this.total = this.data.reduce((total, c) => total + c, 0);
     if (this.data.length == 0) {
-      this.data = this.sparklineData;  
-    } 
+      this.data = this.sparklineData;
+    }
   },
   data() {
     return {
       consumptionStore: useConsumptionStore(),
+      productionsStore: useProductionsStore(),
       total: -1,
       data: [],
       sparklineData: [
@@ -99,16 +128,19 @@ export default {
         fill: {
           opacity: 1,
         },
-        labels: this.data.map((v, i) => `${i + 1}`), // apenas índice, ou remove
+        labels: this.data.map((v, i) => `${i + 1}`),
         yaxis: {
           min: 0,
         },
         xaxis: {
-          type: "category", // ✅ trocar para category se usar índices
+          type: "category",
         },
         colors: ["#1da1d4"],
         title: {
-          text: this.total > -1 ? `${this.total.toFixed(2)} Kw` : this.earn,
+          text:
+            this.title == "Total-Expenses"
+              ? `${this.total.toFixed(2)} €`
+              : `${this.total.toFixed(2)} Kw`,
           offsetX: 30,
           offsetY: 32,
           floating: true,

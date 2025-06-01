@@ -15,6 +15,31 @@
       </div>
       <v-skeleton-loader type="card"></v-skeleton-loader>
     </div>
+    <div class="text-center pa-4">
+      <v-dialog
+        v-model="dialog"
+        max-width="400"
+        persistent
+      >
+        <v-card
+          prepend-icon="mdi-map-marker"
+          text="Add a house to start using the dashboard"
+          title="No House Detected"
+        >
+          <template v-slot:actions>
+            <v-spacer></v-spacer>
+
+            <v-btn @click="dialog = false">
+              Disagree
+            </v-btn>
+
+            <v-btn @click="dialog = false">
+              Add House
+            </v-btn>
+          </template>
+        </v-card>
+      </v-dialog>
+    </div>
   </AppShell>
 </template>
 
@@ -25,6 +50,7 @@ import { useConsumptionStore } from "@/stores/consumptionStore";
 import { useHousingsStore } from "@/stores/housings.js";
 import { useEquipmentsStore } from "@/stores/equipmentsStore.js";
 import { useProductionsStore } from "@/stores/productionsStore.js";
+import { useGivenEnergiesStore } from "@/stores/givenEnergiesStore";
 
 export default {
   name: "DashboardLayoutView",
@@ -34,11 +60,13 @@ export default {
   data() {
     return {
       isReady: false,
+      dialog: false,
       equipmentsStore: useEquipmentsStore(),
       productionsStore: useProductionsStore(),
       widgetsStore: useWidgetsStore(),
       housingsStore: useHousingsStore(),
       consumptionStore: useConsumptionStore(),
+      givenEnergiesStore: useGivenEnergiesStore(),
       items: [
         {
           title: "My Dashboard",
@@ -75,15 +103,20 @@ export default {
     };
   },
   methods: {
-    async loadWidgets() {
+    async load() {
 
       try {
         await this.widgetsStore.fetchUserWidgets();
         await this.housingsStore.fetchHousings();
+        if (!this.housingsStore.housings?.length) {
+          this.dialog = true; // Exibe o diálogo se não houver casas
+          return
+        }
 
         await this.equipmentsStore.fetchEquipments(); 
         await this.productionsStore.fetchProductions();
         await this.consumptionStore.fetchConsumption(); 
+        await this.givenEnergiesStore.fetchGivenEnergies();
 
         this.isReady = true;
       } catch (error) {
@@ -92,7 +125,7 @@ export default {
     },
   },
   created() {
-    this.loadWidgets();
+    this.load();
 
     console.log(
       "-----------------------created---------------------------------"

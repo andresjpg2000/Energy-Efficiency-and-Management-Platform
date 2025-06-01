@@ -1,7 +1,6 @@
 <script>
 import { GridStack } from "gridstack";
 import graphicWiget from "@/components/graphic.widget.vue";
-import MinisWiget from "@/components/minis.widget.vue";
 import SparkChart from "@/components/SparkChart.vue";
 import ColumnWiget from "@/components/Column.widget.vue";
 import VerticalColumnWidget from "@/components/VerticalColumn.widget.vue";
@@ -16,7 +15,6 @@ export default {
   components: {
     graphicWiget,
     SparkChart,
-    MinisWiget,
     ColumnWiget,
     VerticalColumnWidget,
   },
