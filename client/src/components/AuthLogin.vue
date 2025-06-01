@@ -59,6 +59,16 @@ export default {
 
           throw new Error(data.message || "Error processing login");
         }
+        
+        // If two-factor authentication is enabled, redirect to the two-factor page
+        if (data?.user.two_factor_enabled) {
+          this.isSubmitting = false;
+          this.$router.push( {
+            path: "/verify-2fa",
+            query: { token: data?.tempToken || "" }
+          } );
+          return;
+        }
 
         messagesStore.add({
           text: data.message || "Login successful",
@@ -66,8 +76,8 @@ export default {
           timeout: 3000,
         });
 
-        await authStore.setUser(data);
-        this.$router.push("/");
+        authStore.setUser(data);
+        this.$router.push({ path: "/" });
       } catch (error) {
         console.log(error);
       } finally {
@@ -93,8 +103,7 @@ export default {
       const messagesStore = useMessagesStore();
 
       try {
-        const response = await fetch(
-          `${URL}/auth/reset-password-email`,
+        const response = await fetch(`${URL}/auth/reset-password-email`,
           {
             method: "POST",
             headers: {

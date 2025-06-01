@@ -227,6 +227,28 @@ async function updateUserPassword(req, res, next) {
   }
 }
 
+// Atualizar 2FA de um utilizador
+async function toggle2FA(req, res, next) {
+  try {
+    const id_user = req.params.id_user;
+    // Verificar se o utilizador é o próprio ou admin
+    if (id_user != req.user.id_user) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const user = await User.findByPk(id_user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Toggle the 2FA status
+    user.two_factor_enabled = !user.two_factor_enabled; // Toggle the 2FA status
+    await user.save();
+    // res.status(204).send();
+    res.status(200).json({ two_factor_enabled: user.two_factor_enabled });
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Eliminar um utilizador
 async function deleteUser(req, res, next) {
   try {
@@ -248,6 +270,7 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  toggle2FA,
   getAllUserWidgets,
   getAllUserNotifications,
   updateUserPassword,

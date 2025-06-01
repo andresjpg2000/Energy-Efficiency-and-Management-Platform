@@ -4,8 +4,22 @@
       <h1 class="text-h5 pl-4">Security Settings</h1>
     </v-row>
     <v-card class="pa-4">
-      <p class="text-subtitle-1 mb-4">Change your password</p>
       <v-form ref="form" @submit.prevent="formSubmit">
+         <p class="text-h6">Protect your data</p>
+
+        <v-row>
+          <v-col>
+            <v-checkbox
+            v-model="localTwoFactorEnabled"
+            @change="handleToggleTwoFactor"
+            label="Enable two factor authentication"
+            class="ms-n2"
+            hide-details
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+
+        <p class="text-h6 mb-4">Change your password</p>
         <v-row>
           <v-col>
             <!-- This field is hidden to improve UX  -->
@@ -32,7 +46,7 @@
         <v-row>
           <v-col>
             
-            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4 mb-4" variant="flat" size="large" @click="formSubmit">Save Changes</v-btn>
             
           </v-col>
         </v-row>
@@ -49,8 +63,9 @@ import { URL } from '@/utils/constants.js';
 
   export default {
     data() {
+      const authStore = useAuthStore();
       return {
-        authStore: useAuthStore(),
+        authStore,
         useMessagesStore: useMessagesStore(),
         form: null,
         isSubmitting: false,
@@ -63,6 +78,12 @@ import { URL } from '@/utils/constants.js';
           (v) => v === v.trim() || 'Password cannot start or end with spaces',
           (v) => v.length <= 10 || 'Password must be less than 10 characters'
         ],
+        localTwoFactorEnabled: authStore.isTwoFactorEnabled || false,
+      }
+    },
+    computed: {
+      isTwoFactorEnabled() {
+        return this.authStore.isTwoFactorEnabled;
       }
     },
     methods: {
@@ -135,6 +156,38 @@ import { URL } from '@/utils/constants.js';
         }
 
       },
+      async toggleTwoFactor() {
+        this.isSubmitting = true;
+        try {
+          const response = await fetchWithAuth(`${URL}/users/${this.authStore.getUserId}/toggle-2fa`, {
+            method: 'PATCH',
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to toggle two-factor authentication');
+          }
+
+          const updatedUser = await response.json();
+          this.authStore.updateUserState(updatedUser);
+
+          useMessagesStore().add({
+            color: 'success',
+            text: `Two-factor authentication ${this.localTwoFactorEnabled ? 'enabled' : 'disabled'} successfully.`,
+          });
+        } catch (error) {
+          useMessagesStore().add({
+            color: 'error',
+            text: error.message || 'An unexpected error occurred.',
+          });
+        } finally {
+          this.isSubmitting = false;
+        }
+      },
+      async handleToggleTwoFactor() {
+        await this.toggleTwoFactor();
+        this.localTwoFactorEnabled = this.authStore.isTwoFactorEnabled;
+      }
     },
     mounted() {
       this.userEmail = this.authStore.getUserEmail;

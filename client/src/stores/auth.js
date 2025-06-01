@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
     getUsername: (state) => state.user?.name || null,
     getUserId: (state) => state.user?.id_user || null,
     getUserEmail: (state) => state.user?.email || null,
+    isTwoFactorEnabled: (state) => state.user?.two_factor_enabled || false,
   },
   actions: {
     setUser(userData) {

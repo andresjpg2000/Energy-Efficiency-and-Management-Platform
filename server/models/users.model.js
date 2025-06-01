@@ -45,6 +45,11 @@ module.exports = (sequelize) => {
         type: DataTypes.JSON,
         allowNull: true,
       },
+      two_factor_enabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false, // if false 2FA isnt enabled
+      },
     },
     {
       tableName: "users",

@@ -31,6 +31,30 @@ const sendResetPasswordEmail = async (email, resetLink) => {
   }
 };
 
+const send2FACodeEmail = async (email, code) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Your 2FA Code',
+    text: `Login attempt.\n\nPlease use the code below to confirm your login:\n\n${code}\n\nIf you did not request this, please ignore this email.`,
+    html: `
+      <p>Login attempt.</p>
+      <p>Please use this code to confirm your login</p>
+      <p><strong>${code}</strong></p>
+      <p>If you did not request this, please ignore this email.</p>
+    `
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('2FA code email sent:', info.response);
+  } catch (err) {
+    console.error('Failed to send 2FA code email:', err);
+    throw err;
+  }
+};
+
 module.exports = {
   sendResetPasswordEmail,
+  send2FACodeEmail,
 };

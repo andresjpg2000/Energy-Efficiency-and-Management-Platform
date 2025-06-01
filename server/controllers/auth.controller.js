@@ -4,6 +4,9 @@ const { User } = require('../models/index.js');
 const { ValidationError } = require('sequelize');
 const mailSender = require('../mailSender.js');
 
+// Store 2fa verification codes, in the future use redis or a database
+let twoFactorCodes = new Map();
+
 // Criar um novo utilizador
 async function register(req, res, next) {
   try {
@@ -42,7 +45,8 @@ async function login(req, res, next) {
     }
 
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const cleanEmail = email.trim().toLowerCase(); 
+    const user = await User.findOne({ where: { email: cleanEmail } });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email' });
     }
@@ -52,7 +56,36 @@ async function login(req, res, next) {
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid password' });
     }
+    // If the user has 2FA enabled
+    if (user.two_factor_enabled) {
+      try {
+        // Generate a temporary token for 2FA verification
+        const tempToken = jwt.sign(
+          { id_user: user.id_user, type: '2fa' },
+          process.env.JWT_2FA_SECRET,
+          { expiresIn: process.env.JWT_2FA_EXPIRATION } 
+        );
+        // Send the 2FA code to the user's email
+        const verificationCode = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit verification code
+        // Store the verification code
+        twoFactorCodes.set(user.id_user, verificationCode);
 
+        await mailSender.send2FACodeEmail(user.email, verificationCode);
+        return res.status(200).json({ 
+          message: 'Two factor authentication link sent to your email',
+          user: {
+            id_user: user.id_user,
+            two_factor_enabled: user.two_factor_enabled,
+          },
+          tempToken,
+        });
+
+      } catch (error) {
+        return res.status(500).json({ message: 'Error generating 2FA token', error: error.message });
+      }
+      
+    }
+    // If the user does not have 2FA enabled, generate the access and refresh tokens
     const token = jwt.sign
     (
       { id_user: user.id_user},
@@ -77,6 +110,7 @@ async function login(req, res, next) {
           name: user.name,
           email: user.email,
           admin: user.admin,
+          two_factor_enabled: user.two_factor_enabled,
         }
       }
     );
@@ -86,6 +120,65 @@ async function login(req, res, next) {
     } else {
       return res.status(500).json({ success: false, msg: error.message || "Some error occurred at login."});
     };
+  }
+}
+
+// Function to verify the 2FA token
+async function verify2FA(req, res) {
+  if (!req.body || !req.body.token || !req.body.code) {
+    return res.status(400).json({ message: 'Token is required' });
+  }
+  const { token, code } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_2FA_SECRET);
+    // Check if the token is valid and of type 'reset'
+    if (!decoded || decoded.type !== '2fa') {
+      return res.status(401).json({ message: 'Invalid or expired two factor authentication token' });
+    }
+    const user = await User.findByPk(decoded.id_user);
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired two factor authentication token' });
+    }
+    // Check if the code matches the one stored in memory
+    const storedCode = twoFactorCodes.get(decoded.id_user);
+    if (!storedCode || storedCode != code) {
+      return res.status(401).json({ message: 'Invalid two factor authentication code' });
+    }
+    // Remove the code from memory after verification
+    twoFactorCodes.delete(user.id_user);
+
+    // Generate the access token
+    const accessToken = jwt.sign
+    (
+      { id_user: user.id_user},
+      process.env.JWT_SECRET, 
+      { expiresIn: process.env.JWT_EXPIRATION,}
+    );
+
+    const refreshToken = jwt.sign
+    (
+      { id_user: user.id_user },
+      process.env.JWT_REFRESH_SECRET, 
+      { expiresIn: process.env.JWT_REFRESH_EXPIRATION }
+    );
+    
+    return res.status(200).json(
+      {
+        success: true,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: {
+          id_user: user.id_user,
+          name: user.name,
+          email: user.email,
+          admin: user.admin,
+          two_factor_enabled: user.two_factor_enabled,
+        }
+      }
+    );
+    
+  } catch (error) {
+    return res.status(500).json({ message: 'Error with the two factor authentication.', error: error.message });
   }
 }
 
@@ -229,6 +322,7 @@ async function resetPassword(req, res) {
 module.exports = {
   register,
   login,
+  verify2FA,
   refreshToken,
   getUserInfo,
   resetPasswordEmail,
