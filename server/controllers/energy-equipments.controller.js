@@ -96,7 +96,7 @@ async function deleteEnergyEquipment(req, res, next) {
 async function getGivenEnergyOfEquipment(req, res, next) {
   try {
     // Get the equipment by ID
-    const equipment = await EnergyEquipment.findByPk(req.params.id,{
+    const equipment = await EnergyEquipment.findByPk(req.params.id, {
       attributes: ['id_equipment','name', 'capacity', 'housing'],
     });
     // Check if the equipment exists
@@ -128,7 +128,7 @@ async function getGivenEnergyOfEquipment(req, res, next) {
           ]
         }
       },
-      attributes: ['id', 'value','date'],
+      attributes: ['id_equipment', 'value', 'date'],
     });
 
     // Add the energy productions to the equipment object
@@ -143,8 +143,8 @@ async function getGivenEnergyOfEquipment(req, res, next) {
 async function getEnergyProductionsOfEquipment(req, res, next) {
   try {
     // Get the equipment by ID
-    const equipment = await EnergyEquipment.findByPk(req.params.id,{
-      attributes: ['id_equipment','name', 'capacity', 'housing'],
+    const equipment = await EnergyEquipment.findByPk(req.params.id, {
+      attributes: ['id_equipment', 'name', 'capacity', 'housing'],
     });
     // Check if the equipment exists
     if (!equipment) {
@@ -175,7 +175,7 @@ async function getEnergyProductionsOfEquipment(req, res, next) {
           ]
         }
       },
-      attributes: ['id_production', 'value','date'],
+      attributes: ['id_equipment', 'value', 'date'],
     });
 
     // Add the energy productions to the equipment object

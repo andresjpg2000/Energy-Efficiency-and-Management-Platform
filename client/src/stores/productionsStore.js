@@ -7,6 +7,14 @@ export const useProductionsStore = defineStore('productions', {
   state: () => ({
     data: [],
   }),
+  getters: {
+    getProductionsByEquipment: (state) => (equipmentId) => state.data.filter((p) => p.id_equipment === equipmentId),
+
+    getProductionToday: (state) => (id) => {
+      const today = new Date().toISOString().split("T")[0];
+      return state.data.filter((p) => p.date.startsWith(today) && p.id_equipment == id).map((p) => p.value);
+    }
+  },
   actions: {
     async fetchProductions() {
       this.data = [];

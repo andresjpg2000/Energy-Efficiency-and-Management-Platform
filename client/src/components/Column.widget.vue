@@ -4,11 +4,17 @@
             
             <v-chip-group mandatory class="chips mx-12 h-100" v-model="select" >
                     <v-chip rounded="lg" value="today" >Today info</v-chip>
-                    <v-chip rounded="lg" value="yesterday" >Yesterday info</v-chip>
+                    <v-chip @click="dialog = !dialog" rounded="lg" value="" >choose date</v-chip>
             </v-chip-group>
             <apexchart type="bar" height="273" class="graphic" :options="chartOptions" :series="areaChart.series"></apexchart>
         </div>
     </v-card>
+    <v-dialog
+      v-model="dialog"
+      width="auto"
+    >
+      <v-date-picker></v-date-picker>
+    </v-dialog>
     
 </template>
 
@@ -22,7 +28,13 @@ export default {
     data() {
         return {
             select: 'today',
+            dialog: false,
         };
+    },
+    methods: {
+        makeData() {
+            
+        }
     },
     computed: {
         areaChart() {

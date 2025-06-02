@@ -223,16 +223,15 @@ export default {
     >
       <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
         <!-- <MinisWiget v-if="item.type == 1" :body="item.body"/> -->
-        <graphic-wiget lazyLoad v-if="item.type == 5" />
+        <graphic-wiget  v-if="item.type == 5" />
         <SparkChart
-          lazyLoad
           v-if="item.type == 1"
           :title="item.title"
           :earn="item.body.earn"
           :name="item.body.name"
         />
-        <ColumnWiget lazyLoad v-if="item.type == 2" />
-        <VerticalColumnWidget lazyLoad v-if="item.type == 3" />
+        <ColumnWiget v-if="item.type == 2" />
+        <VerticalColumnWidget v-if="item.type == 3" />
       </div>
     </div>
   </v-sheet>

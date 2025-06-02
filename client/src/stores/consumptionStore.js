@@ -5,21 +5,39 @@ import { URL } from '../utils/constants.js';
 
 export const useConsumptionStore = defineStore('consumption', {
   state: () => ({
-    data: {},
-    lastUpdateDate: new Date(),// ver mais tarde
+    data: [], // array of consumptions
+    lastUpdateDate: null,// ver mais tarde
+
   }),
+  getters: {
+    getConsumptionToday: (state) => {
+      const today = new Date().toISOString().split("T")[0];
+      return state.data.filter((c) => c.date.startsWith(today)).map((c) => { c.value });
+    },
+    getConsumptionThisYear: (state) => {
+      const thisYear = new Date().getFullYear();
+      return state.data.filter(el => {
+        const date = new Date(el.date);
+        return date.getFullYear() === thisYear;
+      });
+    },
+    getSumConsumption: (state) => {
+      return state.getConsumptionToday.reduce((sum, el) => sum + el.value, 0);
+    },
+  },
   actions: {
     async fetchConsumption() {
-      this.data = {};
       const housingsStore = useHousingsStore();
 
       const end = new Date(); // hoje
+      let start;
 
-      const start = new Date();
-      start.setFullYear(end.getFullYear());
-      start.setMonth(0); // janeiro
-      start.setDate(1);  // dia 1
-      start.setHours(0, 0, 0, 0); // 00:00:00.000
+      if (this.lastUpdateDate == null) {
+        start = new Date(end.getFullYear(), 0, 1, 0, 0, 0, 0);
+        this.lastUpdateDate = end;
+      } else {
+        start = new Date(this.lastUpdateDate);
+      }
 
       try {
         const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
@@ -30,19 +48,21 @@ export const useConsumptionStore = defineStore('consumption', {
           const data = await response.json()
           throw new Error(data.message || 'Network response was not ok')
         }
-        const data = await response.json()
+        const result = await response.json()
+        const newConsumptions = result.data.consumptions || [];
+        console.log(newConsumptions);
 
-        this.data = data.data.consumptions || [];
-        this.data.forEach(el => {
+        newConsumptions.forEach(el => {
           el.value = parseFloat(el.value);
-          //el.date = new Date(el.date);
+          this.data.push(el);
         });
+
       } catch (error) {
         throw error;
       }
     },
     async fetch2Year() {
-      this.data = {};
+      this.data = [];
       const housingsStore = useHousingsStore();
 
       const now = new Date();

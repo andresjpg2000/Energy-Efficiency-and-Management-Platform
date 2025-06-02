@@ -61,7 +61,7 @@ export default {
       console.log("thisMonth:", thisMonth);
 
       const productionData = (this.productionsStore.data || [])
-        .filter((p) => p.date?.startsWith(thisMonth))
+        .filter((p) => p.date.startsWith(thisMonth))
         .reduce((total, p) => total + (p.value || 0), 0);
 
       const consumptionData = (this.consumptionStore.data || [])
@@ -73,7 +73,7 @@ export default {
 
       this.total = productionData - consumptionData;//multiplicação e validação aqui
     }
-    if (this.data.length == 0) {
+    if (this.data.length < 5|| this.data.length > 25) {
       this.data = this.sparklineData;
     }
   },
