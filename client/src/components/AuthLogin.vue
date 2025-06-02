@@ -9,7 +9,7 @@ export default {
     return {
       checkbox: false,
       password: "passteste",
-      username: "teste@email.com",
+      username: "greengridesmad@gmail.com",
       show1: false,
       isSubmitting: false,
       emailRules: [

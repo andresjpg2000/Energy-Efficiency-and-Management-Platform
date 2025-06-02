@@ -25,7 +25,8 @@ export default {
         passwordRules: [
           (v) => !!v || 'Password is required',
           (v) => v === v.trim() || 'Password cannot start or end with spaces',
-          (v) => v.length <= 10 || 'Password must be less than 10 characters'
+          (v) => v.length >= 6 || 'Password must be at least 6 characters',
+          (v) => v.length <= 100 || 'Password must be less than 100 characters'
         ],
         firstRules: [(v) => !!v || 'First Name is required'],
         lastRules: [(v) => !!v || 'Last Name is required'],

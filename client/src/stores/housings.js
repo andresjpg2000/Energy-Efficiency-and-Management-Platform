@@ -15,15 +15,20 @@ export const useHousingsStore = defineStore('housings', {
         const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'GET',
         })
-
+        
         if (!response.ok) {
+          if (response.status === 404) {
+            this.housings = [];
+            this.selectedHousingId = null;
+            this.loaded = true;
+            return;
+          }
           const data = await response.json()
           throw new Error(data.message || 'Network response was not ok')
         }
         const data = await response.json()
         this.housings = data.data;
         this.selectedHousingId = this.housings.length > 0 ? this.housings[0].id_housing : null;
-        console.log('Housings fetched successfully:', this.selectedHousingId);
       } catch (error) {
         throw error;
       } finally {
@@ -69,28 +74,23 @@ export const useHousingsStore = defineStore('housings', {
         throw error
       }
     },
-    // async deleteHousing(id) {
-    //   const token = getToken();
-    //   try {
-    //     const response = await fetch(`${URL}/housings/${id_housing}`, {
-    //       method: 'DELETE',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'authorization': `Bearer ${token}`,
-    //       },
-    //     })
+    async deleteHousing(id) {
+      try {
+        const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
+          method: 'DELETE',
+        })
 
-    //     if (!response.ok) {
-    //       const data = await response.json()
-    //       throw new Error(data.message || 'Network response was not ok')
-    //     }
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || 'Network response was not ok')
+        }
 
-    //     await this.fetchHousings();
+        await this.fetchHousings();
 
-    //   } catch (error) {
-    //     throw error
-    //   } 
-    // }
+      } catch (error) {
+        throw error
+      } 
+    }
   },
   persist: {
     storage: sessionStorage,
