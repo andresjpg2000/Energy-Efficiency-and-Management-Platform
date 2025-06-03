@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { URL } from '@/utils/constants.js';
+import { useMessagesStore } from './messages.js';
 
 export const useHousingsStore = defineStore('housings', {
   state: () => ({
@@ -11,6 +12,7 @@ export const useHousingsStore = defineStore('housings', {
   }),
   actions: {
     async fetchHousings() {
+      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'GET',
@@ -24,6 +26,10 @@ export const useHousingsStore = defineStore('housings', {
             return;
           }
           const data = await response.json()
+          messagesStore.add({
+            color: 'error',
+            text: data.message || 'Network response was not ok',
+          })
           throw new Error(data.message || 'Network response was not ok')
         }
         const data = await response.json()
@@ -36,7 +42,7 @@ export const useHousingsStore = defineStore('housings', {
       }
     },
     async addHousing(housing) {
-      console.log('housing', housing);
+      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'POST',
@@ -44,19 +50,22 @@ export const useHousingsStore = defineStore('housings', {
         })
 
         if (!response.ok) {
-          const data = await response.json()
+          const data = await response.json();
+          messagesStore.add({
+            color: 'error',
+            text: data.message || 'Network response was not ok',
+          })
           throw new Error(data.message || 'Network response was not ok')
         }
-
         const newHousing = await response.json()
         this.housings.push(newHousing.data);
-
       } catch (error) {
         throw error
       }
     },
     async updateHousing(housing) {
       let id_housing = this.selectedHousingId;
+      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
           method: 'PATCH',
@@ -65,16 +74,21 @@ export const useHousingsStore = defineStore('housings', {
 
         if (!response.ok) {
           const data = await response.json()
+          messagesStore.add({
+            color: 'error',
+            text: data.message || 'Network response was not ok',
+          })
           throw new Error(data.message || 'Network response was not ok')
         }
 
         await this.fetchHousings();
-
       } catch (error) {
         throw error
       }
     },
     async deleteHousing(id) {
+      // let id_housing = id || this.selectedHousingId;
+      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
           method: 'DELETE',
@@ -82,6 +96,10 @@ export const useHousingsStore = defineStore('housings', {
 
         if (!response.ok) {
           const data = await response.json()
+          messagesStore.add({
+            color: 'error',
+            text: data.message || 'Network response was not ok',
+          })
           throw new Error(data.message || 'Network response was not ok')
         }
 

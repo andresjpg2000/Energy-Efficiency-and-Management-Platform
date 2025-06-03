@@ -22,7 +22,7 @@ export default {
       this.isSubmitting = true;
       const token = this.$route.query.token;
       try {
-        const response = await fetch(`${API_URL}/auth/verify-2fa`, {
+        const response = await fetch(`${API_URL}/users/verify-2fa`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

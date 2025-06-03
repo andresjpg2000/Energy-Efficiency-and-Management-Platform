@@ -39,7 +39,7 @@ export default {
         
         try {
           
-          const response = await fetch(`${URL}/auth/register`, {
+          const response = await fetch(`${URL}/users/register`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

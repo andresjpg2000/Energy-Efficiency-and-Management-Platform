@@ -4,6 +4,7 @@ import graphicWiget from "@/components/graphic.widget.vue";
 import SparkChart from "@/components/SparkChart.vue";
 import ColumnWiget from "@/components/Column.widget.vue";
 import VerticalColumnWidget from "@/components/VerticalColumn.widget.vue";
+import HousingDialog from "@/components/housingDialog.vue";
 
 import { useWidgetsStore } from "@/stores/widgetsStore";
 import { useHousingsStore } from "@/stores/housings";
@@ -17,6 +18,7 @@ export default {
     SparkChart,
     ColumnWiget,
     VerticalColumnWidget,
+    HousingDialog,
   },
   data() {
     return {
@@ -63,32 +65,12 @@ export default {
       console.log("Float mode:", this.float);
     },
     addHousing() {
-      this.housing.id_user = this.authStore.getUserId;
+      housing.id_user = this.authStore.getUserId;
       try {
-        this.housingsStore.addHousing(this.housing);
+        this.housingsStore.addHousing(housing);
       } catch (error) {
         console.error("Error adding housing:", error);
-        return;
-      } finally {
-        this.openDialog = false;
-        this.housing = {
-          address: "",
-          pc: "",
-          location: "",
-          selectedSupplier: null,
-          building_type: "",
-        };
       }
-    },
-    closeDialog() {
-      this.openDialog = false;
-      this.housing = {
-        address: "",
-        pc: "",
-        location: "",
-        selectedSupplier: null,
-        building_type: "",
-      };
     },
   },
   beforeRouteLeave(to, from, next) {
@@ -237,63 +219,11 @@ export default {
     </div>
   </v-sheet>
   <!-- Dialog for Adding/Editing House -->
-  <v-dialog v-model="openDialog" max-width="500px">
-    <v-card>
-      <v-card-title>
-        <span class="text-h6">Add Housing</span>
-      </v-card-title>
-
-      <v-card-text>
-        <v-text-field
-          v-model="housing.address"
-          variant="outlined"
-          label="Address"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="housing.pc"
-          variant="outlined"
-          label="Postal Code"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="housing.location"
-          variant="outlined"
-          label="Location"
-          required
-        ></v-text-field>
-        <v-select
-          variant="outlined"
-          label="Energy Suppliers"
-          density="default"
-          v-model="housing.selectedSupplier"
-          :clearable="false"
-          :multiple="false"
-          placeholder="Choose your current energy supplier"
-          :items="formattedSuppliers"
-          item-title="title"
-          item-value="value"
-          name="Suppliers"
-        >
-        </v-select>
-        <v-select
-          variant="outlined"
-          label="Building Type"
-          density="default"
-          v-model="housing.building_type"
-          :clearable="false"
-          :multiple="false"
-          placeholder="Choose the type of building"
-          :items="['flat', 'house', 'studio']"
-        ></v-select>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn text @click="closeDialog">Cancel</v-btn>
-        <v-btn color="primary" @click="addHousing">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <HousingDialog
+    v-model="openDialog"
+    :suppliers="suppliers"
+    @save="addHousing"
+  />
 </template>
 
 <style>

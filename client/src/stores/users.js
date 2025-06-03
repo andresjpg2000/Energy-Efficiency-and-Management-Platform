@@ -24,7 +24,7 @@ export const useUsersStore = defineStore('user', {
       }
       
       try {
-        const response = await fetchWithAuth(`${URL}/auth/me`, {
+        const response = await fetchWithAuth(`${URL}/users/me`, {
           method: 'GET',
         });
 

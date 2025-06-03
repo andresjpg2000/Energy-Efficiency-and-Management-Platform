@@ -35,7 +35,7 @@ app.use(cors({
 app.use(express.json());
 
 // use route middleware for /login requests
-app.use('/auth', require('./routes/auth.routes.js'));
+app.use('/users', require('./routes/users.auth.routes.js'));
 // use route middleware for /users requests
 app.use('/users', require('./routes/users.routes.js'));
 // use route middleware for /given-energies requests

@@ -53,12 +53,14 @@
 
 <script>
 import { useAuthStore } from "@/stores/auth";
+import { useHousingsStore } from "@/stores/housings";
 
 export default {
   name: "HousingDialog",
   props: {
-    value: Boolean,
+    modelValue: Boolean,
     suppliers: Array,
+    housing: Object, // Optional prop for editing existing housing
   },
   data() {
     return {
@@ -72,15 +74,24 @@ export default {
         building_type: "",
         id_user: null,
       },
+      twoFACode: "",
       authStore: useAuthStore(),
+      housingsStore: useHousingsStore(),
     };
   },
   watch: {
-    value(val) {
+    modelValue(val) {
       this.internalDialog = val;
+      if (val && this.housing) {
+        this.isEditMode = true;
+        this.localHousing = { ...this.housing }; // Clone the housing object for editing
+      } else {
+        this.isEditMode = false;
+        this.resetForm();
+      }
     },
     internalDialog(val) {
-      this.$emit("input", val);
+      this.$emit("update:modelValue", val);
     },
   },
   computed: {
@@ -95,10 +106,15 @@ export default {
     closeDialog() {
       this.internalDialog = false;
       this.resetForm();
+      this.isEditMode = false;
     },
     saveHousing() {
       this.localHousing.id_user = this.authStore.getUserId;
-      this.$emit("save", { ...this.localHousing });
+      if (this.isEditMode) {
+        this.housingsStore.updateHousing(this.localHousing);
+      } else {
+        this.housingsStore.addHousing(this.localHousing);
+      }
       this.closeDialog();
     },
     resetForm() {
@@ -113,4 +129,5 @@ export default {
     },
   },
 };
+
 </script>

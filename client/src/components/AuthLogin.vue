@@ -37,7 +37,7 @@ export default {
       const messagesStore = useMessagesStore();
       // this.$refs.form.validate(); // Validate the form
       try {
-        const response = await fetch(`${URL}/auth/login`, {
+        const response = await fetch(`${URL}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export default {
       const messagesStore = useMessagesStore();
 
       try {
-        const response = await fetch(`${URL}/auth/reset-password-email`,
+        const response = await fetch(`${URL}/users/reset-password-email`,
           {
             method: "POST",
             headers: {

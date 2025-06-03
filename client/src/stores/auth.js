@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', {
     async refreshAccessToken() {
       const messagesStore = useMessagesStore();
       try {
-        const response = await fetch(`${URL}/auth/refresh-token`, {
+        const response = await fetch(`${URL}/users/refresh-token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
