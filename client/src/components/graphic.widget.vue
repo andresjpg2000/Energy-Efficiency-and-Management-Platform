@@ -234,8 +234,8 @@ export default {
                                 headerCategory: "category",
                                 headerValue: "value",
                                 categoryFormatter(x) {
-                                    return x.toFixed(2);
-                                },
+                                return new Date(x).toDateString()
+                            }
                             },
                             svg: {
                                 filename: undefined,

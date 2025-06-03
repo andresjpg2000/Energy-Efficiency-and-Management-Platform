@@ -4,14 +4,6 @@
         <v-card-item class="h-100">
             <div class="h-100 d-flex justify-space-between align-center mb-mb-0 mb-3">
                 <v-card-title class="text-h5  text-md-body2">Equipaments Information</v-card-title>
-                <!-- <v-select class="select" 
-                    v-model="select"
-                    :items="['year', 'month', 'week']"
-                    variant="underlined"
-                    color="primary"
-                    hide-details
-                    single-line
-                    dense></v-select> -->
                 <v-chip-group mandatory class="chips" v-model="select" >
                     <v-chip rounded="lg" value="today" >today</v-chip>
                     <v-chip rounded="lg" value="week" >week</v-chip>
@@ -27,27 +19,70 @@
 
 <script>
 import VueApexCharts from 'vue3-apexcharts'
-
+import { useEquipmentsStore } from '@/stores/equipmentsStore';
+import { useProductionsStore } from '@/stores/productionsStore';
+import { useGivenEnergiesStore } from '@/stores/givenEnergiesStore';
 export default {
     components: {
         apexchart: VueApexCharts
     },
     data() {
         return {
+            equipmentsStore: useEquipmentsStore(),
+            productionsStore: useProductionsStore(),
+            givenEnergiesStore: useGivenEnergiesStore(),
             select: 'today',
         };
     },
+    methods: {
+        makeProductionData(date) {
+            let data = Array(this.equipmentsStore.equipments.length).fill(0);
+
+            if (date == 'today') {
+                const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.productionsStore.data
+                         .filter((c) => c.id_equipment === eq.id_equipment && c.date.startsWith(today))
+                         .reduce((total, c) => total + c.value, 0);
+                    data[i] = Math.round(data[i] * 100) / 100; // Convert to Kw        
+                });
+            } else if (date === 'week') {
+                this.equipmentsStore.getEquipmentsWeek();
+                this.productionsStore.getProductionsWeek();
+                this.givenEnergiesStore.getGivenEnergiesWeek();
+            } else if (date === 'month') {
+                this.equipmentsStore.getEquipmentsMonth();
+                this.productionsStore.getProductionsMonth();
+                this.givenEnergiesStore.getGivenEnergiesMonth();
+                
+            }
+            console.log('data production:', data);
+            
+            return data;
+        }
+    },
     computed: {
+        equipments(){
+            console.log('equipmentsStore data:', this.equipmentsStore.equipments);
+            let equipments = this.equipmentsStore.equipments.map((c) => c.name);
+            console.log('equipments on vertical Column:', equipments);
+            
+            if (equipments.length > 0) {
+                return equipments;
+            } else {
+                return ['Panel Solar 1', 'Panel Solar 2', 'Panel Solar 3', 'Panel Solar 4', 'Panel Solar 5'];
+            }    
+        },
         Chart() {
             return {
                 series: [
                     {
                     name: 'Production',
-                    data: [48000, 50000, 40000, 65000, 25000]
+                    data: this.makeProductionData(this.select)
                     },
                     {
-                    name: 'Given',
-                    data: [20000, 40000, 25000, 10000, 12000]
+                    name: 'Given Energy',
+                    data: [2, 4]
                     }
                 ],
             };
@@ -64,22 +99,14 @@ export default {
                     width: 1,
                     colors: ['#fff']
                 },
-                dataLabels: {
-                    formatter: (val) => val / 1000 + 'K'
-                },
+                
                 plotOptions: {
                     bar: {
                     horizontal: true
                     }
                 },
                 xaxis: {
-                    categories: [
-                    'Panel Solar 1',
-                    'Panel Solar 2',
-                    'Panel Solar 3',
-                    'Panel Solar 4',
-                    'Panel Solar 5',
-                    ],
+                    categories: this.equipments,
                     labels: {
                     formatter: (val) => val / 1000 + 'Kw'
                     }
