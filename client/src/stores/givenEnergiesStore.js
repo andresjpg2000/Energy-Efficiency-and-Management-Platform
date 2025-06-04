@@ -12,7 +12,7 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
       this.data = [];
       const equipmentsStore = useEquipmentsStore();
 
-      const end = new Date(); // hoje
+      let end = new Date(); // hoje
 
       const start = new Date(end.getFullYear(), end.getMonth(), 1); // 1º dia do mês, 00:00
 
@@ -25,6 +25,7 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
                 throw new Error(data.message || 'Network response was not ok');
               }
               const data = await res.json();
+
               return data.data.givenEnergy || [];
             })
         );
@@ -34,6 +35,9 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
 
         // Junta todos os dados num único array
         this.data = results.flat();
+        this.data.forEach(el => {
+          el.value = parseFloat(el.value);
+        });
 
       } catch (error) {
         throw error;

@@ -137,7 +137,6 @@ export const useWidgetsStore = defineStore('widgets', {
           throw new Error('Failed to update widget');
         }
         const data = await response.json();
-        console.log("Widget updated", data);
       } catch (error) {
         console.log(error);
       }

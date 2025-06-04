@@ -12,6 +12,8 @@
 <script>
 import { useConsumptionStore } from "@/stores/consumptionStore";
 import { useProductionsStore } from "@/stores/productionsStore";
+import { useHousingsStore } from "@/stores/housings";
+import { useSuppliersStore } from "@/stores/suppliers";
 import ApexChart from "vue3-apexcharts";
 
 export default {
@@ -41,6 +43,7 @@ export default {
       ///////////////// corrent consumption
     } else if (this.title == "Corrent-Consumption") {
       const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+
       this.data = this.consumptionStore.data
         .filter((c) => c.date.startsWith(today))
         .map((c) => c.value);
@@ -53,25 +56,26 @@ export default {
       this.data = this.productionsStore.data
         .filter((c) => c.date.startsWith(today))
         .map((c) => c.value);
-      console.log("data production today:", this.data);
       this.total = this.data.reduce((total, c) => total + c, 0);
       ///////////////// total expenses
     } else if (this.title == "Total-Expenses") {
       const thisMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-      console.log("thisMonth:", thisMonth);
+
 
       const productionData = (this.productionsStore.data || [])
         .filter((p) => p.date.startsWith(thisMonth))
         .reduce((total, p) => total + (p.value || 0), 0);
-
+      
       const consumptionData = (this.consumptionStore.data || [])
         .filter((c) => c.date?.startsWith(thisMonth))
         .reduce((total, c) => total + (c.production || 0), 0);
 
-      console.log("productionData:", productionData);
-      console.log("consumptionData:", consumptionData);
-
-      this.total = productionData - consumptionData;//multiplicação e validação aqui
+      const supplier = this.suppliersStore.suppliers.find(
+        s => s.id == this.housingsStore.selectedSupplierId
+      );
+      console.log(supplier);
+      let price = consumptionData - productionData;
+      this.total = price > 0 ? price * supplier.cost_kWh : 0;//multiplicação e validação aqui
     }
     if (this.data.length < 5|| this.data.length > 25) {
       this.data = this.sparklineData;
@@ -81,6 +85,8 @@ export default {
     return {
       consumptionStore: useConsumptionStore(),
       productionsStore: useProductionsStore(),
+      housingsStore: useHousingsStore(),
+      suppliersStore: useSuppliersStore(),
       total: -1,
       data: [],
       sparklineData: [

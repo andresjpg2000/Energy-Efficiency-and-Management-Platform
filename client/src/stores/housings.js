@@ -9,6 +9,7 @@ export const useHousingsStore = defineStore('housings', {
     selectedHousingId: null,
     loaded: false,
     isFirstRun: true,
+    selectedSupplierId: null,
   }),
   actions: {
     async fetchHousings() {
@@ -17,7 +18,7 @@ export const useHousingsStore = defineStore('housings', {
         const response = await fetchWithAuth(`${URL}/housings`, {
           method: 'GET',
         })
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             this.housings = [];
@@ -35,6 +36,7 @@ export const useHousingsStore = defineStore('housings', {
         const data = await response.json()
         this.housings = data.data;
         this.selectedHousingId = this.housings.length > 0 ? this.housings[0].id_housing : null;
+        this.selectedSupplierId = this.housings.length > 0 ? this.housings[0].id_supplier : null;
       } catch (error) {
         throw error;
       } finally {
@@ -107,7 +109,7 @@ export const useHousingsStore = defineStore('housings', {
 
       } catch (error) {
         throw error
-      } 
+      }
     }
   },
   persist: {

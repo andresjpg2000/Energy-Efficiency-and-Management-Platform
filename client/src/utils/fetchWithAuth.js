@@ -20,7 +20,6 @@ export async function fetchWithAuth(url, options = {}) {
   });
 
   const encoding = response.headers.get('content-encoding');
-  console.log('Resposta comprimida com:', encoding); // ← 'gzip', 'br', etc
 
   if (response.status === 401 && authStore.refreshToken) {
     const refreshed = await authStore.refreshAccessToken();

@@ -7,6 +7,7 @@ export const useSuppliersStore = defineStore('suppliers', {
     suppliers: [],
     loading: false,
   }),
+  persist: true,
   actions: {
     async fetchSuppliers(attributes) {
       const query = attributes ? `?attributes=${encodeURIComponent(attributes)}` : '';
@@ -18,9 +19,9 @@ export const useSuppliersStore = defineStore('suppliers', {
           const data = await response.json()
           throw new Error(data.message || 'Network response was not ok')
         }
-        
+
         const data = await response.json()
-        
+
         this.suppliers = data.data;
 
       } catch (error) {
@@ -81,7 +82,7 @@ export const useSuppliersStore = defineStore('suppliers', {
 
       } catch (error) {
         throw error
-      } 
+      }
     }
   },
 });

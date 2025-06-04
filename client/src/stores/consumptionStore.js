@@ -50,7 +50,6 @@ export const useConsumptionStore = defineStore('consumption', {
         }
         const result = await response.json()
         const newConsumptions = result.data.consumptions || [];
-        console.log(newConsumptions);
 
         newConsumptions.forEach(el => {
           el.value = parseFloat(el.value);

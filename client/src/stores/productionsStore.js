@@ -37,7 +37,6 @@ export const useProductionsStore = defineStore('productions', {
                 throw new Error(data.message || 'Network response was not ok');
               }
               const data = await res.json();
-              console.log(`Productions for equipment ${eq.id_equipment}:`, data);
               return data.data.EnergyProductions || [];
             })
         );
@@ -49,7 +48,6 @@ export const useProductionsStore = defineStore('productions', {
         this.data = results.flat();
         this.data.forEach(el => {
           el.value = parseFloat(el.value);
-          //el.date = new Date(el.date);
         });
       } catch (error) {
         throw error;

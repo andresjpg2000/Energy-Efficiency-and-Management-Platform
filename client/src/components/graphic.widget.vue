@@ -107,8 +107,6 @@ export default {
     methods: {
         
         selectDate(time) {
-            console.log("selectDate called with time:", time);
-
             if (time == "year") {
                 return this.rawData.year;
             } else if (time == "month") {
@@ -144,37 +142,37 @@ export default {
             } else if (time == "week") {
                 //criar a lógica para calcular o consumo da semana atual e da semana passada
                 const today = new Date();
-                const dayOfWeek = today.getDay();
-                const diffToMonday = (dayOfWeek + 6) % 7;
-                
-                // segunda desta semana
-                const mondayThisWeek = new Date(today);
-                mondayThisWeek.setDate(today.getDate() - diffToMonday);
-                mondayThisWeek.setHours(0, 0, 0, 0);
+                const dayOfWeek = today.getDay(); // 0 (Domingo) a 6 (Sábado)
 
-                // segunda da semana passada
-                const mondayLastWeek = new Date(mondayThisWeek);
-                mondayLastWeek.setDate(mondayThisWeek.getDate() - 7);
+                // domingo desta semana
+                const sundayThisWeek = new Date(today);
+                sundayThisWeek.setDate(today.getDate() - dayOfWeek);
+                sundayThisWeek.setHours(0, 0, 0, 0);
 
                 // domingo da semana passada
-                const sundayLastWeek = new Date(mondayThisWeek);
-                sundayLastWeek.setDate(mondayThisWeek.getDate() - 1);
-                sundayLastWeek.setHours(23, 59, 59, 999);
+                const sundayLastWeek = new Date(sundayThisWeek);
+                sundayLastWeek.setDate(sundayThisWeek.getDate() - 7);
+
+                // sábado da semana passada
+                const saturdayLastWeek = new Date(sundayLastWeek);
+                saturdayLastWeek.setDate(sundayLastWeek.getDate() + 6);
+                saturdayLastWeek.setHours(23, 59, 59, 999);
 
                 const data = this.consumptionStore.data || [];
 
-                const actual = Array(7).fill(0);
+                const actual = Array(7).fill(0); // domingo a sábado
                 const last = Array(7).fill(0);
 
                 data.forEach((c) => {
                 const date = new Date(c.date);
-                const day = date.getDay();
+                const day = date.getDay(); // 0 = Domingo
+
                 const value = c.value || 0;
 
-                if (date >= mondayThisWeek && date <= today) {
+                if (date >= sundayThisWeek && date <= today) {
                     actual[day] += value;
                     actual[day] = Math.round(actual[day] * 100) / 100;
-                } else if (date >= mondayLastWeek && date <= sundayLastWeek) {
+                } else if (date >= sundayLastWeek && date <= saturdayLastWeek) {
                     last[day] += value;
                     last[day] = Math.round(last[day] * 100) / 100;
                 }
@@ -186,8 +184,6 @@ export default {
     },
     computed: {
         areaChart() {
-            console.log(
-            "areaChart computed property called with select:", this.select);
             const data = this.selectDate(this.select);
 
             return {

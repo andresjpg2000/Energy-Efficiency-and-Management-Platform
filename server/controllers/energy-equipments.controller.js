@@ -97,7 +97,7 @@ async function getGivenEnergyOfEquipment(req, res, next) {
   try {
     // Get the equipment by ID
     const equipment = await EnergyEquipment.findByPk(req.params.id, {
-      attributes: ['id_equipment','name', 'capacity', 'housing'],
+      attributes: ['id_equipment'],
     });
     // Check if the equipment exists
     if (!equipment) {
@@ -144,7 +144,7 @@ async function getEnergyProductionsOfEquipment(req, res, next) {
   try {
     // Get the equipment by ID
     const equipment = await EnergyEquipment.findByPk(req.params.id, {
-      attributes: ['id_equipment', 'name', 'capacity', 'housing'],
+      attributes: ['id_equipment'],
     });
     // Check if the equipment exists
     if (!equipment) {

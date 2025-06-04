@@ -35,6 +35,44 @@ export default {
         };
     },
     methods: {
+        makeGivenEnergiesData(date) {
+            let data = Array(this.equipmentsStore.equipments.length).fill(0);
+
+            if (date == 'today') {
+                const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.givenEnergiesStore.data
+                         .filter((c) => c.id_equipment === eq.id_equipment && c.date.startsWith(today))
+                         .reduce((total, c) => total + c.value, 0);
+                    
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places      
+                });
+            } else if (date === 'week') {
+                const startOfWeek = new Date();
+                startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Get the start of the week (Sunday)
+                const end = new Date();
+
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.givenEnergiesStore.data
+                        .filter((c) => c.id_equipment === eq.id_equipment && new Date(c.date) >= startOfWeek && new Date(c.date) <= end)
+                        .reduce((total, c) => total + c.value, 0);
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places
+                });
+            } else if (date === 'month') {
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1); // Get the start of the month
+                const end = new Date();
+                
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.givenEnergiesStore.data
+                        .filter((c) => c.id_equipment === eq.id_equipment && new Date(c.date) >= startOfMonth && new Date(c.date) <= end)
+                        .reduce((total, c) => total + c.value, 0);
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places
+                });
+            }
+            
+            return data;
+        },
         makeProductionData(date) {
             let data = Array(this.equipmentsStore.equipments.length).fill(0);
 
@@ -44,28 +82,39 @@ export default {
                     data[i] = this.productionsStore.data
                          .filter((c) => c.id_equipment === eq.id_equipment && c.date.startsWith(today))
                          .reduce((total, c) => total + c.value, 0);
-                    data[i] = Math.round(data[i] * 100) / 100; // Convert to Kw        
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places      
                 });
             } else if (date === 'week') {
-                this.equipmentsStore.getEquipmentsWeek();
-                this.productionsStore.getProductionsWeek();
-                this.givenEnergiesStore.getGivenEnergiesWeek();
+                const startOfWeek = new Date();
+                startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Get the start of the week (Sunday)
+                const endOfWeek = new Date();
+                endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay())); // Get the end of the week (Saturday)
+
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.productionsStore.data
+                        .filter((c) => c.id_equipment === eq.id_equipment && new Date(c.date) >= startOfWeek && new Date(c.date) <= endOfWeek)
+                        .reduce((total, c) => total + c.value, 0);
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places
+                });
             } else if (date === 'month') {
-                this.equipmentsStore.getEquipmentsMonth();
-                this.productionsStore.getProductionsMonth();
-                this.givenEnergiesStore.getGivenEnergiesMonth();
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1); // Get the start of the month
+                const end = new Date();
                 
+                this.equipmentsStore.equipments.forEach((eq,i) => {
+                    data[i] = this.givenEnergiesStore.data
+                        .filter((c) => c.id_equipment === eq.id_equipment && new Date(c.date) >= startOfMonth && new Date(c.date) <= end)
+                        .reduce((total, c) => total + c.value, 0);
+                    data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places
+                });
             }
-            console.log('data production:', data);
             
             return data;
         }
     },
     computed: {
         equipments(){
-            console.log('equipmentsStore data:', this.equipmentsStore.equipments);
             let equipments = this.equipmentsStore.equipments.map((c) => c.name);
-            console.log('equipments on vertical Column:', equipments);
             
             if (equipments.length > 0) {
                 return equipments;
@@ -82,7 +131,7 @@ export default {
                     },
                     {
                     name: 'Given Energy',
-                    data: [2, 4]
+                    data: this.makeGivenEnergiesData(this.select)
                     }
                 ],
             };
@@ -108,7 +157,7 @@ export default {
                 xaxis: {
                     categories: this.equipments,
                     labels: {
-                    formatter: (val) => val / 1000 + 'Kw'
+                    formatter: (val) => val + 'Kw'
                     }
                 },
                 fill: {
