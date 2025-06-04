@@ -31,7 +31,7 @@ export default {
             equipmentsStore: useEquipmentsStore(),
             productionsStore: useProductionsStore(),
             givenEnergiesStore: useGivenEnergiesStore(),
-            select: 'today',
+            select: 'month', // default selection
         };
     },
     methods: {

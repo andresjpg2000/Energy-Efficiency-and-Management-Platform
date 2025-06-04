@@ -3,17 +3,20 @@
         <div id="chart" class="pt-1 h-100">
             
             <v-chip-group mandatory class="chips mx-12 h-100" v-model="select" >
-                    <v-chip rounded="lg" value="today" >Today info</v-chip>
-                    <v-chip @click="dialog = !dialog" rounded="lg" value="" >choose date</v-chip>
+                    <v-chip @click="datePicker=null" rounded="lg" value="today" >Today info</v-chip>
+                    <v-chip @click="dialog = !dialog" rounded="lg" value="" >{{ datePicker ? formatDate(datePicker) : "📅 Pick a date" }}</v-chip>
             </v-chip-group>
             <apexchart type="bar" height="273" class="graphic" :options="chartOptions" :series="areaChart.series"></apexchart>
         </div>
     </v-card>
     <v-dialog
-      v-model="dialog"
-      width="auto"
+        v-model="dialog"
+        width="auto"
+        height="auto"
+        persistent
     >
-      <v-date-picker></v-date-picker>
+      <v-date-picker class="rounded-b-0" @update:model-value="console.log(datePicker); dialog=false;" v-model="datePicker"></v-date-picker>
+      <v-btn @click="dialog=false;select='today';datePicker=null" variant="flat" class="rounded-t-0">cancel</v-btn>
     </v-dialog>
     
 </template>
@@ -27,13 +30,19 @@ export default {
     },
     data() {
         return {
+            datePicker: null,
             select: 'today',
             dialog: false,
         };
     },
     methods: {
-        makeData() {
-            
+        formatDate(date) {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            });
         }
     },
     computed: {
