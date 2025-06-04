@@ -90,7 +90,37 @@ export const useConsumptionStore = defineStore('consumption', {
       } catch (error) {
         throw error;
       }
-    }
+    },
+    async fetchConsumptionByDate(date) {
+      const housingsStore = useHousingsStore();
+
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0); // Início do dia
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999); // Fim do dia
+
+      try {
+        const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
+          method: 'GET',
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Network response was not ok');
+        }
+
+        const result = await response.json();
+        let data = result.data.consumptions || [];
+        data.forEach(el => {
+          el.value = parseFloat(el.value);
+        });
+
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
   persist: {
     storage: sessionStorage,

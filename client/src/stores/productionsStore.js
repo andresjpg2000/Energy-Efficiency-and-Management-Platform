@@ -53,15 +53,39 @@ export const useProductionsStore = defineStore('productions', {
         throw error;
       }
     },
-    async fetch2Year() {
-      this.data = {};
+    async fetchProductionsByDate(date) {
       const equipmentsStore = useEquipmentsStore();
 
-      const now = new Date();
-      const lastYear = now.getFullYear() - 1;
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0); // 00:00:00.000
+      const end = new Date(start);
+      end.setDate(end.getDate() + 1); // dia seguinte
 
-      const start = new Date(lastYear, 0, 1, 0, 0, 0, 0);  // 1 Jan
-      const end = new Date(lastYear, 11, 31, 23, 59, 59, 999); // 31 Dec
+      try {
+        const fetches = equipmentsStore.equipments.map((eq) =>
+          fetchWithAuth(`${URL}/energy-equipments/${eq.id_equipment}/energy-productions?start=${start.toISOString()}&end=${end.toISOString()}`)
+            .then(async (res) => {
+              if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Network response was not ok');
+              }
+              const data = await res.json();
+              return data.data.EnergyProductions || [];
+            })
+        );
+
+        // Espera todos os fetchs ao mesmo tempo
+        const results = await Promise.all(fetches);
+
+        // Junta todos os dados num único array
+        let data = results.flat();
+        data.forEach(el => {
+          el.value = parseFloat(el.value);
+        });
+        return data;
+      } catch (error) {
+        throw error;
+      }
     }
   },
   persist: {

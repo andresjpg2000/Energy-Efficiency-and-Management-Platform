@@ -15,10 +15,9 @@
         height="auto"
         persistent
     >
-      <v-date-picker class="rounded-b-0" @update:model-value="console.log(datePicker); dialog=false;" v-model="datePicker"></v-date-picker>
+      <v-date-picker class="rounded-b-0" @update:model-value="console.log(new Date(datePicker).toISOString()); dialog=false;" v-model="datePicker"></v-date-picker>
       <v-btn @click="dialog=false;select='today';datePicker=null" variant="flat" class="rounded-t-0">cancel</v-btn>
     </v-dialog>
-    
 </template>
 
 <script>
@@ -50,7 +49,7 @@ export default {
             return {
                 series: [{
                     name: 'Energy Consumption',
-                    data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+                    data: [44, 55, 57, 56, 0, 58, 63, 60, 66]
                 }, {
                     name: 'Energy Production',
                     data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
