@@ -3,11 +3,12 @@
     <v-row justify="space-between" align="center" class="mb-4">
       <h1 class="text-h5 pl-4">Notification Settings</h1>
     </v-row>
+
     <v-card class="pa-4">
       <p class="text-subtitle-1 mb-4">Choose your notification preferences</p>
-      <v-form ref="form" @submit.prevent="formSubmit">
 
-        <v-row class="mt-8">
+      <v-form ref="form" @submit.prevent="formSubmit">
+        <v-row>
           <v-col>
             <v-select
               variant="outlined"
@@ -30,25 +31,22 @@
             <v-number-input
               v-model.number="ThresholdEnergyConsumption"
               label="Alert Threshold for Energy Consumption (kWh)"
-              name="ThresholdEnergyConsumption"
               variant="outlined"
               density="default"
-              hint="You will receive an alert if your consumption exceeds this threshold."
-              :persistent-hint="true"
               :min="0"
               :max="1000"
               :step="10"
               placeholder="100"
+              hint="You will receive an alert if your consumption exceeds this threshold."
+              :persistent-hint="true"
               class="mt-4"
-              style="width: 100%"
             />
           </v-col>
           <v-col class="d-flex align-center">
             <v-switch
               v-model="ToggleThresholdEnergyConsumption"
+              color="primary"
               aria-label="Toggle Energy Consumption Alerts"
-              :inset="false"
-              :indeterminate="false"
               hint="Enable or disable this alert"
             />
           </v-col>
@@ -59,23 +57,21 @@
             <v-number-input
               v-model.number="ThresholdEnergyGeneration"
               label="Alert Threshold for Energy Generation (kWh)"
-              name="ThresholdEnergyGeneration"
               variant="outlined"
               density="default"
-              hint="You will receive an alert if your energy generation doesn't reach this threshold."
-              :persistent-hint="true"
               :min="0"
               :max="1000"
               :step="10"
-              placeholder="100"
+              placeholder="20"
+              hint="You will receive an alert if your energy generation doesn't reach this threshold."
+              :persistent-hint="true"
             />
           </v-col>
           <v-col class="d-flex align-center">
             <v-switch
               v-model="ToggleThresholdEnergyGeneration"
+              color="primary"
               aria-label="Toggle Energy Generation Alerts"
-              :inset="false"
-              :indeterminate="false"
               hint="Enable or disable this alert"
             />
           </v-col>
@@ -86,24 +82,21 @@
             <v-number-input
               v-model.number="ThresholdCosts"
               label="Alert Threshold for energy costs (€)"
-              name="ThresholdCosts"
               variant="outlined"
               density="default"
-              hint="You will receive an alert if your costs exceed this threshold."
-              :persistent-hint="true"
               :min="0"
               :max="500"
               :step="10"
               placeholder="50"
-              class="mt-4"
+              hint="You will receive an alert if your costs exceed this threshold."
+              :persistent-hint="true"
             />
           </v-col>
           <v-col class="d-flex align-center">
             <v-switch
               v-model="ToggleThresholdEnergyCosts"
+              color="primary"
               aria-label="Toggle Energy Cost Alerts"
-              :inset="false"
-              :indeterminate="false"
               hint="Enable or disable this alert"
             />
           </v-col>
@@ -130,14 +123,22 @@
 </template>
 
 <script>
+import { useMessagesStore } from "@/stores/messages.js";
 import { useAuthStore } from "@/stores/auth";
 
 export default {
   data() {
     return {
-      form: null,
+      messagesStore: null,
       isSubmitting: false,
       Alerts: true,
+      NotificationFrequency: "instant",
+      ThresholdEnergyConsumption: 100,
+      ToggleThresholdEnergyConsumption: true,
+      ThresholdCosts: 50,
+      ToggleThresholdEnergyCosts: true,
+      ThresholdEnergyGeneration: 20,
+      ToggleThresholdEnergyGeneration: true,
       NotificationFrequencyItems: [
         { title: "Every 15 minutes", value: "15_min" },
         { title: "Every 30 minutes", value: "30_min" },
@@ -147,67 +148,62 @@ export default {
         { title: "Monthly", value: "monthly" },
         { title: "Instantly", value: "instant" },
       ],
-      NotificationFrequency: "instant",
-      ThresholdEnergyConsumption: 100,
-      ToggleThresholdEnergyConsumption: true,
-      ThresholdCosts: 50,
-      ToggleThresholdEnergyCosts: true,
-      ThresholdEnergyGeneration: 20,
-      ToggleThresholdEnergyGeneration: true,
     };
   },
 
   methods: {
     async formSubmit() {
-      if (this.$refs.form.validate()) {
-        this.isSubmitting = true;
+      const authStore = useAuthStore();
+      this.isSubmitting = true;
 
-        const authStore = useAuthStore();
+      const thresholds = {};
+      if (this.ToggleThresholdEnergyConsumption)
+        thresholds.consumption = this.ThresholdEnergyConsumption;
+      if (this.ToggleThresholdEnergyGeneration)
+        thresholds.generation = this.ThresholdEnergyGeneration;
+      if (this.ToggleThresholdEnergyCosts)
+        thresholds.cost = this.ThresholdCosts;
 
-        const thresholds = {};
-        if (this.ToggleThresholdEnergyConsumption) {
-          thresholds.consumption = this.ThresholdEnergyConsumption;
-        }
-        if (this.ToggleThresholdEnergyGeneration) {
-          thresholds.generation = this.ThresholdEnergyGeneration;
-        }
-        if (this.ToggleThresholdEnergyCosts) {
-          thresholds.cost = this.ThresholdCosts;
-        }
+      const payload = {
+        notification_settings: {
+          alerts: true,
+          frequency: this.NotificationFrequency,
+          thresholds,
+        },
+      };
 
-        const payload = {
-          notification_settings: {
-            alerts: this.Alerts,
-            frequency: this.NotificationFrequency,
-            thresholds,
+      try {
+        const res = await fetch(`/users/${authStore.user.id_user}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authStore.token}`,
           },
-        };
+          body: JSON.stringify(payload),
+        });
 
-        try {
-          const response = await fetch(`/users/${authStore.user.id_user}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authStore.token}`,
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Server responded with status ${response.status}`);
-          }
-
-          this.$toast?.success("Notification preferences updated!");
-        } catch (err) {
-          console.error("Failed to update preferences:", err);
-          this.$toast?.error("Failed to update preferences.");
-        } finally {
-          this.isSubmitting = false;
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || "Failed to update preferences.");
         }
-      } else {
-        console.log("Form validation failed.");
+
+        this.messagesStore.add({
+          color: "success",
+          text: "Notification preferences updated!",
+        });
+      } catch (err) {
+        console.error("Update failed:", err);
+        this.messagesStore.add({
+          color: "error",
+          text: err.message || "Failed to update preferences.",
+        });
+      } finally {
+        this.isSubmitting = false;
       }
     },
+  },
+  created() {
+    this.messagesStore = useMessagesStore();
   },
 
   mounted() {
@@ -216,47 +212,45 @@ export default {
     fetch(`/users/${authStore.user.id_user}`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${authStore.token}`,
       },
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch user data: ${response.status}`);
-        }
-        return response.json();
+      .then((res) => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
       })
       .then((data) => {
         const prefs = data.notification_settings;
         if (!prefs) return;
 
-        this.Alerts = prefs.alerts ?? true;
-        this.NotificationFrequency = prefs.frequency ?? "instant";
+        this.NotificationFrequency = prefs.frequency || "instant";
 
         if (prefs.thresholds) {
-          this.ToggleThresholdEnergyConsumption =
-            prefs.thresholds.consumption != null;
-          this.ThresholdEnergyConsumption = prefs.thresholds.consumption ?? 100;
+          const t = prefs.thresholds;
+          this.ToggleThresholdEnergyConsumption = t.consumption != null;
+          this.ThresholdEnergyConsumption = t.consumption ?? 100;
 
-          this.ToggleThresholdEnergyGeneration =
-            prefs.thresholds.generation != null;
-          this.ThresholdEnergyGeneration = prefs.thresholds.generation ?? 20;
+          this.ToggleThresholdEnergyGeneration = t.generation != null;
+          this.ThresholdEnergyGeneration = t.generation ?? 20;
 
-          this.ToggleThresholdEnergyCosts = prefs.thresholds.cost != null;
-          this.ThresholdCosts = prefs.thresholds.cost ?? 50;
+          this.ToggleThresholdEnergyCosts = t.cost != null;
+          this.ThresholdCosts = t.cost ?? 50;
         }
       })
       .catch((err) => {
-        console.error("Error loading notification preferences:", err);
-        this.$toast?.error("Failed to load notification settings.");
+        console.error("Failed to load preferences:", err);
+        this.messagesStore?.add({
+          color: "error",
+          text: "Failed to load notification settings.",
+        });
       });
   },
 
   watch: {
-    Alerts(newValue) {
-      this.ToggleThresholdEnergyConsumption = newValue;
-      this.ToggleThresholdEnergyCosts = newValue;
-      this.ToggleThresholdEnergyGeneration = newValue;
+    Alerts(newVal) {
+      this.ToggleThresholdEnergyConsumption = newVal;
+      this.ToggleThresholdEnergyCosts = newVal;
+      this.ToggleThresholdEnergyGeneration = newVal;
     },
   },
 };
