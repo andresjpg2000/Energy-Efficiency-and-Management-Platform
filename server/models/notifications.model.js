@@ -11,8 +11,8 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       type: {
-      type: DataTypes.STRING, // e.g., 'Alert'
-      allowNull: false,
+        type: DataTypes.STRING, // e.g., 'Alert'
+        allowNull: false,
       },
       id_user: {
         type: DataTypes.INTEGER,
@@ -29,7 +29,8 @@ module.exports = (sequelize) => {
     },
     {
       tableName: "notifications",
-      timestamps: false,
+      timestamps: true,
+      updatedAt: true,
     }
   );
 

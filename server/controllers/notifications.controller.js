@@ -55,9 +55,16 @@ async function createNotification(req, res, next) {
 // Get all notifications for a specific user
 const getMyAlerts = async (req, res) => {
   try {
+
+    if (!req.user || !req.user.id_user) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: missing user info" });
+    }
+
     const id_user = req.user.id_user;
 
-    const alerts = await Notification.findAll({
+    const alerts = await Notifications.findAll({
       where: {
         id_user,
         type: "Alert",

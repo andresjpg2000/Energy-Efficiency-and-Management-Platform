@@ -10,6 +10,7 @@
           <tr>
             <th class="text-left text-subtitle-1">Notification</th>
             <th class="text-left text-subtitle-1">Action</th>
+            <th class="text-left text-subtitle-1">Date</th>
           </tr>
         </thead>
         <tbody>
@@ -26,8 +27,8 @@
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
+            <td>{{ formatDate(alert.createdAt) }}</td>
           </tr>
-
           <tr v-if="alerts.length === 0 && !isLoading">
             <td colspan="2" class="text-grey">Sem alertas no momento.</td>
           </tr>
@@ -64,11 +65,19 @@ export default {
     async deleteAlert(id) {
       try {
         await this.store.deleteAlert(id);
-        this.$toast?.success("Alerta eliminado com sucesso.");
       } catch (error) {
-        console.error("Erro ao eliminar alerta:", error);
-        this.$toast?.error("Erro ao eliminar o alerta.");
+        console.error("Error deleting alert:", error);
       }
+    },
+    formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     },
   },
 
