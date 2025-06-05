@@ -1,16 +1,15 @@
 <template>
   <v-container class="py-6 px-6">
     <v-row justify="space-between" align="center" class="mb-4">
-      <h1 class="text-h5 pl-2">Notificações de Alerta</h1>
+      <h1 class="text-h5 pl-2">Alert Notifications</h1>
     </v-row>
 
     <v-card class="pa-4">
-
       <v-table density="comfortable">
         <thead>
           <tr>
-            <th class="text-left">Notificaction</th>
-            <th class="text-left">Action</th>
+            <th class="text-left text-subtitle-1">Notification</th>
+            <th class="text-left text-subtitle-1">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -29,13 +28,13 @@
             </td>
           </tr>
 
-          <tr v-if="alerts.length === 0 && loaded">
+          <tr v-if="alerts.length === 0 && !isLoading">
             <td colspan="2" class="text-grey">Sem alertas no momento.</td>
           </tr>
         </tbody>
       </v-table>
 
-      <div v-if="!loaded" class="text-center my-4">
+      <div v-if="isLoading" class="text-center my-4">
         <v-progress-circular indeterminate color="primary" />
       </div>
     </v-card>
@@ -43,94 +42,38 @@
 </template>
 
 <script>
-import { useAuthStore } from "@/stores/auth";
+import { useNotificationsStore } from "@/stores/notifications";
 
 export default {
   data() {
     return {
-      alerts: [
-        {
-          id_notification: 1,
-          type: "Alert",
-          message: "Consumo elevado: 94.8 kWh registados em 15/05/2025.",
-        },
-        {
-          id_notification: 2,
-          type: "Alert",
-          message: "Custo energético estimado atingiu 16,32€ com este consumo.",
-        },
-        {
-          id_notification: 3,
-          type: "Alert",
-          message:
-            "Produção insuficiente: apenas 19.5 kWh gerados em 16/05/2025.",
-        },
-        {
-          id_notification: 4,
-          type: "Alert",
-          message: "Consumo elevado: 105.2 kWh registados em 14/05/2025.",
-        },
-      ],
-      loaded: false,
+      store: useNotificationsStore(),
     };
   },
 
-  methods: {
-    async fetchAlerts() {
-      const authStore = useAuthStore();
-
-      try {
-        const response = await fetch(
-          `/users/${authStore.user.id_user}/notifications`,
-          {
-            headers: {
-              Authorization: `Bearer ${authStore.token}`,
-            },
-          }
-        );
-
-        const json = await response.json();
-        this.loaded = true;
-
-        if (!response.ok) {
-          console.error("Erro ao buscar notificações:", json.message);
-          return;
-        }
-
-        const all = json.data?.notifications || [];
-        this.alerts = all.filter((n) => n.type === "Alert");
-      } catch (err) {
-        this.loaded = true;
-        console.error("Erro ao buscar notificações:", err);
-      }
+  computed: {
+    alerts() {
+      return this.store.alerts;
     },
+    isLoading() {
+      return this.store.isLoading;
+    },
+  },
 
+  methods: {
     async deleteAlert(id) {
       try {
-        const authStore = useAuthStore();
-
-        const res = await fetch(`/notifications/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${authStore.token}`,
-          },
-        });
-
-        if (res.ok) {
-          this.alerts = this.alerts.filter((a) => a.id_notification !== id);
-          this.$toast?.success("Alerta eliminado.");
-        } else {
-          this.$toast?.error("Erro ao eliminar alerta.");
-        }
-      } catch (err) {
-        console.error("Erro ao eliminar alerta:", err);
-        this.$toast?.error("Erro ao eliminar alerta.");
+        await this.store.deleteAlert(id);
+        this.$toast?.success("Alerta eliminado com sucesso.");
+      } catch (error) {
+        console.error("Erro ao eliminar alerta:", error);
+        this.$toast?.error("Erro ao eliminar o alerta.");
       }
     },
   },
 
   mounted() {
-    this.fetchAlerts();
+    this.store.fetchAlerts();
   },
 };
 </script>

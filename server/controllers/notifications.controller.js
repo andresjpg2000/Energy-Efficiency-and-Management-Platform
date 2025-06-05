@@ -7,14 +7,9 @@ const {
 // Create a new notification
 async function createNotification(req, res, next) {
   try {
-    const { type, id_user, id_consumption, message } = req.body;
+    const { id_user, id_consumption, message } = req.body;
 
     // Validate required fields
-    if (!type) {
-      return res
-        .status(400)
-        .json({ errorMessage: "NOTIFICATION TYPE field required." });
-    }
     if (!message) {
       return res.status(400).json({ errorMessage: "MESSAGE field required." });
     }
@@ -40,9 +35,9 @@ async function createNotification(req, res, next) {
       }
     }
 
-    // Create the notification
+    // Create the notification (forcing type to 'Alert')
     const notification = await Notifications.create({
-      type,
+      type: "Alert", // Forçado aqui
       id_user,
       id_consumption,
       message,
@@ -58,27 +53,24 @@ async function createNotification(req, res, next) {
 }
 
 // Get all notifications for a specific user
-// async function getNotificationsByUser(req, res, next) {
-//   try {
-//     const { id_user } = req.params.id_user;
+const getMyAlerts = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
 
-//     // Validate user exists
-//     const user = await User.findByPk(id_user);
-//     if (!user) {
-//       return res.status(404).json({
-//         message: "The user with the provided credentials was not found.",
-//       });
-//     }
+    const alerts = await Notification.findAll({
+      where: {
+        id_user,
+        type: "Alert",
+      },
+      order: [["createdAt", "DESC"]],
+    });
 
-//     const notifications = await Notifications.findAll({
-//       where: { id_user },
-//     });
-
-//     res.status(200).json(notifications);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+    return res.status(200).json({ data: alerts });
+  } catch (err) {
+    console.error("Error fetching alerts:", err);
+    return res.status(500).json({ message: "Error fetching notifications" });
+  }
+};
 
 // Delete a notification by ID
 async function deleteNotification(req, res, next) {
@@ -100,4 +92,5 @@ async function deleteNotification(req, res, next) {
 module.exports = {
   createNotification,
   deleteNotification,
+  getMyAlerts,
 };

@@ -11,14 +11,8 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       type: {
-        type: DataTypes.STRING(45),
-        allowNull: false,
-        validate: {
-          isIn: {
-            args: [["alert", "information"]],
-            msg: "Type must be either 'alert' or 'information'",
-          },
-        },
+      type: DataTypes.STRING, // e.g., 'Alert'
+      allowNull: false,
       },
       id_user: {
         type: DataTypes.INTEGER,
