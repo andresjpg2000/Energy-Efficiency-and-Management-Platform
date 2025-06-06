@@ -17,6 +17,7 @@
     >
       <template #item.actions="{ item }">
         <v-icon small class="me-2" @click="editUser(item)">mdi-pencil</v-icon>
+        <v-icon small class="me-2" @click="exportUser(item)">mdi-file</v-icon>
         <v-icon small color="red" @click="deleteUser(item)">mdi-delete</v-icon>
       </template>
     </v-data-table-server>
@@ -49,7 +50,8 @@
 
 <script>
 import { fetchWithAuth } from '@/utils/fetchWithAuth.js';
-import { URL } from '@/utils/constants.js';
+import { URL as API_URL } from '@/utils/constants.js';
+import { useMessagesStore } from '@/stores/messages';
 
 export default {
 
@@ -80,7 +82,7 @@ export default {
     async fetchUsers() {
       this.loading = true
       try {
-        const response = await fetchWithAuth(`${URL}/users?limit=${this.itemsPerPage}&page=${this.page}`, {
+        const response = await fetchWithAuth(`${API_URL}/users?limit=${this.itemsPerPage}&page=${this.page}`, {
           method: 'GET',
         });
 
@@ -110,15 +112,23 @@ export default {
       // Not working because of relation with housings. Must delete housings from the user first
       
       try {
-        const response = await fetchWithAuth(`${URL}/users/${user.id_user}`, {
+        const response = await fetchWithAuth(`${API_URL}/users/${user.id_user}`, {
           method: 'DELETE',
         });
 
         if (!response.ok) {
           const data = await response.json()
+          useMessagesStore().add({
+            color: 'error',
+            text: 'Failed to update user: ' + (data.details[0].message || 'Network response was not ok'),
+          });
           throw new Error(data.message || 'Network response was not ok')
         }
 
+        useMessagesStore().add({
+          color: 'success',
+          text: 'User deleted successfully.',
+        });
       } catch (error) {
         throw error;
       } finally {
@@ -127,7 +137,7 @@ export default {
     },
     async saveUser() {
         try {
-        const response = await fetchWithAuth(`${URL}/users/${this.editingUser.id_user}`, {
+        const response = await fetchWithAuth(`${API_URL}/users/${this.editingUser.id_user}`, {
           method: 'PATCH',
           body: JSON.stringify({
             name: this.form.name,
@@ -138,9 +148,16 @@ export default {
 
         if (!response.ok) {
           const data = await response.json()
+          useMessagesStore().add({
+            color: 'error',
+            text: 'Failed to update user: ' + (data.details[0].message || 'Network response was not ok'),
+          });
           throw new Error(data.message || 'Network response was not ok')
         }
-        
+        useMessagesStore().add({
+          color: 'success',
+          text: 'User updated successfully.',
+        });
       } catch (error) {
         throw error;
       } finally {
@@ -159,6 +176,55 @@ export default {
     onPageChange(newPage) {
       this.page = parseInt(newPage);
       this.fetchUsers();
+    },
+    convertToCSV(data) {
+      if (!data.length) return '';
+      const headers = Object.keys(data[0]).join(',');
+      const rows = data.map(obj => Object.values(obj).map(value => `"${String(value).replace(/"/g, '""')}"`).join(','));
+      return [headers, ...rows].join('\n');
+    },
+    async exportUser(user) {
+      const response = await fetchWithAuth(`${API_URL}/users/${user.id_user}/housings/info`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.details[0].message || 'Network response was not ok');
+      }
+      const responseData = await response.json();
+      if (responseData.data.houses.length === 0) {
+        useMessagesStore().add({
+          color: 'info',
+          text: 'This user has no housings to export.',
+        });
+        return;
+      }
+      // Remove links from each house object
+      const houses = responseData.data.houses.map(({ links, ...rest }) => {
+      // Format energyEquipments into a readable string
+      if (rest.energyEquipments && Array.isArray(rest.energyEquipments)) {
+        rest.energyEquipments = rest.energyEquipments
+          .map(eq => `${eq.name}`)
+          .join(', ');
+      }
+      if (rest.energyConsumptions && Array.isArray(rest.energyConsumptions)) {
+        rest.energyConsumptions = rest.energyConsumptions
+          .map(eq => `${eq.value} (${eq.date})`)
+          .join(', ');
+      }
+        return rest;
+      });
+      // Convert to CSV 
+      const csv = '\uFEFF' + this.convertToCSV(houses);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${user.name}_housings.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     },
   },
   mounted() {

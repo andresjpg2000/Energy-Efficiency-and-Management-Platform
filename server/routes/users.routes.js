@@ -48,4 +48,12 @@ router.get(
   usersController.getAllUserHouses
 );
 
+// Obter todas as housings de um utilizador com informações adicionais, só admin
+router.get(
+  "/:id_user/housings/info",
+  authenticate,
+  authorizeAdmin,
+  usersController.getAllUserHousesInfo
+);
+
 module.exports = router;

@@ -21,11 +21,6 @@ import AppShell from '@/components/AppShell.vue';
             to: '/admin/system-settings',
           },
           {
-            title: 'Energy Data Monitoring',
-            prependIcon: 'mdi-lightning-bolt-outline', // See aggregated data (global, by region, by household), detect anomalies, export data (csv, or other formats)
-            to: '/admin/energy-monitoring',
-          },
-          {
             title: 'Analytics Overview', // Visual charts, graphs, and reports, like energy consumption trends, user activity trends, etc.
             prependIcon: 'mdi-chart-line',
             to: '/admin/analytics',

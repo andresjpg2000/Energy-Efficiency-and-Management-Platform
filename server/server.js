@@ -24,8 +24,13 @@ app.use(compression()); // Compress responses with gzip
 
 // app.use(cookieParser());
 
+const allowedOrigins = [
+    'http://localhost:5173', // Vite development server
+    'http://localhost:5174'  // Interactive house
+];
+
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow all origins (for development purposes only, restrict in production)
+    origin: allowedOrigins,
     credentials: true, // Allow cookies to be sent with requests
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],

@@ -57,7 +57,6 @@ const router = createRouter({
       children: [
         { path: '', name: 'admin', redirect: 'admin/user-management'},
         { path: 'user-management', name: 'user-management', component: () => import('../views/AdminSettings/UserManagementView.vue') },
-        { path: 'energy-monitoring', name: 'energy-monitoring', component: () => import('../views/AdminSettings/EnergyMonitoringView.vue') },
         { path: 'system-settings', name: 'system-settings', component: () => import('../views/AdminSettings/SystemSettingsView.vue') },
         { path: 'analytics', name: 'analytics', component: () => import('../views/AdminSettings/AnalyticsView.vue') },
       ],

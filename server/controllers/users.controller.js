@@ -53,7 +53,6 @@ let getAllUserWidgets = async (req, res, next) => {
   }
 };
 
-// Obter todas as notificações do utilizador
 let getAllUserHouses = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id_user, {
@@ -65,7 +64,6 @@ let getAllUserHouses = async (req, res, next) => {
       });
     }
 
-    // lazy loading
     const houses = await user.getHousings({
       attributes: [
         "id_housing",
@@ -87,6 +85,65 @@ let getAllUserHouses = async (req, res, next) => {
         },
       ];
     });
+
+    user.dataValues.houses = houses;
+    res.status(200).json({
+      data: user,
+    });
+  } catch (err) {
+    console.error("Error fetching Users Houses:", err);
+
+    next(err);
+  }
+};
+
+let getAllUserHousesInfo = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.params.id_user, {
+      attributes: ["id_user"],
+    });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const houses = await user.getHousings({
+      attributes: [
+        "id_housing",
+        "address",
+        "pc",
+        "building_type",
+        "id_supplier",
+      ],
+    });
+
+    for (const h of houses) {
+      try {
+        h.dataValues.links = [
+          { rel: "delete", href: `/housing/${h.id_housing}`, method: "DELETE" },
+          { rel: "update", href: `/housing/${h.id_housing}`, method: "PUT" },
+          {
+            rel: "parcialUpdate",
+            href: `/housing/${h.id_housing}`,
+            method: "PATCH",
+          },
+        ];
+        let equipments = await h.getEnergyEquipments({
+          attributes: ["name"],
+        });
+        h.dataValues.energyEquipments = equipments;
+        let energyConsumptions = await h.getConsumptions({
+          attributes: ["value", "date"],
+        });
+        h.dataValues.energyConsumptions = energyConsumptions;
+      } catch (error) {
+        console.error(
+          `Error fetching data for housing ${h.id_housing}:`,
+          error
+        );
+      }
+    }
 
     user.dataValues.houses = houses;
     res.status(200).json({
@@ -235,4 +292,5 @@ module.exports = {
   getAllUserWidgets,
   updateUserPassword,
   getAllUserHouses,
+  getAllUserHousesInfo,
 };
