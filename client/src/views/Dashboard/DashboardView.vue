@@ -154,6 +154,7 @@ export default {
                 :key="house.id_housing"
                 rounded="lg"
                 :value="house.id_housing"
+                @click="housingsStore.selectedHousingId = house.id_housing"
                 >{{ house.building_type }}</v-chip
               >
               <v-chip
