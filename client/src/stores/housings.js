@@ -116,6 +116,28 @@ export const useHousingsStore = defineStore('housings', {
       } catch (error) {
         throw error
       }
+    },
+    async fetchLocationByHousingId(id) {
+      const messagesStore = useMessagesStore();
+      try {
+        const response = await fetchWithAuth(`${URL}/housings/${id}/location`, {
+          method: 'GET',
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          messagesStore.add({
+            color: 'error',
+            text: data.message || 'Network response was not ok',
+          })
+          throw new Error(data.message || 'Network response was not ok')
+        }
+        const data = await response.json();
+        const location = data.data.location;
+        return location;
+      } catch (error) {
+        throw error;
+      }
     }
   },
   persist: {

@@ -71,7 +71,7 @@ export default {
       this.resetForm();
       this.openDialog = true;
     },
-    editHouse() {
+    async editHouse() {
       this.isEditMode = true;
       const selected = this.housingsStore.getSelectedHousing;
       if (selected) {
@@ -79,6 +79,7 @@ export default {
           ...selected,
           selectedSupplier: selected.id_supplier,
         };
+        this.housing.location = await this.housingsStore.fetchLocationByHousingId(selected.id_housing);
         this.openDialog = true;
       } else {
         this.messagesStore.add({
@@ -151,7 +152,7 @@ export default {
     }
   },
   created() {
-    // Carrega os houses do usuário
+    
   },
 
   mounted() {

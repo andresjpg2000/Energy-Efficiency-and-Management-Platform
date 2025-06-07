@@ -30,4 +30,7 @@ router.patch('/:id_housing', auth, validateIdParam("id_housing"), housingsContro
 // Delete a housing by ID
 router.delete('/:id_housing', auth, validateIdParam("id_housing"), housingsController.deleteHousing);
 
+// Get location of a housing by ID
+router.get('/:id_housing/location', auth, validateIdParam("id_housing"), housingsController.getLocationByHousingId);
+
 module.exports = router;

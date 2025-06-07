@@ -20,23 +20,25 @@ async function checkIfUserIsTheOwner(user, id_housing) {
     return housing;
 }
 
+async function createOrUpdatePostalCode(pc, location) {
+    // Check if the postal code already exists
+    const [postalCode, created] = await PostalCode.findOrCreate({
+        where: { pc },
+        defaults: { location },
+    });
+    // If postal code already exists, update the location if provided
+    if (!created && location && postalCode.location !== location) {
+        await postalCode.update({ location });
+    }
+
+    return postalCode;
+}
+
 // Get all housings
 const getAllHousings = async (req, res, next) => {
     try {
         let housings = [];
-        // Remove comment code if you want to allow admins to fetch all housings
-        // if (req.user.admin) {
-        //    
-        //     housings = await Housing.findAll();
-        // } else {
-        //     housings = await Housing.findAll({
-        //         where: {
-        //             id_user: req.user.id_user,
-        //         },
-        //         attributes: ['id_housing', 'address', 'pc', 'building_type', 'id_user', 'id_supplier'],
-        //         order: [['id_housing', 'ASC']],
-        //     });
-        // }
+
         housings = await Housing.findAll({
             where: {
                 id_user: req.user.id_user,
@@ -238,19 +240,14 @@ const getHousingById = async (req, res, next) => {
 
 // Create a new housing
 const createHousing = async (req, res, next) => {
-    console.log("Creating housing with body:", req.body);
-
-    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type) {
-        return res.status(400).json({ message: 'Address, postal code, and building type are required!' });
+    if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type || !req.body.location) {
+        return res.status(400).json({ message: 'Address, postal code, location and building type are required!' });
     }
     
     try {
         const userID = req.user.id_user;
-
-        const [postalCode] = await PostalCode.findOrCreate({
-            where: { pc: req.body.pc },
-            defaults: { location: req.body.location },
-        });
+        // Create or update the postal code if it exists
+        await createOrUpdatePostalCode(req.body.pc, req.body.location);
       
         const newHousing = await Housing.create({
             address: req.body.address,
@@ -326,6 +323,11 @@ const updateHousing = async (req, res, next) => {
 
         const housing = await checkIfUserIsTheOwner(user, id_housing)
 
+        if (req.body.pc) {
+            // Create or update the postal code if it exists
+            await createOrUpdatePostalCode(req.body.pc, req.body.location);
+        }
+
         // Only update if the user is the owner
         await Housing.update(req.body, {
             where: {
@@ -399,6 +401,11 @@ const partialUpdateHousing = async (req, res, next) => {
     const id_housing = req.params.id_housing;
 
     const housing = await checkIfUserIsTheOwner(user, id_housing)
+
+    if (req.body.pc) {
+        // Create or update the postal code if it exists
+        await createOrUpdatePostalCode(req.body.pc, req.body.location);
+    }
 
     // Only update if the user is the owner
     await Housing.update(req.body, {
@@ -490,6 +497,53 @@ const deleteHousing = async (req, res, next) => {
     }
 }
 
+// Get location by postal code
+const getLocationByHousingId = async (req, res, next) => {
+    try {
+        const user = req.user;
+        const id_housing = req.params.id_housing;
+
+        const housing = await checkIfUserIsTheOwner(user, id_housing)
+
+        // Find the postal code associated with the housing
+        const postalCode = await PostalCode.findOne({
+            where: {
+                pc: housing.pc,
+            },
+            attributes: ['location'],
+        });
+
+        if (!postalCode) {
+            return res.status(404).json({ message: 'Postal code not found!' });
+        }
+
+        res.status(200).json({
+            data: { location: postalCode.location },
+            links: [
+                {
+                    rel: 'self',
+                    href: `/housings/${id_housing}/location`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'get-by-id',
+                    href: `/housings/${id_housing}`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'get-all',
+                    href: `/housings`,
+                    method: 'GET',
+                },
+            ],            
+        });
+    } catch (err) {
+        console.error("Error fetching location:", err);
+
+        next(err);
+    }
+}
+
 module.exports = {
     getAllHousings,
     getHousingById,
@@ -498,5 +552,6 @@ module.exports = {
     partialUpdateHousing,
     deleteHousing,
     getAllEquipsFromHouse,
-    getAllEnergyConsumptionsFromHouse
+    getAllEnergyConsumptionsFromHouse,
+    getLocationByHousingId,
 };
