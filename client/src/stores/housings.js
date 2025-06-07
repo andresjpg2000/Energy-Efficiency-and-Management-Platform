@@ -11,6 +11,14 @@ export const useHousingsStore = defineStore('housings', {
     isFirstRun: true,
     selectedSupplierId: null,
   }),
+  getters: {
+    getSelectedHousing: (state) => {
+      if (state.selectedHousingId) {
+        return state.housings.find(housing => housing.id_housing === state.selectedHousingId);
+      }
+      return null;
+    },
+  },
   actions: {
     async fetchHousings() {
       const messagesStore = useMessagesStore();
@@ -66,10 +74,9 @@ export const useHousingsStore = defineStore('housings', {
       }
     },
     async updateHousing(housing) {
-      let id_housing = this.selectedHousingId;
       const messagesStore = useMessagesStore();
       try {
-        const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
+        const response = await fetchWithAuth(`${URL}/housings/${housing.id_housing}`, {
           method: 'PATCH',
           body: JSON.stringify(housing),
         })
@@ -89,10 +96,9 @@ export const useHousingsStore = defineStore('housings', {
       }
     },
     async deleteHousing(id) {
-      // let id_housing = id || this.selectedHousingId;
       const messagesStore = useMessagesStore();
       try {
-        const response = await fetchWithAuth(`${URL}/housings/${id_housing}`, {
+        const response = await fetchWithAuth(`${URL}/housings/${id}`, {
           method: 'DELETE',
         })
 

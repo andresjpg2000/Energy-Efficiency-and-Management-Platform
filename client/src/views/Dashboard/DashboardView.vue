@@ -4,12 +4,12 @@ import graphicWiget from "@/components/graphic.widget.vue";
 import SparkChart from "@/components/SparkChart.vue";
 import ColumnWiget from "@/components/Column.widget.vue";
 import VerticalColumnWidget from "@/components/VerticalColumn.widget.vue";
-import HousingDialog from "@/components/housingDialog.vue";
 
 import { useWidgetsStore } from "@/stores/widgetsStore";
 import { useHousingsStore } from "@/stores/housings";
 import { useSuppliersStore } from "@/stores/suppliers.js";
 import { useAuthStore } from "@/stores/auth.js";
+import { useMessagesStore } from "@/stores/messages.js";
 
 export default {
   name: "DashboardView",
@@ -18,7 +18,6 @@ export default {
     SparkChart,
     ColumnWiget,
     VerticalColumnWidget,
-    HousingDialog,
   },
   data() {
     return {
@@ -26,13 +25,16 @@ export default {
       suppliersStore: useSuppliersStore(),
       widgetsStore: useWidgetsStore(),
       authStore: useAuthStore(),
+      messagesStore: useMessagesStore(),
       saveTimeout: null,
       changedWidgets: new Set(), // para armazenar widgets alterados, set so permite valores únicos
-      selectHouse: null, // para armazenar a casa selecionada
+      selectedHouse: null, // para armazenar a casa selecionada
       grid: null, // para armazenar a instância do GridStack
       doEnable: true,
       float: false, // para controlar o modo de flutuação
+      isEditMode: false,
       openDialog: false, // para controlar o estado do diálogo
+      openDeleteDialog: false, // para controlar o estado do diálogo de apagar moradia
       housing: {
         address: "",
         pc: "",
@@ -65,13 +67,68 @@ export default {
       console.log("Float mode:", this.float);
     },
     addHousing() {
-      housing.id_user = this.authStore.getUserId;
-      try {
-        this.housingsStore.addHousing(housing);
-      } catch (error) {
-        console.error("Error adding housing:", error);
+      this.isEditMode = false;
+      this.resetForm();
+      this.openDialog = true;
+    },
+    editHouse() {
+      this.isEditMode = true;
+      const selected = this.housingsStore.getSelectedHousing;
+      if (selected) {
+        this.housing = {
+          ...selected,
+          selectedSupplier: selected.id_supplier,
+        };
+        this.openDialog = true;
+      } else {
+        this.messagesStore.add({
+          color: "error",
+          text: "You need to select a housing to edit.",
+        });
       }
     },
+    saveHousing() {
+      if (!this.housing.id_user) {
+        this.housing.id_user = this.authStore.getUserId;
+      }
+      if (this.isEditMode) {
+        this.housingsStore.updateHousing(this.housing);
+      } else {
+        this.housingsStore.addHousing(this.housing);
+      }
+      this.closeDialog();
+    },
+    closeDialog() {
+      this.openDialog = false;
+      this.resetForm();
+      this.isEditMode = false;
+    },
+    resetForm() {
+      this.housing = {
+        address: "",
+        pc: "",
+        location: "",
+        selectedSupplier: null,
+        building_type: "",
+        id_user: null,
+      };
+    },
+    deleteHousing() {
+      this.housingsStore.deleteHousing(this.housing.id_housing);
+      this.closeDeleteHousingDialog();
+      this.closeDialog();
+      this.messagesStore.add({
+        color: "success",
+        text: "Housing deleted successfully.",
+      });
+    },
+    openDeleteHousingDialog() {
+      this.openDeleteDialog = true;
+    },
+    closeDeleteHousingDialog() {
+      this.openDeleteDialog = false;
+    },
+
   },
   beforeRouteLeave(to, from, next) {
     if (this.saveTimeout && window.innerWidth > 950) {
@@ -142,30 +199,40 @@ export default {
       <v-expansion-panel-text>
         <v-row>
           <v-col cols="12" md="6">
-            <v-chip-group
-              mandatory
-              selected-class="text-success"
-              v-model="housingsStore.selectedHousingId"
-            >
-              <v-chip
-                filter
-                selected
-                v-for="house in housingsStore.housings"
-                :key="house.id_housing"
+            <v-row class="d-flex align-center ga-0">
+                <v-chip-group
+                  mandatory
+                  selected-class="text-success"
+                  v-model="housingsStore.selectedHousingId"
+                >
+                  <v-chip
+                    filter
+                    selected
+                    v-for="house in housingsStore.housings"
+                    :key="house.id_housing"
+                    rounded="lg"
+                    :value="house.id_housing"
+                    @click="housingsStore.selectedHousingId = house.id_housing"
+                    >{{ house.building_type }}</v-chip
+                  >
+              </v-chip-group>
+              <v-btn
+                density="comfortable"
+                class="mx-2"
+                color="success"
                 rounded="lg"
-                :value="house.id_housing"
-                @click="housingsStore.selectedHousingId = house.id_housing"
-                >{{ house.building_type }}</v-chip
-              >
-              <v-chip
-                :value="null"
-                :ripple="false"
+                variant="outlined"
+                @click="addHousing"
+              ><v-icon>mdi-plus add</v-icon> add housing</v-btn>
+              <v-btn
+                density="comfortable"
+                class="mx-2"
+                color="success"
                 rounded="lg"
-                @click="openDialog = true"
-                color="primary"
-                ><v-icon>mdi-plus</v-icon></v-chip
-              >
-            </v-chip-group>
+                variant="outlined"
+                @click="editHouse"
+              ><v-icon>mdi-pencil</v-icon> edit housing</v-btn>
+            </v-row>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-end">
             <v-btn
@@ -173,7 +240,7 @@ export default {
               class="mx-4"
               color="success"
               rounded="lg"
-              variant="tonal"
+              variant="outlined"
               @click="alterFloat"
               :text="float ? 'Disable Float' : 'Enable Float'"
             ></v-btn>
@@ -219,11 +286,68 @@ export default {
     </div>
   </v-sheet>
   <!-- Dialog for Adding/Editing House -->
-  <HousingDialog
-    v-model="openDialog"
-    :suppliers="suppliers"
-    @save="addHousing"
-  />
+  <v-dialog v-model="openDialog" max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h6">{{ isEditMode ? 'Edit Housing' : 'Add Housing' }}</span>
+      </v-card-title>
+
+      <v-card-text>
+        <v-text-field
+          v-model="housing.address"
+          variant="outlined"
+          label="Address"
+          required
+        />
+        <v-text-field
+          v-model="housing.pc"
+          variant="outlined"
+          label="Postal Code"
+          required
+        />
+        <v-text-field
+          v-model="housing.location"
+          variant="outlined"
+          label="Location"
+          required
+        />
+        <v-select
+          v-model="housing.selectedSupplier"
+          :items="formattedSuppliers"
+          item-title="title"
+          item-value="value"
+          variant="outlined"
+          label="Energy Suppliers"
+          placeholder="Choose your current energy supplier"
+        />
+        <v-select
+          v-model="housing.building_type"
+          :items="['flat', 'house', 'studio']"
+          variant="outlined"
+          label="Building Type"
+          placeholder="Choose the type of building"
+        />
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
+        <v-btn text @click="closeDialog">Cancel</v-btn>
+        <v-btn color="primary" @click="saveHousing">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- Dialog for confirm deletion of House -->
+  <v-dialog v-model="openDeleteDialog" max-width="500px">
+    <v-card>
+      <v-card-title>Are you sure you want to delete this housing?</v-card-title>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="closeDeleteHousingDialog">Cancel</v-btn>
+        <v-btn color="error" @click="deleteHousing">Delete</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style>
