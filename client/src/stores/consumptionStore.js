@@ -63,7 +63,6 @@ export const useConsumptionStore = defineStore('consumption', {
       }
     },
     async fetch2Year() {
-      this.data = [];
       const housingsStore = useHousingsStore();
 
       const now = new Date();
