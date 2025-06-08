@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6 px-6">
+  <v-container fluid class="py-6 px-6">
     <v-row justify="space-between" align="center" class="mb-4">
       <h1 class="text-h5 pl-2">Alert Notifications</h1>
     </v-row>
@@ -9,13 +9,14 @@
         <thead>
           <tr>
             <th class="text-left text-subtitle-1">Notification</th>
-            <th class="text-left text-subtitle-1">Action</th>
             <th class="text-left text-subtitle-1">Date</th>
+            <th class="text-left text-subtitle-1">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="alert in alerts" :key="alert.id_notification">
             <td>{{ alert.message }}</td>
+            <td>{{ formatDate(alert.createdAt) }}</td>
             <td>
               <v-btn
                 icon
@@ -27,7 +28,6 @@
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
-            <td>{{ formatDate(alert.createdAt) }}</td>
           </tr>
           <tr v-if="alerts.length === 0 && !isLoading">
             <td colspan="2" class="text-grey">Sem alertas no momento.</td>
