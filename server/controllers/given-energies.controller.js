@@ -6,128 +6,102 @@ const { Op } = require('sequelize');
 // get all energy returns
 let getgivenEnergies = async (req, res) => {
   if (!req.query.userId) {
-    return res.status(400).json({
-      message: "user ID is required",
-    });
+    return res.status(400).json({ message: "user ID is required" });
   }
 
-  // vars
-  let filterEnergy;
-  let limit;
   let equipments = [];
 
   try {
-    if (!req.query.equipmentId && !req.query.houseId) {  
-      /// all user equipments
+    if (!req.query.equipmentId && !req.query.houseId) {
       equipments = await allUserEquipments(parseInt(req.query.userId));
-    }else if (!req.query.equipmentId && req.query.houseId) {
-      // equipments of a house
-      equipments = await allequipmentsHouse(parseInt(req.query.houseId), parseInt(req.query.userId));
+    } else if (!req.query.equipmentId && req.query.houseId) {
+      equipments = await allequipmentsHouse(
+        parseInt(req.query.houseId),
+        parseInt(req.query.userId)
+      );
     } else if (req.query.equipmentId && !req.query.houseId) {
-      // one equipment
       const eq = await EnergyEquipment.findOne({
-        where: {
-          id_equipment: parseInt(req.query.equipmentId),
-        }
+        where: { id_equipment: parseInt(req.query.equipmentId) },
       });
-      if (!eq) {
-        return res.status(404).json({   
-          message: "Equipment not found",
-        });
-      }
+      if (!eq) return res.status(404).json({ message: "Equipment not found" });
+
       const hs = await Housing.findOne({
         where: {
           id_housing: eq.housing,
-          id_user: parseInt(req.query.userId)
-        }
+          id_user: parseInt(req.query.userId),
+        },
       });
-      
-      if (!hs) {
-        return res.status(403).json({
-          message: "House does not belong to the user",
-        });
-      }
+      if (!hs) return res.status(403).json({ message: "House does not belong to the user" });
 
-      equipments.push(parseInt(req.query.equipmentId),);
-    }else{
+      equipments.push(parseInt(req.query.equipmentId));
+    } else {
       return res.status(400).json({
-        message: "cant use user ID and house ID at the same time",
+        message: "Can't use user ID and house ID at the same time",
       });
     }
-    
   } catch (error) {
     return res.status(500).json({
-      message: "Error retrieving energy returns",
+      message: "Error retrieving equipment or housing",
       error: error.message,
     });
-    
   }
 
-  // check if start and end dates are provided in the query parameters
-  // if they are, check if they are valid dates
-  let start = req.query.start ? new Date(req.query.start) : new Date(0);
-  let end = req.query.end ? new Date(req.query.end) : new Date();
+  const start = req.query.start ? new Date(req.query.start) : new Date(0);
+  const end = req.query.end ? new Date(req.query.end) : new Date();
 
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    return res.status(400).json({
-      message: "Invalid date format",
-    });
+    return res.status(400).json({ message: "Invalid date format" });
   }
+
   if (start > end) {
     return res.status(400).json({
-      message: "The param end must be after than the param start!",
+      message: "The param end must be after the param start!",
     });
   }
 
-  // check if limit is provided in the query parameters
-  if (req.query.limit) {
-    limit = parseInt(req.query.limit);
-    if (isNaN(limit)) {
-      return res.status(400).json({
-        message: "Limit must be a number",
-      });
-    }
-    if (limit < 0) {
-      return res.status(400).json({
-        message: "Limit must be a more than 0 items",
-      });
-    }
+  // Paginação
+  const size = parseInt(req.query.size) || 10;
+  const page = parseInt(req.query.page) || 1;
+
+  if (size <= 0 || page <= 0) {
+    return res.status(400).json({ message: "Page and size must be greater than 0" });
   }
+
+  const offset = (page - 1) * size;
+
   try {
-    //query the database for the energy returns
-    filterEnergy = await GivenEnergies.findAll({
+    const { count, rows } = await GivenEnergies.findAndCountAll({
       where: {
-        id_equipment: {
-          [Op.in]: equipments
-        },
-        date: {
-          [Op.and]: [
-            { [Op.gte]: start },
-            { [Op.lte]: end }
-          ]
-        }
+        id_equipment: { [Op.in]: equipments },
+        date: { [Op.between]: [start, end] },
       },
-      limit: limit || null,
-      order: [['date', 'ASC']]
+      limit: size,
+      offset,
+      order: [['date', 'ASC']],
     });
-  }catch(err){
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No energy returns found" });
+    }
+
+    return res.status(200).json({
+      message: "Energy returns found",
+      data: rows,
+      pagination: {
+        total: count,
+        page,
+        size,
+        totalPages: Math.ceil(count / size),
+      },
+    });
+  } catch (err) {
     return res.status(500).json({
       message: "Error retrieving energy returns",
       error: err.message,
     });
   }
+};
 
-  if (filterEnergy.length == 0) {
-    return res.status(404).json({
-      message: "No energy returns found",
-    });
-  } else {
-    return res.status(200).json({
-      message: "Energy returns found",
-      data: filterEnergy,
-    });
-  }
-}
 
 let addgivenEnergies = async (req, res) => {
   const { id_equipment, date, value } = req.body;
@@ -144,7 +118,7 @@ let addgivenEnergies = async (req, res) => {
     });
   }
 
-  if ( id_equipment < 0 || value < 0) {
+  if (id_equipment < 0 || value < 0) {
     return res.status(400).json({
       message: "Equipament ID and Value must be positive numbers",
     });
@@ -163,14 +137,14 @@ let addgivenEnergies = async (req, res) => {
     id_equipment,
     date: finalDate,
   };
-  try{
+  try {
     const createdEnergyReturn = await GivenEnergies.create(newEnergyReturn);
 
     res.status(201).json({
       message: "Energy return created",
       data: createdEnergyReturn,
     });
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
       message: "Error creating energy return",
       error: err.message,
@@ -179,7 +153,7 @@ let addgivenEnergies = async (req, res) => {
 
 }
 
-async function allUserEquipments(user)  {
+async function allUserEquipments(user) {
   const houses = await Housing.findAll({
     where: {
       id_user: user
@@ -202,13 +176,13 @@ async function allUserEquipments(user)  {
   return equipments;
 }
 
-async function allequipmentsHouse(house,user)  {
+async function allequipmentsHouse(house, user) {
   const hs = await Housing.findOne({
     where: {
       id_housing: house,
       id_user: user
     }
-  }); 
+  });
   if (!hs) {
     const error = new Error("House does not belong to the user");
     error.statusCode = 403;
@@ -220,14 +194,14 @@ async function allequipmentsHouse(house,user)  {
     }
   });
   const equipmentIds = equipments.map(e => e.id_equipment);
-  
+
   return equipmentIds;
 }
 
 let deleteGivenEnergy = async (req, res, next) => {
   try {
     // energy id
-    const id  = parseInt(req.params.id);
+    const id = parseInt(req.params.id);
 
     // check if the id is a number
     const energy = await GivenEnergies.findByPk(id);
