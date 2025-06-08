@@ -12,6 +12,8 @@ export const useConsumptionStore = defineStore('consumption', {
   getters: {
     getConsumptionToday: (state) => {
       const today = new Date().toISOString().split("T")[0];
+      console.log('today', today);
+
       return state.data.filter((c) => c.date.startsWith(today)).map((c) => { c.value });
     },
     getConsumptionThisYear: (state) => {
@@ -85,7 +87,10 @@ export const useConsumptionStore = defineStore('consumption', {
 
         const newConsumptions = result.data?.consumptions || [];
 
-        this.data.push(...newConsumptions);
+        newConsumptions.forEach(el => {
+          el.value = parseFloat(el.value);
+          this.data.push(el);
+        });
 
       } catch (error) {
         throw error;
@@ -95,11 +100,12 @@ export const useConsumptionStore = defineStore('consumption', {
       const housingsStore = useHousingsStore();
 
       const start = new Date(date);
-      start.setHours(0, 0, 0, 0); // Início do dia
+      console.log('start', start);
+
+      start.setHours(1, 0, 0, 0); // Início do dia
 
       const end = new Date(date);
-      end.setHours(23, 59, 59, 999); // Fim do dia
-
+      end.setHours(24, 59, 59, 999); // Fim do dia
       try {
         const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
           method: 'GET',
@@ -112,6 +118,7 @@ export const useConsumptionStore = defineStore('consumption', {
 
         const result = await response.json();
         let data = result.data.consumptions || [];
+
         data.forEach(el => {
           el.value = parseFloat(el.value);
         });

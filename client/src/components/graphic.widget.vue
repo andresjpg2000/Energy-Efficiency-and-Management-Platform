@@ -106,9 +106,33 @@ export default {
     },
     methods: {
         
-        selectDate(time) {
+        async selectDate(time) {
             if (time == "year") {
-                return this.rawData.year;
+                await this.consumptionStore.fetch2Year();
+
+                const today = new Date();
+                const startThisYear = new Date(today.getFullYear(), 0, 1);
+                const endThisYear = new Date(today.getFullYear(), 11, 31); // último dia do ano
+                const startLastYear = new Date(today.getFullYear() - 1, 0, 1);
+                const endLastYear = new Date(today.getFullYear() - 1, 11, 31); // último dia do ano anterior
+                const actual = Array(12).fill(0);
+                const last = Array(12).fill(0);
+                
+                const data = this.consumptionStore.data || [];
+
+                data.forEach((c) => {
+                    const date = new Date(c.date);
+                    const month = date.getMonth(); // 0 (Janeiro) a 11 (Dezembro)
+                    const value = c.value || 0;
+
+                    if (date >= startThisYear && date <= endThisYear) {
+                        actual[month] += value;
+                        actual[month] = Math.round(actual[month] * 100) / 100;
+                    } else if (date >= startLastYear && date <= endLastYear) {
+                        last[month] += value;
+                        last[month] = Math.round(last[month] * 100) / 100;
+                    }
+                });
             } else if (time == "month") {
                 const today = new Date();
 

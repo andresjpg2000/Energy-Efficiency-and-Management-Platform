@@ -7,6 +7,18 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
   state: () => ({
     data: [],
   }),
+  getters: {
+    getGivenEnergiesByEquipment: (state) => (equipmentId) => state.data.filter((p) => p.id_equipment === equipmentId),
+
+    getGivenEnergyToday: (state) => (id) => {
+      const today = new Date().toISOString().split("T")[0];
+      return state.data.filter((p) => p.date.startsWith(today) && p.id_equipment == id).map((p) => p.value);
+    },
+    getAllGivenEnergyToday: (state) => {
+      const today = new Date().toISOString().split("T")[0];
+      return state.data.filter((p) => p.date.startsWith(today));
+    }
+  },
   actions: {
     async fetchGivenEnergies() {
       this.data = [];
@@ -47,7 +59,9 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
       const equipmentsStore = useEquipmentsStore();
 
       const start = new Date(date);
-      start.setHours(0, 0, 0, 0); // 00:00:00.000
+      console.log('start', start);
+
+      start.setHours(1, 0, 0, 0); // 00:00:00.000
       const end = new Date(start);
       end.setDate(end.getDate() + 1); // dia seguinte
 
@@ -76,7 +90,7 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
       } catch (error) {
         throw error;
       }
-    }
+    },
   },
   persist: {
     storage: sessionStorage,

@@ -13,7 +13,12 @@ export const useProductionsStore = defineStore('productions', {
     getProductionToday: (state) => (id) => {
       const today = new Date().toISOString().split("T")[0];
       return state.data.filter((p) => p.date.startsWith(today) && p.id_equipment == id).map((p) => p.value);
+    },
+    getAllProductionToday: (state) => {
+      const today = new Date().toISOString().split("T")[0];
+      return state.data.filter((p) => p.date.startsWith(today));
     }
+
   },
   actions: {
     async fetchProductions() {
@@ -26,7 +31,7 @@ export const useProductionsStore = defineStore('productions', {
       start.setFullYear(end.getFullYear());
       start.setMonth(0); // janeiro
       start.setDate(1);  // dia 1
-      start.setHours(0, 0, 0, 0); // 00:00:00.000
+      start.setHours(1, 0, 0, 0); // 00:00:00.000
 
       try {
         const fetches = equipmentsStore.equipments.map((eq) =>
@@ -57,7 +62,9 @@ export const useProductionsStore = defineStore('productions', {
       const equipmentsStore = useEquipmentsStore();
 
       const start = new Date(date);
-      start.setHours(0, 0, 0, 0); // 00:00:00.000
+      console.log('start', start);
+
+      start.setHours(1, 0, 0, 0); // 00:00:00.000
       const end = new Date(start);
       end.setDate(end.getDate() + 1); // dia seguinte
 
