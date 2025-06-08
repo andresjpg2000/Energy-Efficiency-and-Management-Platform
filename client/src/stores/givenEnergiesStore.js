@@ -91,6 +91,9 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
         throw error;
       }
     },
+    resetData() {
+      this.data = [];
+    }
   },
   persist: {
     storage: sessionStorage,

@@ -29,6 +29,8 @@ export const useEquipmentsStore = defineStore('equipments', {
         throw error;
       }
     },
-
+    resetData() {
+      this.equipments = [];
+    }
   },
 });

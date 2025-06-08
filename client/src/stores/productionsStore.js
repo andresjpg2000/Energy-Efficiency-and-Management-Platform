@@ -93,6 +93,9 @@ export const useProductionsStore = defineStore('productions', {
       } catch (error) {
         throw error;
       }
+    },
+    resetData() {
+      this.data = [];
     }
   },
   persist: {

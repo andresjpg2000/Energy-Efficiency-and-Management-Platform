@@ -102,6 +102,20 @@ export default {
       ],
     };
   },
+  watch: {
+    'housingsStore.selectedHousingId': {
+      immediate: true,
+      handler() {
+        this.isReady = false;
+        this.consumptionStore.resetData();
+        this.equipmentsStore.resetData(); 
+        this.productionsStore.resetData();
+        this.givenEnergiesStore.resetData();
+
+        this.reload(); // sempre que mudar a casa, recarrega dados
+      },
+    },
+  },
   methods: {
     async load() {
 
@@ -113,6 +127,20 @@ export default {
           return
         }
 
+        await this.equipmentsStore.fetchEquipments(); 
+        await this.productionsStore.fetchProductions();
+        await this.consumptionStore.fetchConsumption(); 
+        await this.givenEnergiesStore.fetchGivenEnergies();
+
+        this.isReady = true;
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    },
+    async reload() {
+      try {
+        console.log("Recarregando dados...", this.housingsStore.selectedHousingId);
+        
         await this.equipmentsStore.fetchEquipments(); 
         await this.productionsStore.fetchProductions();
         await this.consumptionStore.fetchConsumption(); 

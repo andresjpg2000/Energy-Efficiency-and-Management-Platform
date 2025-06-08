@@ -95,6 +95,10 @@ export const useConsumptionStore = defineStore('consumption', {
         throw error;
       }
     },
+    resetData() {
+      this.data = [];
+      this.lastUpdateDate = null;
+    },
     async fetchConsumptionByDate(date) {
       const housingsStore = useHousingsStore();
 
