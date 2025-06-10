@@ -71,33 +71,55 @@ export default {
         {
           title: "My Dashboard",
           prependIcon: "mdi-view-dashboard-outline",
-          to: { name: "Dashboard" }, // Corrigido para objeto de rota
+          to: { name: "Dashboard" },
           exact: true,
         },
         {
           title: "Monitoring",
           prependIcon: "mdi-monitor-dashboard",
-          to: { name: "Monitoring" }, // Corrigido para objeto de rota
+          to: { name: "Monitoring" },
         },
         {
           title: "Forecasts",
           prependIcon: "mdi-chart-line",
-          to: { name: "Forecasts" }, // Corrigido para objeto de rota
+          to: { name: "Forecasts" },
         },
         {
           title: "Reports",
           prependIcon: "mdi-file-document-outline",
-          to: { name: "Reports" }, // Corrigido para objeto de rota
+          to: { name: "Reports" },
+          children: [
+            {
+              title: "Consumption",
+              prependIcon: "mdi-chart-bar",
+              to: { name: "Reports" },
+            },
+            {
+              title: "Production",
+              prependIcon: "mdi-chart-timeline",
+              to: { name: "Reports" },
+            },
+            {
+              title: "Given Energies",
+              prependIcon: "mdi-chart-pie",
+              to: { name: "Reports" },
+            },
+            {
+              title: "Calendar",
+              prependIcon: "mdi-calendar",
+              to: { name: "Reports" },
+            },
+          ],
         },
         {
           title: "Resource Allocation",
           prependIcon: "mdi-account-cog-outline",
-          to: { name: "Resource Allocation" }, // Corrigido para objeto de rota
+          to: { name: "Resource Allocation" }, 
         },
         {
           title: "Alerts & Notifications",
           prependIcon: "mdi-bell-outline",
-          to: { name: "Alerts & Notifications" }, // Corrigido para objeto de rota
+          to: { name: "Alerts & Notifications" }, 
         },
       ],
     };

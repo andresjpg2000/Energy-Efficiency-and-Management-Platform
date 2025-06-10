@@ -5,14 +5,13 @@
       <v-navigation-drawer
         v-if="showDrawer"
         v-model="drawer"
+        expand-on-hover
         :permanent="!isMobile"
         :temporary="isMobile"
         :floating="!isMobile"
         :rail="!isMobile && rail"
-        @click="rail = true"
       >
         <!-- <div class="px-4 py-8">
-        tirar comentario se for para adicionar o logo
         <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
           <h5>AMA</h5>
         </router-link>
@@ -21,14 +20,19 @@
 
         <v-list density="compact" mandatory item-props :items="items" nav />
 
-        <template v-if="showDrawer" v-slot:prepend>
-          <v-list-item
-            v-if="!isMobile"
-            @click.stop="rail = !rail"
-            class="ma-2"
-            nav
-            prepend-icon="mdi-menu"
-          />
+        <template v-if="showDrawer" v-slot:prepend >
+          <router-link
+          to="/"
+          :style="{
+            textDecoration: 'none',
+            color: 'inherit',
+          }"
+          >
+            <div class="d-flex flex-row align-center mx-3">
+              <img :src="logo" alt="logo" width="32" height="32" class="mr-4 "/>
+              <h1 class="text-h5">GreenGrid</h1>
+            </div>
+          </router-link>  
         </template>
 
         <template #append>
@@ -47,12 +51,11 @@
 
       <v-app-bar flat>
         <v-app-bar-nav-icon
-          v-if="isMobile"
           variant="text"
-          @click.stop="drawer = !drawer"
+          @click.stop="clickApp()"
         ></v-app-bar-nav-icon>
 
-        <router-link
+        <!-- <router-link
           to="/"
           :style="{
             textDecoration: 'none',
@@ -64,7 +67,7 @@
             <img :src="logo" alt="logo" width="32" height="32" />
             <v-app-bar-title>GreenGrid</v-app-bar-title>
           </div>
-        </router-link>
+        </router-link> -->
 
         <template #append>
           <router-link
@@ -171,6 +174,13 @@ export default {
         .map((word) => word[0])
         .join("")
         .toUpperCase();
+    },
+     clickApp() {
+      if (this.isMobile) {
+        this.drawer = !this.drawer;
+      } else {
+        this.rail = !this.rail;
+      }
     },
   },
   methods: {
