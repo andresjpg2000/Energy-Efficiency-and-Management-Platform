@@ -39,7 +39,7 @@ export default {
         address: "",
         pc: "",
         location: "",
-        selectedSupplier: null,
+        id_supplier: null,
         building_type: "",
         id_user: null,
       },
@@ -77,7 +77,7 @@ export default {
       if (selected) {
         this.housing = {
           ...selected,
-          selectedSupplier: selected.id_supplier,
+          id_supplier: selected.id_supplier,
         };
         this.housing.location = await this.housingsStore.fetchLocationByHousingId(selected.id_housing);
         this.openDialog = true;
@@ -109,7 +109,7 @@ export default {
         address: "",
         pc: "",
         location: "",
-        selectedSupplier: null,
+        id_supplier: null,
         building_type: "",
         id_user: null,
       };
@@ -152,7 +152,7 @@ export default {
     }
   },
   created() {
-    
+
   },
 
   mounted() {
@@ -201,58 +201,21 @@ export default {
         <v-row>
           <v-col cols="12" md="6">
             <v-row class="d-flex align-center ga-0">
-                <v-chip-group
-                  mandatory
-                  selected-class="text-success"
-                  v-model="housingsStore.selectedHousingId"
-                >
-                  <v-chip
-                    filter
-                    selected
-                    v-for="house in housingsStore.housings"
-                    :key="house.id_housing"
-                    rounded="lg"
-                    :value="house.id_housing"
-                    @click="housingsStore.selectedHousingId = house.id_housing"
-                    >{{ house.building_type }}</v-chip
-                  >
+              <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
+                <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg"
+                  :value="house.id_housing" @click="housingsStore.selectedHousingId = house.id_housing">{{
+                    house.building_type }}</v-chip>
               </v-chip-group>
-              <v-btn
-                density="comfortable"
-                class="mx-2"
-                color="success"
-                rounded="lg"
-                variant="outlined"
-                @click="addHousing"
-              ><v-icon>mdi-plus add</v-icon> add housing</v-btn>
-              <v-btn
-                density="comfortable"
-                class="mx-2"
-                color="success"
-                rounded="lg"
-                variant="outlined"
-                @click="editHouse"
-              ><v-icon>mdi-pencil</v-icon> edit housing</v-btn>
+              <v-btn density="comfortable" class="mx-2" color="success" rounded="lg" variant="outlined"
+                @click="addHousing"><v-icon>mdi-plus add</v-icon> add housing</v-btn>
+              <v-btn density="comfortable" class="mx-2" color="success" rounded="lg" variant="outlined"
+                @click="editHouse"><v-icon>mdi-pencil</v-icon> edit housing</v-btn>
             </v-row>
           </v-col>
           <v-col cols="12" md="6" class="d-flex justify-end">
-            <v-btn
-              density="comfortable"
-              class="mx-4"
-              color="success"
-              rounded="lg"
-              variant="outlined"
-              @click="alterFloat"
-              :text="float ? 'Disable Float' : 'Enable Float'"
-            ></v-btn>
-            <v-btn
-              density="comfortable"
-              class="mx-4"
-              color="success"
-              rounded="lg"
-              variant="outlined"
-              @click="remove"
-            >
+            <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" variant="outlined"
+              @click="alterFloat" :text="float ? 'Disable Float' : 'Enable Float'"></v-btn>
+            <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" variant="outlined" @click="remove">
               <v-icon class="pr-3" left>mdi-pencil</v-icon>
               {{ doEnable ? "Disable Edit mode" : "Enable Edit mode" }}
             </v-btn>
@@ -262,25 +225,12 @@ export default {
     </v-expansion-panel>
   </v-expansion-panels>
   <v-sheet color="#E0E0E0" rounded="lg" width="100%" class="grid-stack">
-    <div
-      class="grid-stack-item widgets"
-      v-for="(item, i) in widgetsStore.userWidgets"
-      :key="i"
-      :gs-x="item.body.x"
-      :gs-y="item.body.y"
-      :gs-w="item.body.w"
-      :gs-h="item.body.h"
-      :id="item.title"
-    >
+    <div class="grid-stack-item widgets" v-for="(item, i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x"
+      :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">
       <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
         <!-- <MinisWiget v-if="item.type == 1" :body="item.body"/> -->
-        <graphic-wiget  v-if="item.type == 5" />
-        <SparkChart
-          v-if="item.type == 1"
-          :title="item.title"
-          :earn="item.body.earn"
-          :name="item.body.name"
-        />
+        <graphic-wiget v-if="item.type == 5" />
+        <SparkChart v-if="item.type == 1" :title="item.title" :earn="item.body.earn" :name="item.body.name" />
         <ColumnWiget v-if="item.type == 2" />
         <VerticalColumnWidget v-if="item.type == 3" />
       </div>
@@ -294,40 +244,13 @@ export default {
       </v-card-title>
 
       <v-card-text>
-        <v-text-field
-          v-model="housing.address"
-          variant="outlined"
-          label="Address"
-          required
-        />
-        <v-text-field
-          v-model="housing.pc"
-          variant="outlined"
-          label="Postal Code"
-          required
-        />
-        <v-text-field
-          v-model="housing.location"
-          variant="outlined"
-          label="Location"
-          required
-        />
-        <v-select
-          v-model="housing.selectedSupplier"
-          :items="formattedSuppliers"
-          item-title="title"
-          item-value="value"
-          variant="outlined"
-          label="Energy Suppliers"
-          placeholder="Choose your current energy supplier"
-        />
-        <v-select
-          v-model="housing.building_type"
-          :items="['flat', 'house', 'studio']"
-          variant="outlined"
-          label="Building Type"
-          placeholder="Choose the type of building"
-        />
+        <v-text-field v-model="housing.address" variant="outlined" label="Address" required />
+        <v-text-field v-model="housing.pc" variant="outlined" label="Postal Code" required />
+        <v-text-field v-model="housing.location" variant="outlined" label="Location" required />
+        <v-select v-model="housing.id_supplier" :items="formattedSuppliers" item-title="title" item-value="value"
+          variant="outlined" label="Energy Suppliers" placeholder="Choose your current energy supplier" />
+        <v-select v-model="housing.building_type" :items="['flat', 'house', 'studio']" variant="outlined"
+          label="Building Type" placeholder="Choose the type of building" />
       </v-card-text>
 
       <v-card-actions>
@@ -354,12 +277,14 @@ export default {
 <style>
 .grid-stack-item-content {
   position: relative;
-  z-index: 1; /* abaixo do overlay */
+  z-index: 1;
+  /* abaixo do overlay */
 }
 
 .v-overlay-container {
   z-index: 9999 !important;
 }
+
 .selected {
   background-color: #00863a !important;
 }

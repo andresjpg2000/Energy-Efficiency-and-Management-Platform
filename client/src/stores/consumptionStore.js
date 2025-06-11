@@ -1,139 +1,158 @@
-import { defineStore } from 'pinia'
-import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { useHousingsStore } from './housings.js'
-import { URL } from '../utils/constants.js';
+import { defineStore } from "pinia"
+import { fetchWithAuth } from "@/utils/fetchWithAuth"
+import { useHousingsStore } from "./housings.js"
+import { URL } from "../utils/constants.js"
 
-export const useConsumptionStore = defineStore('consumption', {
+export const useConsumptionStore = defineStore("consumption", {
   state: () => ({
     data: [], // array of consumptions
-    lastUpdateDate: null,// ver mais tarde
-
+    lastUpdateDate: null, // ver mais tarde
   }),
   getters: {
     getConsumptionToday: (state) => {
-      const today = new Date().toISOString().split("T")[0];
-      console.log('today', today);
+      const today = new Date().toISOString().split("T")[0]
+      console.log("today", today)
 
-      return state.data.filter((c) => c.date.startsWith(today)).map((c) => { c.value });
+      return state.data
+        .filter((c) => c.date.startsWith(today))
+        .map((c) => {
+          c.value
+        })
     },
     getConsumptionThisYear: (state) => {
-      const thisYear = new Date().getFullYear();
-      return state.data.filter(el => {
-        const date = new Date(el.date);
-        return date.getFullYear() === thisYear;
-      });
+      const thisYear = new Date().getFullYear()
+      return state.data.filter((el) => {
+        const date = new Date(el.date)
+        return date.getFullYear() === thisYear
+      })
     },
     getSumConsumption: (state) => {
-      return state.getConsumptionToday.reduce((sum, el) => sum + el.value, 0);
+      return state.getConsumptionToday.reduce((sum, el) => sum + el.value, 0)
+    },
+    getConsumptionThisMonth: (state) => {
+      const month = new Date().toISOString().split("T")[0].slice(0, 7)
+      return state.data
+        .filter((c) => c.date.startsWith(month))
+        .reduce((sum, c) => sum + c.value, 0)
     },
   },
   actions: {
     async fetchConsumption() {
-      const housingsStore = useHousingsStore();
+      const housingsStore = useHousingsStore()
 
-      const end = new Date(); // hoje
-      let start;
+      const end = new Date() // hoje
+      let start
 
       if (this.lastUpdateDate == null) {
-        start = new Date(end.getFullYear(), 0, 1, 0, 0, 0, 0);
-        this.lastUpdateDate = end;
+        start = new Date(end.getFullYear(), 0, 1, 0, 0, 0, 0)
+        this.lastUpdateDate = end
       } else {
-        start = new Date(this.lastUpdateDate);
+        start = new Date(this.lastUpdateDate)
       }
-
-      try {
-        const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
-          method: 'GET',
-        })
-
-        if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || 'Network response was not ok')
-        }
-        const result = await response.json()
-        const newConsumptions = result.data.consumptions || [];
-
-        newConsumptions.forEach(el => {
-          el.value = parseFloat(el.value);
-          this.data.push(el);
-        });
-
-      } catch (error) {
-        throw error;
-      }
-    },
-    async fetch2Year() {
-      const housingsStore = useHousingsStore();
-
-      const now = new Date();
-      const lastYear = now.getFullYear() - 1;
-
-      const start = new Date(lastYear, 0, 1, 0, 0, 0, 0);  // 1 Jan
-      const end = new Date(lastYear, 11, 31, 23, 59, 59, 999); // 31 Dec
 
       try {
         const response = await fetchWithAuth(
-          `${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
-          { method: 'GET' }
-        );
+          `${URL}/housings/${
+            housingsStore.selectedHousingId
+          }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
+          {
+            method: "GET",
+          }
+        )
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Network response was not ok');
+          const data = await response.json()
+          throw new Error(data.message || "Network response was not ok")
+        }
+        const result = await response.json()
+        const newConsumptions = result.data.consumptions || []
+
+        newConsumptions.forEach((el) => {
+          el.value = parseFloat(el.value)
+          this.data.push(el)
+        })
+      } catch (error) {
+        throw error
+      }
+    },
+    async fetch2Year() {
+      const housingsStore = useHousingsStore()
+
+      const now = new Date()
+      const lastYear = now.getFullYear() - 1
+
+      const start = new Date(lastYear, 0, 1, 0, 0, 0, 0) // 1 Jan
+      const end = new Date(lastYear, 11, 31, 23, 59, 59, 999) // 31 Dec
+
+      try {
+        const response = await fetchWithAuth(
+          `${URL}/housings/${
+            housingsStore.selectedHousingId
+          }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
+          { method: "GET" }
+        )
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || "Network response was not ok")
         }
 
-        const result = await response.json();
+        const result = await response.json()
 
-        const newConsumptions = result.data?.consumptions || [];
+        const newConsumptions = result.data?.consumptions || []
 
-        newConsumptions.forEach(el => {
-          el.value = parseFloat(el.value);
-          this.data.push(el);
-        });
-
+        newConsumptions.forEach((el) => {
+          el.value = parseFloat(el.value)
+          this.data.push(el)
+        })
       } catch (error) {
-        throw error;
+        throw error
       }
     },
     resetData() {
-      this.data = [];
-      this.lastUpdateDate = null;
+      this.data = []
+      this.lastUpdateDate = null
     },
     async fetchConsumptionByDate(date) {
-      const housingsStore = useHousingsStore();
+      const housingsStore = useHousingsStore()
 
-      const start = new Date(date);
-      console.log('start', start);
+      const start = new Date(date)
+      console.log("start", start)
 
-      start.setHours(1, 0, 0, 0); // Início do dia
+      start.setHours(1, 0, 0, 0) // Início do dia
 
-      const end = new Date(date);
-      end.setHours(24, 59, 59, 999); // Fim do dia
+      const end = new Date(date)
+      end.setHours(24, 59, 59, 999) // Fim do dia
       try {
-        const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`, {
-          method: 'GET',
-        });
+        const response = await fetchWithAuth(
+          `${URL}/housings/${
+            housingsStore.selectedHousingId
+          }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
+          {
+            method: "GET",
+          }
+        )
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Network response was not ok');
+          const data = await response.json()
+          throw new Error(data.message || "Network response was not ok")
         }
 
-        const result = await response.json();
-        let data = result.data.consumptions || [];
+        const result = await response.json()
+        let data = result.data.consumptions || []
 
-        data.forEach(el => {
-          el.value = parseFloat(el.value);
-        });
+        data.forEach((el) => {
+          el.value = parseFloat(el.value)
+        })
 
-        return data;
+        return data
       } catch (error) {
-        throw error;
+        throw error
       }
     },
   },
   persist: {
     storage: sessionStorage,
-    paths: ['data'],
+    paths: ["data"],
   },
-});
+})

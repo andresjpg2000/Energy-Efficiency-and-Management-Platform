@@ -1,14 +1,14 @@
-import { defineStore } from 'pinia'
-import { jwtDecode } from 'jwt-decode';
-import { useMessagesStore } from './messages';
-import router from '@/router';
-import { URL } from '../utils/constants.js';
+import { defineStore } from "pinia";
+import { jwtDecode } from "jwt-decode";
+import { useMessagesStore } from "./messages";
+import router from "@/router";
+import { URL } from "../utils/constants.js";
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: null,
     refreshToken: null,
-    user: null, 
+    user: null,
     userFetched: false, // Prevent loop error when trying to fetch user data with an expired token
   }),
   getters: {
@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         return jwtDecode(state.token);
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
         return null;
       }
     },
@@ -27,6 +27,8 @@ export const useAuthStore = defineStore('auth', {
     getUserId: (state) => state.user?.id_user || null,
     getUserEmail: (state) => state.user?.email || null,
     isTwoFactorEnabled: (state) => state.user?.two_factor_enabled || false,
+    getUserNotificationSettings: (state) =>
+      state.user?.notification_settings || {},
   },
   actions: {
     setUser(userData) {
@@ -49,13 +51,13 @@ export const useAuthStore = defineStore('auth', {
             // if the token couldnt be refreshed, logout
             const messagesStore = useMessagesStore();
             messagesStore.add({
-              color: 'error',
-              text: 'Session expired, please login again',
+              color: "error",
+              text: "Session expired, please login again",
             });
             this.clearToken();
             this.clearUser();
             this.logout();
-            router.push({ name: 'login' });
+            router.push({ name: "login" });
           } else {
             // If the token was refreshed, update the user state and restart timeout
             // NOTE: even if the timeout doesnt call the refreshAcessToken, backend handles the token expiration
@@ -63,23 +65,23 @@ export const useAuthStore = defineStore('auth', {
               accessToken: this.token,
               refreshToken: this.refreshToken,
               user: this.user,
-            })
+            });
           }
         }, expirationTime);
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
       }
     },
     clearToken() {
       // Reset token and clear it from session storage, used in logout
       this.token = null;
       this.refreshToken = null;
-      sessionStorage.removeItem('token'); // Clear token from session storage
-      sessionStorage.removeItem('refreshToken'); // Clear refresh token from session storage
+      sessionStorage.removeItem("token"); // Clear token from session storage
+      sessionStorage.removeItem("refreshToken"); // Clear refresh token from session storage
     },
     clearUser() {
       this.user = null;
-      sessionStorage.removeItem('user');
+      sessionStorage.removeItem("user");
     },
     isTokenExpired() {
       if (!this.token) return true;
@@ -95,8 +97,8 @@ export const useAuthStore = defineStore('auth', {
       this.clearToken();
       this.clearUser();
       messagesStore.add({
-        color: 'success',
-        text: 'Logout successful',
+        color: "success",
+        text: "Logout successful",
       });
     },
     updateUserState(updatedUser) {
@@ -107,9 +109,9 @@ export const useAuthStore = defineStore('auth', {
       const messagesStore = useMessagesStore();
       try {
         const response = await fetch(`${URL}/users/refresh-token`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             refreshToken: this.refreshToken,
@@ -122,12 +124,12 @@ export const useAuthStore = defineStore('auth', {
             this.clearUser();
             return false;
           }
-          
+
           messagesStore.add({
-            color: 'error',
-            text: 'Failed to refresh access token',
+            color: "error",
+            text: "Failed to refresh access token",
           });
-          throw new Error('Failed to refresh access token');
+          throw new Error("Failed to refresh access token");
         }
 
         const data = await response.json();
@@ -136,21 +138,21 @@ export const useAuthStore = defineStore('auth', {
 
         return true;
       } catch (error) {
-        console.error('Error refreshing access token:', error);
+        console.error("Error refreshing access token:", error);
         this.clearToken();
         this.clearUser();
         const messagesStore = useMessagesStore();
         messagesStore.add({
-          color: 'error',
-          text: 'Failed to refresh access token',
+          color: "error",
+          text: "Failed to refresh access token",
         });
         return false;
       }
-    }    
+    },
   },
   persist: {
     enabled: true,
     storage: sessionStorage,
-    pick: ['user','token', 'refreshToken'],
-  }
+    pick: ["user", "token", "refreshToken"],
+  },
 });
