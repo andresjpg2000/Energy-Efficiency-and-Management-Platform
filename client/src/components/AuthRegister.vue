@@ -36,9 +36,9 @@ export default {
       async validate() {
         this.isSubmitting = true;
         const messagesStore = useMessagesStore();
-        
+
         try {
-          
+
           const response = await fetch(`${URL}/users/register`, {
             method: 'POST',
             headers: {
@@ -76,7 +76,7 @@ export default {
         } finally {
           this.isSubmitting = false;
         }
-      
+
       },
     },
 };
@@ -95,6 +95,7 @@ export default {
           <v-label>First Name*</v-label>
           <v-text-field
             v-model="firstname"
+            name="firstname"
             :rules="firstRules"
             hide-details="auto"
             required
@@ -110,6 +111,7 @@ export default {
           <v-label>Last Name*</v-label>
           <v-text-field
             v-model="lastname"
+            name="lastname"
             :rules="lastRules"
             hide-details="auto"
             required
@@ -125,6 +127,7 @@ export default {
       <v-label>Email Address*</v-label>
       <v-text-field
         v-model="email"
+        name="email"
         :rules="emailRules"
         placeholder="user@company.com"
         class="mt-2"
@@ -140,6 +143,7 @@ export default {
       <v-label>Password</v-label>
       <v-text-field
         v-model="password"
+        name="password"
         :rules="passwordRules"
         placeholder="*****"
         required

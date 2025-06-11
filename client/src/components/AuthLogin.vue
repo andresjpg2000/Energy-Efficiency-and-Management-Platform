@@ -1,7 +1,7 @@
 <script>
 import { useMessagesStore } from "@/stores/messages.js";
 import { useAuthStore } from "@/stores/auth.js";
-import { URL } from '../utils/constants.js';
+import { URL } from "../utils/constants.js";
 
 export default {
   name: "AuthLogin",
@@ -10,6 +10,8 @@ export default {
       checkbox: false,
       password: "passteste",
       username: "greengridesmad@gmail.com",
+      // password: "",
+      // username: "",
       show1: false,
       isSubmitting: false,
       emailRules: [
@@ -59,14 +61,14 @@ export default {
 
           throw new Error(data.message || "Error processing login");
         }
-        
+
         // If two-factor authentication is enabled, redirect to the two-factor page
         if (data?.user.two_factor_enabled) {
           this.isSubmitting = false;
-          this.$router.push( {
+          this.$router.push({
             path: "/verify-2fa",
-            query: { token: data?.tempToken || "" }
-          } );
+            query: { token: data?.tempToken || "" },
+          });
           return;
         }
 
@@ -103,17 +105,15 @@ export default {
       const messagesStore = useMessagesStore();
 
       try {
-        const response = await fetch(`${URL}/users/reset-password-email`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: this.username,
-            }),
-          }
-        );
+        const response = await fetch(`${URL}/users/reset-password-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: this.username,
+          }),
+        });
 
         const data = await response.json();
 
@@ -170,6 +170,7 @@ export default {
       <v-text-field
         aria-label="email address"
         v-model="username"
+        name="email"
         :rules="emailRules"
         class="mt-2"
         required
@@ -184,6 +185,7 @@ export default {
       <v-text-field
         aria-label="password"
         v-model="password"
+        name="password"
         :rules="passwordRules"
         required
         variant="outlined"
@@ -243,6 +245,7 @@ export default {
       </div>
     </div>
     <v-btn
+      id="loginButton"
       color="primary"
       :loading="isSubmitting"
       block
