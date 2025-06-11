@@ -3,6 +3,8 @@ from faker.providers import BaseProvider
 from datetime import datetime, timedelta
 import random
 
+# No longer works because of updated schema!
+
 # Script to populate database with the new schema
 # Usage:
 # 1. Adjust the numbers in the main() section as needed.

@@ -2,98 +2,61 @@
 <template>
   <v-app>
     <v-layout>
-      <v-navigation-drawer
-        v-if="showDrawer"
-        v-model="drawer"
-        expand-on-hover
-        :permanent="!isMobile"
-        :temporary="isMobile"
-        :floating="!isMobile"
-        :rail="!isMobile && rail"
-      >
-        <!-- <div class="px-4 py-8">
-        <router-link to="/" style="text-decoration: none; color: inherit;padding: 0;">
-          <h5>AMA</h5>
-        </router-link>
-        
-      </div> -->
+      <v-navigation-drawer v-if="showDrawer" v-model="drawer" expand-on-hover :permanent="!isMobile"
+        :temporary="isMobile" :floating="!isMobile" :rail="!isMobile && rail">
 
         <v-list density="compact" mandatory item-props :items="items" nav />
 
-        <template v-if="showDrawer" v-slot:prepend >
-          <router-link
-          to="/"
-          :style="{
+        <template v-if="showDrawer" v-slot:prepend>
+          <router-link to="/" :style="{
             textDecoration: 'none',
             color: 'inherit',
-          }"
-          >
+          }">
             <div class="d-flex flex-row align-center mx-3">
-              <img :src="logo" alt="logo" width="32" height="32" class="mr-4 "/>
+              <img :src="logo" alt="logo" width="32" height="32" class="mr-4 " />
               <h1 class="text-h5">GreenGrid</h1>
             </div>
-          </router-link>  
+          </router-link>
         </template>
 
         <template #append>
-          <v-list-item
-            v-if="showSettings"
-            class="ma-2"
-            link
-            :to="{ path: '/settings' }"
-            router
-            nav
-            prepend-icon="mdi-cog-outline"
-            title="Settings"
-          />
+          <v-list-item v-if="showSettings" class="ma-2" link :to="{ path: '/settings' }" router nav
+            prepend-icon="mdi-cog-outline" title="Settings" />
         </template>
       </v-navigation-drawer>
 
       <v-app-bar flat>
-        <v-app-bar-nav-icon
-          variant="text"
-          @click.stop="clickApp()"
-        ></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
 
-        <!-- <router-link
-          to="/"
-          :style="{
+        <template v-if="showHouses">
+          <v-container cols="12" md="6">
+            <v-row class="d-flex align-center ga-0">
+              <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
+                <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg"
+                  :value="house.id_housing" @click="housingsStore.selectedHousingId = house.id_housing">{{
+                    house.building_type }}</v-chip>
+              </v-chip-group>
+              <v-btn density="comfortable" class="mx-2" color="success" rounded="lg" variant="outlined"
+                @click="addHousing"><v-icon>mdi-plus add</v-icon> add housing</v-btn>
+              <v-btn density="comfortable" class="mx-2" color="success" rounded="lg" variant="outlined"
+                @click="editHouse"><v-icon>mdi-pencil</v-icon> edit housing</v-btn>
+            </v-row>
+          </v-container>
+        </template>
+
+        <template #append>
+          <router-link v-if="isAdmin && showSettings" to="admin" :style="{
             textDecoration: 'none',
             color: 'inherit',
             marginLeft: showDrawer ? '0' : '32px',
-          }"
-        >
-          <div class="d-flex flex-row align-center ga-2">
-            <img :src="logo" alt="logo" width="32" height="32" />
-            <v-app-bar-title>GreenGrid</v-app-bar-title>
-          </div>
-        </router-link> -->
-
-        <template #append>
-          <router-link
-            v-if="isAdmin && showSettings"
-            to="admin"
-            :style="{
-              textDecoration: 'none',
-              color: 'inherit',
-              marginLeft: showDrawer ? '0' : '32px',
-            }"
-          >
+          }">
             <v-app-bar-title>Manage system</v-app-bar-title>
           </router-link>
 
           <v-btn class="mx-1" icon="mdi-bell"></v-btn>
 
-          <!-- <span v-if="username" class="mr-4">{{ username }}</span> -->
-
           <v-btn class="text-none mr-4" height="48" icon slim>
-            <!-- <v-avatar color="surface-light" class="profileAvatar" image="https://cdn.vuetifyjs.com/images/john.png" size="32" /> -->
-            <v-avatar
-              color="surface-light"
-              class="profileAvatar"
-              text=""
-              size="small"
-            >
+            <v-avatar color="surface-light" class="profileAvatar" text="" size="small">
               <span class="initialsText">{{ userInitials }}</span>
             </v-avatar>
 
@@ -101,25 +64,51 @@
               <v-list density="compact" nav>
                 <h3 class="text-center">{{ username }}</h3>
                 <v-divider class="my-2"></v-divider>
-                <v-list-item
-                  v-if="showSettings"
-                  append-icon="mdi-cog-outline"
-                  link
-                  title="Settings"
-                  :to="{ path: '/settings' }"
-                  router
-                />
-                <v-list-item
-                  @click="logout()"
-                  append-icon="mdi-logout"
-                  link
-                  title="Logout"
-                />
+                <v-list-item v-if="showSettings" append-icon="mdi-cog-outline" link title="Settings"
+                  :to="{ path: '/settings' }" router />
+                <v-list-item @click="logout()" append-icon="mdi-logout" link title="Logout" />
               </v-list>
             </v-menu>
           </v-btn>
         </template>
       </v-app-bar>
+
+      <!-- Dialog for Adding/Editing House -->
+      <v-dialog v-model="openDialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span class="text-h6">{{ isEditMode ? 'Edit Housing' : 'Add Housing' }}</span>
+          </v-card-title>
+
+          <v-card-text>
+            <v-text-field v-model="housing.address" variant="outlined" label="Address" required />
+            <v-text-field v-model="housing.pc" variant="outlined" label="Postal Code" required />
+            <v-text-field v-model="housing.location" variant="outlined" label="Location" required />
+            <v-select v-model="housing.id_supplier" :items="formattedSuppliers" item-title="title" item-value="value"
+              variant="outlined" label="Energy Suppliers" placeholder="Choose your current energy supplier" />
+            <v-select v-model="housing.building_type" :items="['flat', 'house', 'studio']" variant="outlined"
+              label="Building Type" placeholder="Choose the type of building" />
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer />
+            <v-btn v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
+            <v-btn text @click="closeDialog">Cancel</v-btn>
+            <v-btn color="primary" @click="saveHousing">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <!-- Dialog for confirm deletion of House -->
+      <v-dialog v-model="openDeleteDialog" max-width="500px">
+        <v-card>
+          <v-card-title>Are you sure you want to delete this housing?</v-card-title>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn text @click="closeDeleteHousingDialog">Cancel</v-btn>
+            <v-btn color="error" @click="deleteHousing">Delete</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <v-main>
         <v-container fluid class="main-container">
@@ -131,6 +120,9 @@
 </template>
 
 <script>
+import { useHousingsStore } from "@/stores/housings";
+import { useMessagesStore } from "@/stores/messages";
+import { useSuppliersStore } from "@/stores/suppliers";
 import { useAuthStore } from "@/stores/auth";
 import { useDisplay } from "vuetify";
 import { watch } from "vue";
@@ -150,15 +142,33 @@ export default {
       type: Boolean,
       default: true,
     },
+    showHouses: {
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
       rail: true,
       drawer: true,
       isMobile: false,
+      housingsStore: useHousingsStore(),
+      messagesStore: useMessagesStore(),
+      suppliersStore: useSuppliersStore(),
       authStore: useAuthStore(),
       logo: new URL("../assets/logo.svg", import.meta.url).href,
-
+      selectedHouse: null, // para armazenar a casa selecionada
+      isEditMode: false,
+      openDialog: false, // para controlar o estado do diálogo
+      openDeleteDialog: false, // para controlar o estado do diálogo de apagar moradia
+      housing: {
+        address: "",
+        pc: "",
+        location: "",
+        id_supplier: null,
+        building_type: "",
+        id_user: null,
+      },
     };
   },
   computed: {
@@ -175,12 +185,21 @@ export default {
         .join("")
         .toUpperCase();
     },
-     clickApp() {
+    clickApp() {
       if (this.isMobile) {
         this.drawer = !this.drawer;
       } else {
         this.rail = !this.rail;
       }
+    },
+    suppliers() {
+      return this.suppliersStore.suppliers;
+    },
+    formattedSuppliers() {
+      return this.suppliers.map((supplier) => ({
+        title: `${supplier.enterprise} - ${supplier.cost_kWh} €/kWh`,
+        value: supplier.id,
+      }));
     },
   },
   methods: {
@@ -190,13 +209,77 @@ export default {
       const widgetsStore = useWidgetsStore();
 
       widgetsStore.updateDBWidgets();
-      
+
       localStorage.clear();
       sessionStorage.clear();
 
       setTimeout(() => {
         this.$router.push("/login");
       }, 100);
+    },
+    addHousing() {
+      this.isEditMode = false;
+      this.resetForm();
+      this.openDialog = true;
+    },
+    async editHouse() {
+      this.isEditMode = true;
+      const selected = this.housingsStore.getSelectedHousing;
+      if (selected) {
+        this.housing = {
+          ...selected,
+          id_supplier: selected.id_supplier,
+        };
+        this.housing.location = await this.housingsStore.fetchLocationByHousingId(selected.id_housing);
+        this.openDialog = true;
+      } else {
+        this.messagesStore.add({
+          color: "error",
+          text: "You need to select a housing to edit.",
+        });
+      }
+    },
+    saveHousing() {
+      if (!this.housing.id_user) {
+        this.housing.id_user = this.authStore.getUserId;
+      }
+      if (this.isEditMode) {
+        this.housingsStore.updateHousing(this.housing);
+      } else {
+        console.log("Adding new housing:", this.housing);
+        this.housingsStore.addHousing(this.housing);
+      }
+      this.closeDialog();
+    },
+    closeDialog() {
+      this.openDialog = false;
+      this.resetForm();
+      this.isEditMode = false;
+    },
+    resetForm() {
+      this.housing = {
+        address: "",
+        pc: "",
+        location: "",
+        id_supplier: null,
+        building_type: "",
+        id_user: null,
+      };
+    },
+    deleteHousing() {
+      this.housingsStore.deleteHousing(this.housing.id_housing);
+      this.closeDeleteHousingDialog();
+      this.closeDialog();
+      this.messagesStore.add({
+        color: "success",
+        text: "Housing deleted successfully.",
+      });
+    },
+    openDeleteHousingDialog() {
+      this.openDeleteDialog = true;
+    },
+    closeDeleteHousingDialog() {
+      this.openDeleteDialog = false;
     },
   },
   created() {
@@ -217,6 +300,10 @@ export default {
       }
     });
   },
+  mounted() {
+    // Fetch suppliers
+    this.suppliersStore.fetchSuppliers("id,enterprise,cost_kWh");
+  },
 };
 </script>
 
@@ -224,12 +311,13 @@ export default {
 .v-overlay-container {
   z-index: 9999 !important;
 }
+
 .main-container {
   border-top-left-radius: 1rem;
   height: auto;
-  min-height: 100svh -
-    calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
+  min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
 }
+
 .initialsText {
   font-size: 0.75rem;
   font-weight: 500;

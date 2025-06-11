@@ -1,5 +1,5 @@
 <template>
-  <AppShell :items="items" :showSettings="true">
+  <AppShell :items="items" :showSettings="true" :showHouses="true">
     <div v-if="isReady == true">
       <router-view />
     </div>
@@ -16,16 +16,8 @@
       <v-skeleton-loader type="card"></v-skeleton-loader>
     </div>
     <div class="text-center pa-4">
-      <v-dialog
-        v-model="dialog"
-        max-width="400"
-        persistent
-      >
-        <v-card
-          prepend-icon="mdi-map-marker"
-          text="Add a house to start using the dashboard"
-          title="No House Detected"
-        >
+      <v-dialog v-model="dialog" max-width="400" persistent>
+        <v-card prepend-icon="mdi-map-marker" text="Add a house to start using the dashboard" title="No House Detected">
           <template v-slot:actions>
             <v-spacer></v-spacer>
 
@@ -114,12 +106,12 @@ export default {
         {
           title: "Resource Allocation",
           prependIcon: "mdi-account-cog-outline",
-          to: { name: "Resource Allocation" }, 
+          to: { name: "Resource Allocation" },
         },
         {
           title: "Alerts & Notifications",
           prependIcon: "mdi-bell-outline",
-          to: { name: "Alerts & Notifications" }, 
+          to: { name: "Alerts & Notifications" },
         },
       ],
     };
@@ -130,7 +122,7 @@ export default {
       handler() {
         this.isReady = false;
         this.consumptionStore.resetData();
-        this.equipmentsStore.resetData(); 
+        this.equipmentsStore.resetData();
         this.productionsStore.resetData();
         this.givenEnergiesStore.resetData();
 
@@ -149,9 +141,9 @@ export default {
           return
         }
 
-        await this.equipmentsStore.fetchEquipments(); 
+        await this.equipmentsStore.fetchEquipments();
         await this.productionsStore.fetchProductions();
-        await this.consumptionStore.fetchConsumption(); 
+        await this.consumptionStore.fetchConsumption();
         await this.givenEnergiesStore.fetchGivenEnergies();
 
         this.isReady = true;
@@ -162,10 +154,10 @@ export default {
     async reload() {
       try {
         console.log("Recarregando dados...", this.housingsStore.selectedHousingId);
-        
-        await this.equipmentsStore.fetchEquipments(); 
+
+        await this.equipmentsStore.fetchEquipments();
         await this.productionsStore.fetchProductions();
-        await this.consumptionStore.fetchConsumption(); 
+        await this.consumptionStore.fetchConsumption();
         await this.givenEnergiesStore.fetchGivenEnergies();
 
         this.isReady = true;
