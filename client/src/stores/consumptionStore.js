@@ -11,13 +11,9 @@ export const useConsumptionStore = defineStore("consumption", {
   getters: {
     getConsumptionToday: (state) => {
       const today = new Date().toISOString().split("T")[0]
-      console.log("today", today)
 
       return state.data
         .filter((c) => c.date.startsWith(today))
-        .map((c) => {
-          c.value
-        })
     },
     getConsumptionThisYear: (state) => {
       const thisYear = new Date().getFullYear()
@@ -52,8 +48,7 @@ export const useConsumptionStore = defineStore("consumption", {
 
       try {
         const response = await fetchWithAuth(
-          `${URL}/housings/${
-            housingsStore.selectedHousingId
+          `${URL}/housings/${housingsStore.selectedHousingId
           }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
           {
             method: "GET",
@@ -86,8 +81,7 @@ export const useConsumptionStore = defineStore("consumption", {
 
       try {
         const response = await fetchWithAuth(
-          `${URL}/housings/${
-            housingsStore.selectedHousingId
+          `${URL}/housings/${housingsStore.selectedHousingId
           }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
           { method: "GET" }
         )
@@ -117,7 +111,6 @@ export const useConsumptionStore = defineStore("consumption", {
       const housingsStore = useHousingsStore()
 
       const start = new Date(date)
-      console.log("start", start)
 
       start.setHours(1, 0, 0, 0) // Início do dia
 
@@ -125,8 +118,7 @@ export const useConsumptionStore = defineStore("consumption", {
       end.setHours(24, 59, 59, 999) // Fim do dia
       try {
         const response = await fetchWithAuth(
-          `${URL}/housings/${
-            housingsStore.selectedHousingId
+          `${URL}/housings/${housingsStore.selectedHousingId
           }/energy-consumptions?start=${start.toISOString()}&end=${end.toISOString()}`,
           {
             method: "GET",

@@ -79,27 +79,26 @@ export default {
         {
           title: "Reports",
           prependIcon: "mdi-file-document-outline",
-          to: { name: "Reports" },
           children: [
             {
               title: "Consumption",
               prependIcon: "mdi-chart-bar",
-              to: { name: "Reports" },
+              to: { name: "dataConsumption" },
             },
             {
               title: "Production",
               prependIcon: "mdi-chart-timeline",
-              to: { name: "Reports" },
+              to: { name: "dataProduction" },
             },
             {
               title: "Given Energies",
               prependIcon: "mdi-chart-pie",
-              to: { name: "Reports" },
+              to: { name: "dataGivenEnergies" },
             },
             {
               title: "Calendar",
               prependIcon: "mdi-calendar",
-              to: { name: "Reports" },
+              to: { name: "Calendar" },
             },
           ],
         },

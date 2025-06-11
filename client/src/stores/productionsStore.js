@@ -2,10 +2,13 @@ import { defineStore } from "pinia"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
 import { useEquipmentsStore } from "./equipmentsStore"
 import { URL } from "../utils/constants.js"
+import { useMessagesStore } from './messages.js';
+import { useAuthStore } from './auth';
 
 export const useProductionsStore = defineStore("productions", {
   state: () => ({
     data: [],
+    lastUpdateDate: null,
   }),
   getters: {
     getProductionsByEquipment: (state) => (equipmentId) =>
@@ -15,7 +18,6 @@ export const useProductionsStore = defineStore("productions", {
       const today = new Date().toISOString().split("T")[0]
       return state.data
         .filter((p) => p.date.startsWith(today) && p.id_equipment == id)
-        .map((p) => p.value)
     },
     getAllProductionToday: (state) => {
       const today = new Date().toISOString().split("T")[0]
@@ -30,22 +32,27 @@ export const useProductionsStore = defineStore("productions", {
   },
   actions: {
     async fetchProductions() {
-      this.data = []
       const equipmentsStore = useEquipmentsStore()
 
       const end = new Date() // hoje
 
-      const start = new Date()
-      start.setFullYear(end.getFullYear())
-      start.setMonth(0) // janeiro
-      start.setDate(1) // dia 1
-      start.setHours(1, 0, 0, 0) // 00:00:00.000
+      let start;
+
+      if (this.lastUpdateDate == null) {
+        start = new Date();
+        start.setFullYear(end.getFullYear());
+        start.setMonth(0); // janeiro
+        start.setDate(1);  // dia 1
+        start.setHours(1, 0, 0, 0); // 00:00:00.000
+        this.lastUpdateDate = end;
+      } else {
+        start = new Date(this.lastUpdateDate);
+      }
 
       try {
         const fetches = equipmentsStore.equipments.map((eq) =>
           fetchWithAuth(
-            `${URL}/energy-equipments/${
-              eq.id_equipment
+            `${URL}/energy-equipments/${eq.id_equipment
             }/energy-productions?start=${start.toISOString()}&end=${end.toISOString()}`
           ).then(async (res) => {
             if (!res.ok) {
@@ -82,8 +89,7 @@ export const useProductionsStore = defineStore("productions", {
       try {
         const fetches = equipmentsStore.equipments.map((eq) =>
           fetchWithAuth(
-            `${URL}/energy-equipments/${
-              eq.id_equipment
+            `${URL}/energy-equipments/${eq.id_equipment
             }/energy-productions?start=${start.toISOString()}&end=${end.toISOString()}`
           ).then(async (res) => {
             if (!res.ok) {
@@ -102,6 +108,7 @@ export const useProductionsStore = defineStore("productions", {
         let data = results.flat()
         data.forEach((el) => {
           el.value = parseFloat(el.value)
+          this.data.push(el)
         })
         return data
       } catch (error) {
@@ -110,6 +117,52 @@ export const useProductionsStore = defineStore("productions", {
     },
     resetData() {
       this.data = []
+      this.lastUpdateDate = null;
+    },
+    async fetchProdutionTable(size, page, startDate, endDate, equipmentId, houseId) {
+      const authStore = useAuthStore();
+      let link = `${URL}/energy-productions?userId=${authStore.getUserId}`;
+      if (!startDate) {
+        startDate = new Date(0);
+      } else {
+        startDate = new Date(startDate);
+      }
+      if (!endDate) {
+        endDate = new Date();
+      } else {
+        endDate = new Date(endDate);
+      }
+      link += `&start=${startDate.toISOString()}`;
+      link += `&end=${endDate.toISOString()}`;
+      if (equipmentId) link += `&equipmentId=${equipmentId}`;
+      if (houseId) link += `&houseId=${houseId}`;
+      if (page) link += `&page=${page}`;
+      if (size) link += `&size=${size}`;
+
+      console.log('link', link);
+      try {
+        const response = await fetchWithAuth(link, {
+          method: 'GET',
+        })
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || 'Network response was not ok')
+        }
+
+        const results = await response.json()
+
+        // Junta todos os dados num único array
+        console.log('data', results.data);
+
+        results.data.forEach(el => {
+          delete el.id_production;
+          el.value = parseFloat(el.value);
+          el.date = new Date(el.date).toISOString;
+        });
+        return results;
+      } catch (error) {
+        throw error;
+      }
     },
   },
   persist: {

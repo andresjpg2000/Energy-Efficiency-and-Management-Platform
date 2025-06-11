@@ -13,7 +13,12 @@ const router = createRouter({
         { path: '', name: 'Dashboard', component: () => import('@/views/Dashboard/DashboardView.vue') }, // root "/"
         { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
         { path: 'Forecasts', name: 'Forecasts', component: () => import('../views/Dashboard/ForecastsView.vue') },
-        { path: 'Reports', name: 'Reports', component: () => import('../views/Dashboard/ReportsView.vue') },
+        
+        { path: 'Consumption-data', name: 'dataConsumption', component: () => import('../views/DataTables/dataConsumptionView.vue') },
+        { path: 'Production-data', name: 'dataProduction', component: () => import('../views/DataTables/dataProductionView.vue') },
+        { path: 'givenEnergies-data', name: 'dataGivenEnergies', component: () => import('../views/DataTables/dataGivenEnergiesView.vue') },
+        { path: 'Calendar', name: 'Calendar', component: () => import('../views/DataTables/calendarView.vue') },
+
         { path: 'Resource-Allocation', name: 'Resource Allocation', component: () => import('../views/Dashboard/Resource-AllocationView.vue') }, // corrigido
         { path: 'Alerts-Notifications', name: 'Alerts & Notifications', component: () => import('../views/Dashboard/Alerts-NotificationsView.vue') },
       ],

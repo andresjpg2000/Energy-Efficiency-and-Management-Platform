@@ -37,7 +37,10 @@ export default {
   beforeMount() {
     ///////////////// total consumption
     if (this.title == "Total-Consumption") {
-      this.data = this.consumptionStore.data.map((c) => c.value);// ver melhor, muitos dados
+      const thisYear = new Date().getFullYear();
+      this.data = this.consumptionStore.data
+        .filter((c) => new Date(c.date).getFullYear() === thisYear)
+        .map((c) => c.value);
 
       this.total = this.data.reduce((total, c) => total + c, 0);
       ///////////////// corrent consumption

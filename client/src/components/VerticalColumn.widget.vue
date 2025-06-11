@@ -102,7 +102,7 @@ export default {
                 const end = new Date();
                 
                 this.equipmentsStore.equipments.forEach((eq,i) => {
-                    data[i] = this.givenEnergiesStore.data
+                    data[i] = this.productionsStore.data
                         .filter((c) => c.id_equipment === eq.id_equipment && new Date(c.date) >= startOfMonth && new Date(c.date) <= end)
                         .reduce((total, c) => total + c.value, 0);
                     data[i] = Math.round(data[i] * 100) / 100; // round to 2 decimal places

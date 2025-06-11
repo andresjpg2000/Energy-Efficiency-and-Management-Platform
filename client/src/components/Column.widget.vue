@@ -88,8 +88,6 @@ export default {
                 consumptions = this.consumptionStore.getConsumptionToday;
             } else if (select === 'newDate') {
                 consumptions = await this.consumptionStore.fetchConsumptionByDate(this.datePicker);
-                console.log(consumptions);
-                
             }
             consumptions.forEach((cons) => {
                 const hour = new Date(cons.date).getHours();
@@ -100,7 +98,7 @@ export default {
         async dataGivenEnergies(select) {
             let allHoursData = Array(24).fill(0);
             let givenEnergies = [];
-
+            
             if (select === 'today') {
                 givenEnergies = this.givenEnergiesStore.getAllGivenEnergyToday;
             } else if (select === 'newDate') {
@@ -115,6 +113,7 @@ export default {
         },
     },
     mounted() {
+        
         this.updateChart();
     },
     watch: {

@@ -12,7 +12,7 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
 
     getGivenEnergyToday: (state) => (id) => {
       const today = new Date().toISOString().split("T")[0];
-      return state.data.filter((p) => p.date.startsWith(today) && p.id_equipment == id).map((p) => p.value);
+      return state.data.filter((p) => p.date.startsWith(today) && p.id_equipment == id);
     },
     getAllGivenEnergyToday: (state) => {
       const today = new Date().toISOString().split("T")[0];
@@ -59,7 +59,6 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
       const equipmentsStore = useEquipmentsStore();
 
       const start = new Date(date);
-      console.log('start', start);
 
       start.setHours(1, 0, 0, 0); // 00:00:00.000
       const end = new Date(start);
