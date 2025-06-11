@@ -40,7 +40,7 @@ let getAllEnergyProductions = async (req, res, next) => {
       equipments.push(parseInt(req.query.equipmentId));
     } else {
       return res.status(400).json({
-        message: "Can't use user ID and house ID at the same time",
+        message: "Can't use equipment ID and house ID at the same time",
       });
     }
   } catch (error) {
@@ -81,16 +81,14 @@ let getAllEnergyProductions = async (req, res, next) => {
     });
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "No energy returns found" });
+      return res.status(404).json({ message: "No energies productions found" });
     }
 
     return res.status(200).json({
-      message: "Energy returns found",
       data: rows,
       pagination: {
         total: count,
         page,
-        size,
         totalPages: Math.ceil(count / size),
       },
     });

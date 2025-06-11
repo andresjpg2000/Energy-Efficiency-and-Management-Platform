@@ -54,37 +54,37 @@ const getAllHousings = async (req, res, next) => {
         res.status(200).json({
             data: housings,
             links: [
-              {
-                rel: 'self',
-                href: `/housings`,
-                method: 'GET',
-            },
-              {
-                  rel: 'get-by-id',
-                  href: `/housings/:id_housing`,
-                  method: 'GET',
-              },
-              {
-                  rel: 'create',
-                  href: `/housings`,
-                  method: 'POST',
-              },
-              {
-                  rel: 'update',
-                  href: `/housings/:id_housing`,
-                  method: 'PUT',
-              },
-              {
-                  rel: 'partial-update',
-                  href: `/housings/:id_housing`,
-                  method: 'PATCH',
-              },
-              {
-                  rel: 'delete',
-                  href: `/housings/:id_housing`,
-                  method: 'DELETE',
-              },
-          ],          
+                {
+                    rel: 'self',
+                    href: `/housings`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'get-by-id',
+                    href: `/housings/:id_housing`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'create',
+                    href: `/housings`,
+                    method: 'POST',
+                },
+                {
+                    rel: 'update',
+                    href: `/housings/:id_housing`,
+                    method: 'PUT',
+                },
+                {
+                    rel: 'partial-update',
+                    href: `/housings/:id_housing`,
+                    method: 'PATCH',
+                },
+                {
+                    rel: 'delete',
+                    href: `/housings/:id_housing`,
+                    method: 'DELETE',
+                },
+            ],
         });
     } catch (err) {
         console.error('Error fetching housings:', err);
@@ -96,7 +96,7 @@ const getAllHousings = async (req, res, next) => {
 let getAllEquipsFromHouse = async (req, res, next) => {
     try {
         const house = await Housing.findByPk(req.params.id_housing, {
-        attributes: ['id_housing', 'id_user', 'address', 'pc', 'building_type'],
+            attributes: ['id_housing', 'id_user', 'address', 'pc', 'building_type'],
         });
         if (!house) {
             return res.status(404).json({
@@ -111,7 +111,7 @@ let getAllEquipsFromHouse = async (req, res, next) => {
 
         //map HATEOAS links to each equipment
         equipments.forEach(eq => {
-             eq.dataValues.links = [
+            eq.dataValues.links = [
                 { rel: "delete", href: `/energy-equipments/${eq.id_equipment}`, method: "DELETE" },
                 { rel: "modify", href: `/energy-equipments/${eq.id_equipment}`, method: "PUT" },
             ]
@@ -133,7 +133,7 @@ let getAllEquipsFromHouse = async (req, res, next) => {
 let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
     try {
         const house = await Housing.findByPk(req.params.id_housing, {
-        attributes: ['id_housing'],
+            attributes: ['id_housing'],
         });
         if (!house) {
             return res.status(404).json({
@@ -147,30 +147,39 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
 
         // Check if the start and end dates are valid
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return res.status(400).json({ message: "Invalid start or end date." });
+            return res.status(400).json({ message: "Invalid start or end date." });
         }
 
         // Check if the start date is before the end date
         if (start > end) {
-        return res.status(400).json({ message: "Start date must be before end date." });
+            return res.status(400).json({ message: "Start date must be before end date." });
         }
 
+        const size = req.query.size ? parseInt(req.query.size) : null;
+        const page = req.query.page ? parseInt(req.query.page) : null;
+
+        let pagination = {};
+        if (size && page && size > 0 && page > 0) {
+            pagination.limit = size;
+            pagination.offset = (page - 1) * size;
+        }
         // lazy loading
         const consumptions = await house.getConsumptions({
-            where:{
+            where: {
                 date: {
-                [Op.and]: [
-                    { [Op.gte]: start },
-                    { [Op.lte]: end }
-                ]
+                    [Op.and]: [
+                        { [Op.gte]: start },
+                        { [Op.lte]: end }
+                    ]
                 },
             },
             attributes: ['id_consumption', 'value', 'date'],
             order: [['date', 'ASC']],
+            ...pagination,
         });
 
         consumptions.forEach(eq => {
-             eq.dataValues.links = [
+            eq.dataValues.links = [
                 { rel: "delete", href: `/energy-consumptions/${eq.id_consumption}`, method: "DELETE" },
             ]
         });
@@ -178,6 +187,11 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
         house.dataValues.consumptions = consumptions;
         res.status(200).json({
             data: house,
+            pagination: pagination.limit ? {
+                page,
+                size,
+                totalPages: Math.ceil(count / size),
+            } : null,
         });
 
     } catch (err) {
@@ -228,7 +242,7 @@ const getHousingById = async (req, res, next) => {
                     href: `/housings/${housing.id_housing}`,
                     method: 'DELETE',
                 },
-            ],            
+            ],
         });
     } catch (err) {
         // Handle any errors that occur during the database query
@@ -243,12 +257,12 @@ const createHousing = async (req, res, next) => {
     if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type || !req.body.location) {
         return res.status(400).json({ message: 'Address, postal code, location and building type are required!' });
     }
-    
+
     try {
         const userID = req.user.id_user;
         // Create or update the postal code if it exists
         await createOrUpdatePostalCode(req.body.pc, req.body.location);
-      
+
         const newHousing = await Housing.create({
             address: req.body.address,
             pc: req.body.pc,
@@ -289,7 +303,7 @@ const createHousing = async (req, res, next) => {
                     href: `/housings/${newHousing.id_housing}`,
                     method: 'DELETE',
                 },
-            ],            
+            ],
         });
     } catch (err) {
         // Handle any errors that occur during the database query
@@ -316,7 +330,7 @@ const updateHousing = async (req, res, next) => {
     if (!req.body || !req.body.address || !req.body.pc || !req.body.building_type || !req.body.id_supplier) {
         return res.status(400).json({ message: 'Address, postal code, id_supplier and building type are required!' });
     }
-    
+
     try {
         const user = req.user;
         const id_housing = req.params.id_housing;
@@ -339,35 +353,35 @@ const updateHousing = async (req, res, next) => {
         res.status(200).json({
             message: `Housing with ID ${id_housing} updated successfully!`,
             links: [
-                { 
-                    rel: 'self', 
+                {
+                    rel: 'self',
                     href: `/housings/${id_housing}`,
-                    method: 'PUT' 
+                    method: 'PUT'
                 },
-                { 
+                {
                     rel: 'get-by-id',
                     href: `/housings/${id_housing}`,
-                    method: 'GET' 
+                    method: 'GET'
                 },
-                { 
+                {
                     rel: 'get-all',
-                    href: `/housings`, 
-                    method: 'GET' 
+                    href: `/housings`,
+                    method: 'GET'
                 },
                 {
                     rel: 'create',
-                    href: `/housings`, 
-                    method: 'POST' 
+                    href: `/housings`,
+                    method: 'POST'
                 },
                 {
                     rel: 'partial-update',
                     href: `/housings/${id_housing}`,
-                    method: 'PATCH' 
+                    method: 'PATCH'
                 },
                 {
                     rel: 'delete',
                     href: `/housings/${id_housing}`,
-                    method: 'DELETE' 
+                    method: 'DELETE'
                 },
             ]
         });
@@ -394,81 +408,81 @@ const partialUpdateHousing = async (req, res, next) => {
     if (!req.body || (!req.body.address && !req.body.pc && !req.body.building_type && !req.body.id_supplier)) {
         return res.status(400).json({ message: 'At least one of address, postal code, id_supplier or building type must be provided!' });
     }
-  
+
     try {
 
-    const user = req.user;
-    const id_housing = req.params.id_housing;
+        const user = req.user;
+        const id_housing = req.params.id_housing;
 
-    const housing = await checkIfUserIsTheOwner(user, id_housing)
+        const housing = await checkIfUserIsTheOwner(user, id_housing)
 
-    if (req.body.pc) {
-        // Create or update the postal code if it exists
-        await createOrUpdatePostalCode(req.body.pc, req.body.location);
+        if (req.body.pc) {
+            // Create or update the postal code if it exists
+            await createOrUpdatePostalCode(req.body.pc, req.body.location);
+        }
+
+        // Only update if the user is the owner
+        await Housing.update(req.body, {
+            where: {
+                id_housing: id_housing,
+                id_user: user.id_user,
+            },
+        });
+
+        res.status(200).json({
+            message: `Housing with ID ${req.params.id_housing} updated successfully!`,
+            links: [
+                {
+                    rel: 'self',
+                    href: `/housings/${id_housing}`,
+                    method: 'PATCH',
+                },
+                {
+                    rel: 'get-by-id',
+                    href: `/housings/${id_housing}`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'get-all',
+                    href: `/housings`,
+                    method: 'GET',
+                },
+                {
+                    rel: 'create',
+                    href: `/housings`,
+                    method: 'POST',
+                },
+                {
+                    rel: 'update',
+                    href: `/housings/${id_housing}`,
+                    method: 'PUT',
+                },
+                {
+                    rel: 'delete',
+                    href: `/housings/${id_housing}`,
+                    method: 'DELETE',
+                },
+            ],
+        });
+    } catch (err) {
+        // Handle any errors that occur during the database query
+        console.error("Error patching housing:", err);
+
+        // Handle specific Sequelize validation errors and join them into a single message
+        if (err instanceof ValidationError) {
+            return res.status(400).json({
+                message: err.errors.map(err => err.message).join(', ')
+            });
+        }
+        // Handle unique constraint errors
+        if (err instanceof UniqueConstraintError) {
+            return res.status(400).json({
+                message: "Housing already exists!",
+            });
+        }
+        // Handle other errors
+        next(err);
     }
-
-    // Only update if the user is the owner
-    await Housing.update(req.body, {
-        where: {
-            id_housing: id_housing,
-            id_user: user.id_user,
-        },
-    });
-
-    res.status(200).json({
-        message: `Housing with ID ${req.params.id_housing} updated successfully!`,
-        links: [
-            {
-                rel: 'self',
-                href: `/housings/${id_housing}`,
-                method: 'PATCH',
-            },
-            {
-                rel: 'get-by-id',
-                href: `/housings/${id_housing}`,
-                method: 'GET',
-            },
-            {
-                rel: 'get-all',
-                href: `/housings`,
-                method: 'GET',
-            },
-            {
-                rel: 'create',
-                href: `/housings`,
-                method: 'POST',
-            },
-            {
-                rel: 'update',
-                href: `/housings/${id_housing}`,
-                method: 'PUT',
-            },
-            {
-                rel: 'delete',
-                href: `/housings/${id_housing}`,
-                method: 'DELETE',
-            },
-        ],            
-    });
-  } catch (err) {
-      // Handle any errors that occur during the database query
-      console.error("Error patching housing:", err);
-
-      // Handle specific Sequelize validation errors and join them into a single message
-      if (err instanceof ValidationError) {
-          return res.status(400).json({
-              message: err.errors.map(err => err.message).join(', ')
-          });
-      }
-      // Handle unique constraint errors
-      if (err instanceof UniqueConstraintError) {
-          return res.status(400).json({
-              message: "Housing already exists!",
-          });
-      }
-      // Handle other errors
-      next(err);
-  }
 }
 
 // Delete a housing by ID
@@ -535,7 +549,7 @@ const getLocationByHousingId = async (req, res, next) => {
                     href: `/housings`,
                     method: 'GET',
                 },
-            ],            
+            ],
         });
     } catch (err) {
         console.error("Error fetching location:", err);
