@@ -28,7 +28,7 @@ export const useNotificationsStore = defineStore("notifications", {
         }
 
         const data = await response.json();
-        this.alerts = data.alerts || [];
+        this.alerts = data.data || [];
       } catch (err) {
         this.error = err.message;
         console.error("Error loading alerts:", err);

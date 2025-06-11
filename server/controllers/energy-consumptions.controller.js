@@ -2,7 +2,7 @@ const {
   EnergyConsumption,
   Housing,
   Supplier,
-  Notification,
+  Notifications,
   User,
 } = require("../models/index.js");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
@@ -51,10 +51,7 @@ const addEnergyConsumption = async (req, res, next) => {
     console.error("Error creating consumption:", err);
 
     if (err instanceof ValidationError) {
-      const messages = [];
-      for (const e of err.errors) {
-        messages.push(e.message);
-      }
+      const messages = err.errors.map((e) => e.message);
       return res.status(400).json({ message: messages.join(", ") });
     }
 
@@ -71,54 +68,51 @@ async function generateAlertsIfNeeded(consumption) {
     const housing = await Housing.findByPk(consumption.id_housing);
     const user = await User.findByPk(housing.id_user);
     const prefs = user.notification_settings;
+    const parsedPrefs = typeof prefs === "string" ? JSON.parse(prefs) : prefs;
 
-    if (!prefs) return;
-    if (!prefs.alerts) return;
+    const alertsEnabled =
+      parsedPrefs.alerts === true ||
+      parsedPrefs.alerts === "true" ||
+      (typeof parsedPrefs.alerts === "string" &&
+        parsedPrefs.alerts.toLowerCase() === "true");
+
+    if (!alertsEnabled) return;
 
     const value = consumption.value;
-    const dateObj = new Date(consumption.date);
-    const formattedDate = dateObj.toLocaleDateString("pt-PT");
 
-    if (prefs.thresholds && prefs.thresholds.consumption) {
-      const consumptionLimit = prefs.thresholds.consumption;
-      if (value > consumptionLimit) {
-        const formattedValue = value.toFixed(2).replace(".", ",");
-        const message = `High consumption: ${formattedValue} kWh recorded on ${formattedDate}.`;
+    if (
+      parsedPrefs.thresholds?.consumption &&
+      value > parsedPrefs.thresholds.consumption
+    ) {
+      await createNotification(
+        user.id_user,
+        consumption.id_consumption,
+        `High consumption: ${value} kWh`
+      );
+    }
+
+    const supplier = await Supplier.findByPk(housing.id_supplier);
+    if (supplier && parsedPrefs.thresholds?.cost) {
+      const estimatedCost = supplier.cost_kWh * value;
+      if (estimatedCost > parsedPrefs.thresholds.cost) {
         await createNotification(
           user.id_user,
           consumption.id_consumption,
-          message
+          `Estimated cost: ${estimatedCost.toFixed(2)}€`
         );
       }
     }
-
-    if (prefs.thresholds && prefs.thresholds.cost) {
-      const costLimit = prefs.thresholds.cost;
-      const supplier = await Supplier.findByPk(housing.id_supplier);
-      if (supplier) {
-        const estimatedCost = supplier.cost_kWh * value;
-        if (estimatedCost > costLimit) {
-          const formattedCost = estimatedCost.toFixed(2).replace(".", ",");
-          const message = `Estimated energy cost reached ${formattedCost}€ with this consumption.`;
-          await createNotification(
-            user.id_user,
-            consumption.id_consumption,
-            message
-          );
-        }
-      }
-    }
   } catch (error) {
-    console.error("Error generating consumption alerts:", error);
+    console.error("Error generating alerts:", error);
   }
 }
 
 async function createNotification(id_user, id_consumption, message) {
-  await Notification.create({
+  await Notifications.create({
     type: "Alert",
-    id_user: id_user,
-    id_consumption: id_consumption,
-    message: message,
+    id_user,
+    id_consumption,
+    message,
   });
 }
 
@@ -126,9 +120,7 @@ async function createNotification(id_user, id_consumption, message) {
 const deleteEnergyConsumption = async (req, res, next) => {
   try {
     const response = await EnergyConsumption.destroy({
-      where: {
-        id_consumption: req.params.id_consumption,
-      },
+      where: { id_consumption: req.params.id_consumption },
     });
 
     if (!response) {

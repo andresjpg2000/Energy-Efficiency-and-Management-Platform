@@ -166,7 +166,10 @@ export default {
 
       const payload = {
         notification_settings: {
-          alerts: true,
+          alerts:
+            this.ToggleThresholdEnergyConsumption ||
+            this.ToggleThresholdEnergyGeneration ||
+            this.ToggleThresholdEnergyCosts,
           frequency: this.NotificationFrequency,
           thresholds,
         },
