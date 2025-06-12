@@ -22,6 +22,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import { useEquipmentsStore } from '@/stores/equipmentsStore';
 import { useProductionsStore } from '@/stores/productionsStore';
 import { useGivenEnergiesStore } from '@/stores/givenEnergiesStore';
+import { useColorsStore } from '@/stores/colorsStore';
 export default {
     components: {
         apexchart: VueApexCharts
@@ -31,8 +32,12 @@ export default {
             equipmentsStore: useEquipmentsStore(),
             productionsStore: useProductionsStore(),
             givenEnergiesStore: useGivenEnergiesStore(),
+            colorsStore: useColorsStore(),
             select: 'month', // default selection
         };
+    },
+    mounted () {
+        console.log(this.colorsStore.getProdAndGivenColors + ' colorsStore.getProdAndGivenColors');
     },
     methods: {
         makeGivenEnergiesData(date) {
@@ -163,7 +168,7 @@ export default {
                 fill: {
                     opacity: 1
                 },
-                colors: ['#008FFB', '#11E396'],
+                colors: this.colorsStore.getProdAndGivenColors,
                 legend: {
                     position: 'top',
                     horizontalAlign: 'left'

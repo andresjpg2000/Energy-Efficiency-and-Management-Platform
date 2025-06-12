@@ -68,9 +68,10 @@ export const useProductionsStore = defineStore("productions", {
         const results = await Promise.all(fetches)
 
         // Junta todos os dados num único array
-        this.data = results.flat()
-        this.data.forEach((el) => {
+        const data = results.flat()
+        data.forEach((el) => {
           el.value = parseFloat(el.value)
+          this.data.push(el)
         })
       } catch (error) {
         throw error
@@ -167,6 +168,6 @@ export const useProductionsStore = defineStore("productions", {
   },
   persist: {
     storage: sessionStorage,
-    paths: ["data"],
+    paths: ['data', 'lastUpdateDate'],
   },
 })

@@ -1,6 +1,7 @@
 <script>
 import { useMessagesStore } from "@/stores/messages.js";
 import { useAuthStore } from "@/stores/auth.js";
+import { useHousingsStore } from "@/stores/housings.js";
 import { URL } from "../utils/constants.js";
 
 export default {
@@ -37,6 +38,7 @@ export default {
       this.isSubmitting = true;
       const authStore = useAuthStore();
       const messagesStore = useMessagesStore();
+      const housingsStore = useHousingsStore();
       // this.$refs.form.validate(); // Validate the form
       try {
         const response = await fetch(`${URL}/users/login`, {
@@ -78,7 +80,10 @@ export default {
           timeout: 3000,
         });
 
-        authStore.setUser(data);
+         authStore.setUser(data);
+
+        //await housingsStore.fetchHousings();
+
         this.$router.push({ path: "/" });
       } catch (error) {
         console.log(error);

@@ -33,7 +33,7 @@
             <v-row class="d-flex align-center ga-0">
               <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
                 <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg"
-                  :value="house.id_housing" @click="housingsStore.selectedHousingId = house.id_housing">{{
+                  :value="house.id_housing" @click="changingHouse(house.id_housing)">{{
                     house.building_type }}</v-chip>
               </v-chip-group>
               <v-btn density="comfortable" class="mx-2" color="success" rounded="lg" variant="outlined"
@@ -130,6 +130,7 @@ import { useWidgetsStore } from "@/stores/widgetsStore";
 
 export default {
   name: "AppShell",
+  emits: ["changeHouse"],
   props: {
     items: {
       type: Array,
@@ -203,6 +204,10 @@ export default {
     },
   },
   methods: {
+    changingHouse(housingId) {
+      this.housingsStore.selectedHousingId = housingId;
+      this.$emit("changeHouse", true);
+    },
     logout() {
       this.authStore.logout();
 

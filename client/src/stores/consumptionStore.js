@@ -145,6 +145,6 @@ export const useConsumptionStore = defineStore("consumption", {
   },
   persist: {
     storage: sessionStorage,
-    paths: ["data"],
+    paths: ['data', 'lastUpdateDate'],
   },
 })

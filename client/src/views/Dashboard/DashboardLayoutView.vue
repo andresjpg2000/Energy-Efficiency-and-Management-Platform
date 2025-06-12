@@ -1,7 +1,7 @@
 <template>
-  <AppShell :items="items" :showSettings="true" :showHouses="true">
+  <AppShell @changeHouse="tradingHouse()" :items="items" :showSettings="true" :showHouses="true">
     <div v-if="isReady == true">
-      <router-view />
+      <router-view/>
     </div>
     <div v-else class="loading-container">
       <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
@@ -43,6 +43,7 @@ import { useHousingsStore } from "@/stores/housings.js";
 import { useEquipmentsStore } from "@/stores/equipmentsStore.js";
 import { useProductionsStore } from "@/stores/productionsStore.js";
 import { useGivenEnergiesStore } from "@/stores/givenEnergiesStore";
+import { useColorsStore } from "@/stores/colorsStore";
 
 export default {
   name: "DashboardLayoutView",
@@ -59,6 +60,7 @@ export default {
       housingsStore: useHousingsStore(),
       consumptionStore: useConsumptionStore(),
       givenEnergiesStore: useGivenEnergiesStore(),
+      colorsStore: useColorsStore(),
       items: [
         {
           title: "My Dashboard",
@@ -115,26 +117,40 @@ export default {
       ],
     };
   },
-  watch: {
-    'housingsStore.selectedHousingId': {
-      immediate: true,
-      handler() {
-        this.isReady = false;
-        this.consumptionStore.resetData();
-        this.equipmentsStore.resetData();
-        this.productionsStore.resetData();
-        this.givenEnergiesStore.resetData();
+  // watch: {
+  //   'housingsStore.selectedHousingId': {
+  //     immediate: true,
+  //     handler(newVal) {
+  //       if (!newVal) return;
+  //       this.isReady = false;
+  //       this.consumptionStore.resetData();
+  //       this.equipmentsStore.resetData();
+  //       this.productionsStore.resetData();
+  //       this.givenEnergiesStore.resetData();
 
-        this.reload(); // sempre que mudar a casa, recarrega dados
-      },
-    },
-  },
+  //       this.reload(); // sempre que mudar a casa, recarrega dados
+  //     },
+  //   },
+  // },
   methods: {
+    tradingHouse() {
+      this.isReady = false;
+      this.consumptionStore.resetData();
+      this.equipmentsStore.resetData();
+      this.productionsStore.resetData();
+      this.givenEnergiesStore.resetData();
+
+      this.reload(); // sempre que mudar a casa, recarrega dados
+    },
     async load() {
 
       try {
+        this.colorsStore.init();
+
         await this.widgetsStore.fetchUserWidgets();
         await this.housingsStore.fetchHousings();
+        console.log("2");
+        
         if (!this.housingsStore.housings?.length) {
           this.dialog = true; // Exibe o diálogo se não houver casas
           return
@@ -144,6 +160,7 @@ export default {
         await this.productionsStore.fetchProductions();
         await this.consumptionStore.fetchConsumption();
         await this.givenEnergiesStore.fetchGivenEnergies();
+
 
         this.isReady = true;
       } catch (error) {

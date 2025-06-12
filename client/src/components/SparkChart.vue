@@ -14,6 +14,7 @@ import { useConsumptionStore } from "@/stores/consumptionStore";
 import { useProductionsStore } from "@/stores/productionsStore";
 import { useHousingsStore } from "@/stores/housings";
 import { useSuppliersStore } from "@/stores/suppliers";
+import { useColorsStore } from "@/stores/colorsStore";
 import ApexChart from "vue3-apexcharts";
 
 export default {
@@ -36,12 +37,19 @@ export default {
   },
   beforeMount() {
     ///////////////// total consumption
+    console.log(this.colorsStore.consumptionColor + " - " +this.colorsStore.productionColor);
+    
     if (this.title == "Total-Consumption") {
       const thisYear = new Date().getFullYear();
+
+      console.log("thisYear:", thisYear);
+      console.log("total consumption:", this.consumptionStore.data);
+      
       this.data = this.consumptionStore.data
         .filter((c) => new Date(c.date).getFullYear() === thisYear)
         .map((c) => c.value);
-
+      console.log("filtered data:", this.data);
+      
       this.total = this.data.reduce((total, c) => total + c, 0);
       ///////////////// corrent consumption
     } else if (this.title == "Corrent-Consumption") {
@@ -90,6 +98,7 @@ export default {
       productionsStore: useProductionsStore(),
       housingsStore: useHousingsStore(),
       suppliersStore: useSuppliersStore(),
+      colorsStore: useColorsStore(),
       total: -1,
       data: [],
       sparklineData: [
@@ -144,7 +153,7 @@ export default {
         xaxis: {
           type: "category",
         },
-        colors: ["#1da1d4"],
+        colors: this.title == "Total-Consumption" || this.title == "Corrent-Consumption" ? [this.colorsStore.consumptionColor] : [this.colorsStore.productionColor],
         title: {
           text:
             this.title == "Total-Expenses"

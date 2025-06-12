@@ -25,6 +25,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import { useConsumptionStore } from '@/stores/consumptionStore';
 import { useProductionsStore } from '@/stores/productionsStore';
 import { useGivenEnergiesStore } from '@/stores/givenEnergiesStore';
+import { useColorsStore } from '@/stores/colorsStore';
 
 export default {
     components: {
@@ -35,6 +36,7 @@ export default {
             productionStore: useProductionsStore(),
             consumptionStore: useConsumptionStore(),
             givenEnergiesStore: useGivenEnergiesStore(),
+            colorsStore: useColorsStore(),
             datePicker: null,
             select: 'today',
             dialog: false,
@@ -158,7 +160,7 @@ export default {
                             borderRadiusApplication: 'end'
                         },
                     },
-                    colors: ['#FF4560', '#008FFB', '#11E396'],
+                    colors: this.colorsStore.getAllColors,
                     dataLabels: {
                         enabled: false
                     },

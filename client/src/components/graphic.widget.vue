@@ -24,6 +24,7 @@
 <script>
 import VueApexCharts from "vue3-apexcharts";
 import { useConsumptionStore } from "@/stores/consumptionStore";
+import { useColorsStore } from "@/stores/colorsStore";
 
 export default {
   components: {
@@ -32,6 +33,7 @@ export default {
   data() {
     return {
         consumptionStore: useConsumptionStore(),
+        colorsStore: useColorsStore(),
         select: "week",
         labels: {
             year: [
@@ -273,7 +275,7 @@ computed: {
                     autoSelected: "zoom",
                 },
             },
-            colors: ["#00A1FF", "#adb0bb"],
+            colors: [this.colorsStore.consumptionColor, "#adb0bb"],
             dataLabels: { enabled: false },
             fill: {
                 type: "gradient",
