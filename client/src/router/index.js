@@ -11,9 +11,9 @@ const router = createRouter({
       component: () => import('@/views/Dashboard/DashboardLayoutView.vue'),
       children: [
         { path: '', name: 'Dashboard', component: () => import('@/views/Dashboard/DashboardView.vue') }, // root "/"
-        { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/monitoringView.vue') },
+        { path: 'Monitoring', name: 'Monitoring', component: () => import('../views/Dashboard/MonitoringView.vue') },
         { path: 'Forecasts', name: 'Forecasts', component: () => import('../views/Dashboard/ForecastsView.vue') },
-        
+
         { path: 'Consumption-data', name: 'dataConsumption', component: () => import('../views/DataTables/dataConsumptionView.vue') },
         { path: 'Production-data', name: 'dataProduction', component: () => import('../views/DataTables/dataProductionView.vue') },
         { path: 'givenEnergies-data', name: 'dataGivenEnergies', component: () => import('../views/DataTables/dataGivenEnergiesView.vue') },
@@ -116,13 +116,13 @@ router.beforeEach(async(to, from, next) => {
     }
     if (needsAuth && !authStore.isLoggedIn) {
       return next({ name: 'login' })
-    } 
+    }
     if (needsAdmin && !authStore.isAdmin) {
       return next({ name: 'Forbidden' })
     }
-  
+
     return next()
-    
+
   } catch (error) {
     console.error('Error in router:', error);
     authStore.user = null;
