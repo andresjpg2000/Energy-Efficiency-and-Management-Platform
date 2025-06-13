@@ -1,7 +1,5 @@
-const db = require("../models/index.js");
-const EnergyEquipment = db.EnergyEquipment;
-const { Op } = require('sequelize');
-
+const { EnergyEquipment, Housing } = require("../models/index.js");
+const { Op } = require("sequelize");
 
 // Listar todos os equipamentos
 async function getAllEnergyEquipments(req, res, next) {
@@ -18,25 +16,33 @@ async function createEnergyEquipment(req, res, next) {
   try {
     const { energy_type, capacity, housing, name } = req.body;
 
-    // Verificar se os campos obrigatórios estão presentes
     if (!energy_type || !capacity || !housing) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    // Criar o novo equipamento
-    const newEquipment = await EnergyEquipment.create({
+    const housingExists = await Housing.findByPk(housing);
+    if (!housingExists) {
+      return res.status(400).json({ message: "Housing ID does not exist." });
+    }
+
+    const equipmentData = {
       energy_type,
       capacity,
       housing,
-      name: name || null, // Permitir nome opcional
-    });
+    };
 
-    res
-      .status(201)
-      .json({
-        message: "Equipment has been registered.",
-        id_equipment: newEquipment.id_equipment,
-      });
+    if (name) {
+      equipmentData.name = name;
+    } else {
+      equipmentData.name = null;
+    }
+
+    const newEquipment = await EnergyEquipment.create(equipmentData);
+
+    res.status(201).json({
+      message: "Equipment has been registered.",
+      id_equipment: newEquipment.id_equipment,
+    });
   } catch (error) {
     next(error);
   }
@@ -50,9 +56,10 @@ async function updateEnergyEquipmentName(req, res, next) {
 
     const bodyKeys = Object.keys(req.body);
     if (!name || bodyKeys.length !== 1 || bodyKeys[0] !== "name") {
-      return res
-        .status(400)
-        .json({ message: "The 'name' field is required and must be the only field in the request body." }); 
+      return res.status(400).json({
+        message:
+          "The 'name' field is required and must be the only field in the request body.",
+      });
     }
 
     if (name.length < 3) {
@@ -95,43 +102,49 @@ async function deleteEnergyEquipment(req, res, next) {
 // Get given energy by equipment
 async function getGivenEnergyOfEquipment(req, res, next) {
   try {
-    // Get the equipment by ID
     const equipment = await EnergyEquipment.findByPk(req.params.id, {
-      attributes: ['id_equipment'],
+      attributes: ["id_equipment"],
     });
-    // Check if the equipment exists
+
     if (!equipment) {
       return res.status(404).json({ message: "Equipment not found." });
     }
 
-    // Get the start and end dates from the query parameters
-    let start = req.query.start ? new Date(req.query.start) : new Date(0);
-    let end = req.query.end ? new Date(req.query.end) : new Date();
+    let start;
+    if (req.query.start) {
+      start = new Date(req.query.start);
+    } else {
+      start = new Date(0);
+    }
 
-    // Check if the start and end dates are valid
+    let end;
+    if (req.query.end) {
+      end = new Date(req.query.end);
+    } else {
+      end = new Date();
+    }
+
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({ message: "Invalid start or end date." });
     }
 
-    // Check if the start date is before the end date
     if (start > end) {
-      return res.status(400).json({ message: "Start date must be before end date." });
+      return res
+        .status(400)
+        .json({ message: "Start date must be before end date." });
     }
 
-    // Get the energy productions for the equipment within the specified date range
-    const givenEnergy = await equipment.getGivenEnergies({
-      where:{
-        date: {
-          [Op.and]: [
-            { [Op.gte]: start },
-            { [Op.lte]: end }
-          ]
-        }
+    const dateFilter = {
+      date: {
+        [Op.between]: [start, end],
       },
-      attributes: ['id_equipment', 'value', 'date'],
+    };
+
+    const givenEnergy = await equipment.getGivenEnergies({
+      where: dateFilter,
+      attributes: ["id_equipment", "value", "date"],
     });
 
-    // Add the energy productions to the equipment object
     equipment.dataValues.givenEnergy = givenEnergy;
 
     res.status(200).json({ data: equipment });
@@ -139,46 +152,53 @@ async function getGivenEnergyOfEquipment(req, res, next) {
     next(error);
   }
 }
+
 // Get energy productions by equipment
 async function getEnergyProductionsOfEquipment(req, res, next) {
   try {
-    // Get the equipment by ID
     const equipment = await EnergyEquipment.findByPk(req.params.id, {
-      attributes: ['id_equipment'],
+      attributes: ["id_equipment"],
     });
-    // Check if the equipment exists
+
     if (!equipment) {
       return res.status(404).json({ message: "Equipment not found." });
     }
 
-    // Get the start and end dates from the query parameters
-    let start = req.query.start ? new Date(req.query.start) : new Date(0);
-    let end = req.query.end ? new Date(req.query.end) : new Date();
+    let start;
+    if (req.query.start) {
+      start = new Date(req.query.start);
+    } else {
+      start = new Date(0);
+    }
 
-    // Check if the start and end dates are valid
+    let end;
+    if (req.query.end) {
+      end = new Date(req.query.end);
+    } else {
+      end = new Date();
+    }
+
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({ message: "Invalid start or end date." });
     }
 
-    // Check if the start date is before the end date
     if (start > end) {
-      return res.status(400).json({ message: "Start date must be before end date." });
+      return res
+        .status(400)
+        .json({ message: "Start date must be before end date." });
     }
 
-    // Get the energy productions for the equipment within the specified date range
-    const EnergyProductions = await equipment.getEnergyProductions({
-      where:{
-        date: {
-          [Op.and]: [
-            { [Op.gte]: start },
-            { [Op.lte]: end }
-          ]
-        }
+    const dateFilter = {
+      date: {
+        [Op.between]: [start, end],
       },
-      attributes: ['id_equipment', 'value', 'date'],
+    };
+
+    const EnergyProductions = await equipment.getEnergyProductions({
+      where: dateFilter,
+      attributes: ["id_equipment", "value", "date"],
     });
 
-    // Add the energy productions to the equipment object
     equipment.dataValues.EnergyProductions = EnergyProductions;
 
     res.status(200).json({ data: equipment });
@@ -193,5 +213,5 @@ module.exports = {
   updateEnergyEquipmentName,
   deleteEnergyEquipment,
   getGivenEnergyOfEquipment,
-  getEnergyProductionsOfEquipment
+  getEnergyProductionsOfEquipment,
 };
