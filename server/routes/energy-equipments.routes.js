@@ -4,7 +4,7 @@ const energyEquipmentsController = require('../controllers/energy-equipments.con
 
 const auth = require('../middleware/auth.js');
 const authorizeAdmin = require('../middleware/authorizeAdmin.js');
-const validateParamIsInt = require('../middleware/validateIdParam.js'); 
+const validateParamIsInt = require('../middleware/validateIdParam.js');
 
 // Listar todos os equipamentos
 router.get('/', auth, authorizeAdmin, energyEquipmentsController.getAllEnergyEquipments);
@@ -19,8 +19,8 @@ router.patch('/:id', auth, energyEquipmentsController.updateEnergyEquipmentName)
 router.delete('/:id',auth, energyEquipmentsController.deleteEnergyEquipment);
 
 // get given energy of an equipment
-router.get('/:id/given-energies',validateParamIsInt("id"), energyEquipmentsController.getGivenEnergyOfEquipment);
+router.get('/:id/given-energies',auth, validateParamIsInt("id"), energyEquipmentsController.getGivenEnergyOfEquipment);
 
 // get energy productions of an equipment
-router.get('/:id/energy-productions', validateParamIsInt("id"), energyEquipmentsController.getEnergyProductionsOfEquipment);
+router.get('/:id/energy-productions',auth, validateParamIsInt("id"), energyEquipmentsController.getEnergyProductionsOfEquipment);
 module.exports = router;
