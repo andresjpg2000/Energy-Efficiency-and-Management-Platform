@@ -1,6 +1,6 @@
 // Import the suppliers model
-const db = require('../models/index.js');
-const Widgets = db.widgets; 
+const db = require("../models/index.js");
+const Widgets = db.widgets;
 
 // let getWidgets = async (req, res) => {
 //     try {
@@ -46,78 +46,80 @@ let addWidgets = async (req, res) => {
         id_user,
         title,
         body,
-        type
+        type,
     };
     try {
-
         const createdWiget = await Widgets.create(newWiget);
 
         return res.status(201).json({
             message: "Widget created successfully",
-            data: createdWiget
+            data: createdWiget,
         });
-        
     } catch (error) {
         return res.status(500).json({
             message: "Error creating widget",
-            error: error.message
+            error: error.message,
         });
-        
     }
-}
+};
 
 let updateWidgets = async (req, res) => {
-  const { title } = req.params;
-  const { id_user } = req.query;
-  const { x, y } = req.body;
+    const { title } = req.params;
+    const { id_user } = req.query;
+    const { x, y, ...extraFields } = req.body;
 
-  if (!id_user || !title) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-
-  try {
-    const widget = await Widgets.findOne({ where: { id_user, title } });
-    if (!widget) return res.status(404).json({ message: "Widget not found" });
-
-    let parsed;
-    try {
-      parsed = JSON.parse(widget.body);
-    } catch {
-      parsed = {};  // se não for JSON válido
+    if (!id_user || !title || x === undefined || y === undefined) {
+        return res.status(400).json({ message: "Missing required fields" });
     }
-    parsed.x = x;
-    parsed.y = y;
 
-    widget.body = parsed;
-    await widget.save();
+    if (Object.keys(extraFields).length > 0) {
+        return res.status(400).json({ message: "Only x and y fields are allowed" });
+    }
+    try {
+        const widget = await Widgets.findOne({ where: { id_user, title } });
+        if (!widget) return res.status(404).json({ message: "Widget not found" });
 
-    return res.status(200).json({ message: "Widget updated", data: widget });
-  } catch (error) {
-    return res.status(500).json({ message: "Error updating widget", error: error.message });
-  }
+        let parsed;
+        try {
+            parsed = JSON.parse(widget.body);
+        } catch {
+            parsed = {}; // se não for JSON válido
+        }
+        parsed.x = x;
+        parsed.y = y;
+
+        widget.body = parsed;
+        await widget.save();
+
+        return res.status(200).json({ message: "Widget updated", data: widget });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "Error updating widget", error: error.message });
+    }
 };
 
 let deleteWidgets = async (req, res) => {
-    const { id_user } = req.query;// token verificar aqui
+    const { id_user } = req.query; // token verificar aqui
     const { title } = req.params;
 
     if (!id_user || !title) {
         return res.status(400).json({
-            message: "Missing required parameters (id_user and title)"
+            message: "Missing required parameters (id_user and title)",
         });
-    }    
+    }
 
     try {
         const widget = await Widgets.findOne({
             where: {
                 id_user,
-                title
-            }
+                title,
+            },
         });
 
         if (!widget) {
             return res.status(404).json({
-                message: "Widget not found"
+                message: "Widget not found",
             });
         }
 
@@ -126,15 +128,14 @@ let deleteWidgets = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: "Error deleting widget",
-            error: error.message
+            error: error.message,
         });
     }
-}
+};
 
 module.exports = {
     //getWidgets,
     addWidgets,
     deleteWidgets,
-    updateWidgets
-  };
-  
+    updateWidgets,
+};
