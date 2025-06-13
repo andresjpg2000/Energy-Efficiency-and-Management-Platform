@@ -4,104 +4,76 @@
             <h1 class="text-h5 pl-2">Forecasts</h1>
         </v-row>
 
-        <v-card class="pa-4">
+        <v-card class="pa-6">
             <!-- Energy score and progress bars -->
-            <v-row class="d-flex flex-row">
-                <v-col cols="8" class="d-flex flex-column">
-                    <div id="energy-score-header" class="d-flex align-center">
+            <v-row>
+                <v-col>
+                    <div id="energy-score-header">
                         <h2 class="text-h6 mb-3">
                             <v-icon @click="openInfo = true" class="mr-2">mdi-information</v-icon>
                             Energy Score
                         </h2>
                     </div>
-                    <v-row class="d-flex justify-center align-center">
-                        <v-col class="d-flex align-center pr-0">
-                            <v-list>
+                    <v-row>
+                        <v-col class="d-flex flex-column align-center">
+                            <apexchart type="radialBar" :options="options" :series="series" width="350"></apexchart>
+                            <v-list class="w-75">
                                 <v-list-item class="px-0">
-                                    <v-progress-linear v-model="consumptionRatio" height="20" color="success">
+                                    <v-list-item-title>Consumption</v-list-item-title>
+                                    <v-progress-linear v-model="consumptionRatio" height="20"
+                                        :color="consumptionRatio >= 100 ? 'error' : (consumptionRatio > 65 ? 'warning' : 'success')">
                                         <strong>{{ Math.ceil(consumptionRatio) }}%</strong>
                                     </v-progress-linear>
-                                    <div class="d-flex flex-row">
-                                        <div class="d-flex flex-column align-start mr-4">
-                                            <v-list-item-title>Your Target</v-list-item-title>
-                                            <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
-                                        </div>
-                                        <div class="d-flex flex-column align-start mr-4">
-                                            <v-list-item-title>Consumption This Month</v-list-item-title>
-                                            <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
-                                            }}
-                                                kWh</v-list-item-subtitle>
-                                        </div>
+                                    <div class="d-flex flex-row justify-space-between mt-2">
+                                        <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
+                                        }}
+                                            kWh</v-list-item-subtitle>
+                                        <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
                                     </div>
                                 </v-list-item>
                                 <v-list-item class="px-0">
-                                    <v-progress-linear v-model="productionRatio" height="20" color="success">
+                                    <v-list-item-title>Production</v-list-item-title>
+                                    <v-progress-linear v-model="productionRatio" height="20"
+                                        :color="productionRatio >= 100 ? 'error' : (productionRatio > 65 ? 'warning' : 'success')">
                                         <strong>{{ Math.ceil(productionRatio) }}%</strong>
                                     </v-progress-linear>
-                                    <div class="d-flex flex-row">
-                                        <div class="d-flex flex-column align-start">
-                                            <v-list-item-title>Your Target</v-list-item-title>
-                                            <v-list-item-subtitle>{{ productionTarget }} kWh</v-list-item-subtitle>
-                                        </div>
-                                        <div class="d-flex flex-column align-start">
-                                            <v-list-item-title>Production This Month</v-list-item-title>
-                                            <v-list-item-subtitle>{{ productionsStore.getProductionThisMonth.toFixed(4)
-                                            }}
-                                                kWh</v-list-item-subtitle>
-                                        </div>
+                                    <div class="d-flex flex-row justify-space-between mt-2">
+                                        <v-list-item-subtitle>{{ productionsStore.getProductionThisMonth.toFixed(4) }}
+                                            kWh</v-list-item-subtitle>
+                                        <v-list-item-subtitle>{{ productionTarget }} kWh</v-list-item-subtitle>
                                     </div>
                                 </v-list-item>
                                 <v-list-item class="px-0">
-                                    <v-progress-linear v-model="costRatio" height="20" color="success">
+                                    <v-list-item-title>Energy Cost</v-list-item-title>
+                                    <v-progress-linear v-model="costRatio" height="20"
+                                        :color="costRatio >= 100 ? 'error' : (costRatio > 65 ? 'warning' : 'success')">
                                         <strong>{{ Math.ceil(costRatio) }}%</strong>
                                     </v-progress-linear>
-                                    <div class="d-flex flex-row">
-                                        <div class="d-flex flex-column align-start mr-4">
-                                            <v-list-item-title>Your Target</v-list-item-title>
-                                            <v-list-item-subtitle>{{ costTarget }} €</v-list-item-subtitle>
-                                        </div>
-                                        <div class="d-flex flex-column align-start mr-4">
-                                            <v-list-item-title>Energy Cost</v-list-item-title>
-                                            <v-list-item-subtitle>{{ Math.max((supplierCost *
-                                                (consumptionStore.getConsumptionThisMonth -
-                                                    productionsStore.getProductionThisMonth)).toFixed(4), 0)
-                                            }}
-                                                €</v-list-item-subtitle>
-                                        </div>
+                                    <div class="d-flex flex-row justify-space-between mt-2">
+                                        <v-list-item-subtitle>{{ energyCost }} €</v-list-item-subtitle>
+                                        <v-list-item-subtitle>{{ costTarget }} €</v-list-item-subtitle>
                                     </div>
                                 </v-list-item>
                             </v-list>
                         </v-col>
-                        <v-col>
-                            <v-card flat class="w-100 mx-auto pa-4">
-                                <apexchart type="radialBar" :options="options" :series="series"></apexchart>
-                            </v-card>
-                        </v-col>
                     </v-row>
                 </v-col>
-                <v-col cols="4" class="d-flex flex-column">
-                    <div id="energy-score-header" class="d-flex align-center">
-                        <h2 class="text-h6 mb-3">
-                            <v-icon @click="openInfo = true" class="mr-2">mdi-chart-line</v-icon>
+                <v-col class="d-flex flex-column justify-space-between">
+                    <div>
+                        <h2 class=" text-h6 mb-3">
+                            <v-icon class="mr-2">mdi-chart-line</v-icon>
                             Cost Predictions
                         </h2>
                     </div>
-                    <v-row>
-                        <v-col class="d-flex flex-column justify-space-between align-center">
-                            <p class="text-body-2">
-                                Based on your current consumption and production patterns, your estimated energy cost
-                                for
-                                this month is:
-                            </p>
-                            <h3 class="text-h5 font-weight-bold">
-                                {{ costPrediction }} €
-                            </h3>
-                            <p class="text-body-2">
-                                This prediction is based on your current consumption and production rates, adjusted
-                                for the number of days left in the month.
-                            </p>
-                        </v-col>
-                    </v-row>
+                    <h1 class="font-weight-bold align-self-center">
+                        {{ costPrediction }} €
+                    </h1>
+                    <div>
+                        <h2>
+                            This prediction is based on your current consumption and production rates, adjusted
+                            for the number of days left in the month.
+                        </h2>
+                    </div>
                 </v-col>
             </v-row>
             <!-- Smart recommendations -->
@@ -241,6 +213,7 @@ export default {
     },
     computed: {
         supplierCost() {
+            // This will return the cost per kWh for the selected housing's supplier
             return this.suppliersStore.getSupplierCostByID(
                 this.housingsStore.getSelectedHousing?.id_supplier
             ) || 0;
@@ -281,6 +254,11 @@ export default {
                     this.productionsStore.getProductionThisMonth)).toFixed(4);
             const target = this.notificationSettings.thresholds?.cost || 10;
             return Math.max(Math.min(((cost / target) * 100), 100), 0);
+        },
+        energyCost() {
+            return (this.supplierCost *
+                (this.consumptionStore.getConsumptionThisMonth -
+                    this.productionsStore.getProductionThisMonth)).toFixed(4);
         },
         smartRecommendations() {
             const recommendations = [];
@@ -483,4 +461,9 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.v-list-item-title {
+    font-weight: bold;
+    text-align: left;
+}
+</style>

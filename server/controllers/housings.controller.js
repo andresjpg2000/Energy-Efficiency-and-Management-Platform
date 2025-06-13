@@ -546,6 +546,11 @@ const deleteHousing = async (req, res, next) => {
 
     const housing = await checkIfUserIsTheOwner(user, id_housing);
 
+    // Check if the housing exists
+    if (!housing) {
+      return res.status(404).json({ message: "Housing not found!" });
+    }
+
     // Only update if the user is the owner
     await Housing.destroy({
       where: {
