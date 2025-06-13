@@ -6,6 +6,7 @@ import ColumnWiget from "@/components/Column.widget.vue";
 import VerticalColumnWidget from "@/components/VerticalColumn.widget.vue";
 
 import { useWidgetsStore } from "@/stores/widgetsStore";
+import { useAuthStore } from "@/stores/auth.js";
 
 export default {
   name: "DashboardView",
@@ -41,6 +42,10 @@ export default {
 
   },
   beforeRouteLeave(to, from, next) {
+    //const authStore = useAuthStore();
+
+    //authStore.lastUser = authStore.user.id_user; // salva o usuário atual antes de sair
+
     if (this.saveTimeout && window.innerWidth > 950) {
       clearTimeout(this.saveTimeout);
       this.saveTimeout = null;
@@ -50,6 +55,7 @@ export default {
         .then(() => {
           console.log("Widgets atualizados com sucesso.");
           this.changedWidgets.clear();
+          this.widgetsStore.userWidgets = [];
           next();
         })
         .catch((error) => {

@@ -44,6 +44,7 @@ import { useEquipmentsStore } from "@/stores/equipmentsStore.js";
 import { useProductionsStore } from "@/stores/productionsStore.js";
 import { useGivenEnergiesStore } from "@/stores/givenEnergiesStore";
 import { useColorsStore } from "@/stores/colorsStore";
+import { useAuthStore } from "@/stores/auth";
 
 export default {
   name: "DashboardLayoutView",
@@ -61,6 +62,7 @@ export default {
       consumptionStore: useConsumptionStore(),
       givenEnergiesStore: useGivenEnergiesStore(),
       colorsStore: useColorsStore(),
+      authStore: useAuthStore(),
       items: [
         {
           title: "My Dashboard",
@@ -143,29 +145,37 @@ export default {
       this.reload(); // sempre que mudar a casa, recarrega dados
     },
     async load() {
+      // if(this.authStore.lastUser == this.authStore.user.id_user) {
+      //   await this.widgetsStore.fetchUserWidgets();
+      //   await this.productionsStore.fetchProductions();
+      //   await this.consumptionStore.fetchConsumption();
+      //   await this.givenEnergiesStore.fetchGivenEnergies();
 
-      try {
-        this.colorsStore.init();
 
-        await this.widgetsStore.fetchUserWidgets();
-        await this.housingsStore.fetchHousings();
-        console.log("2");
-        
-        if (!this.housingsStore.housings?.length) {
-          this.dialog = true; // Exibe o diálogo se não houver casas
-          return
+      //   this.isReady = true;
+      // }else {
+        try {
+          this.colorsStore.init();
+
+          await this.widgetsStore.fetchUserWidgets();
+          await this.housingsStore.fetchHousings();
+          console.log("2");
+          
+          if (!this.housingsStore.housings?.length) {
+            this.dialog = true; // Exibe o diálogo se não houver casas
+            return
+          }
+
+          await this.equipmentsStore.fetchEquipments();
+          await this.productionsStore.fetchProductions();
+          await this.consumptionStore.fetchConsumption();
+          await this.givenEnergiesStore.fetchGivenEnergies();
+
+
+          this.isReady = true;
+        } catch (error) {
+          console.error("Erro ao carregar dados:", error);
         }
-
-        await this.equipmentsStore.fetchEquipments();
-        await this.productionsStore.fetchProductions();
-        await this.consumptionStore.fetchConsumption();
-        await this.givenEnergiesStore.fetchGivenEnergies();
-
-
-        this.isReady = true;
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-      }
     },
     async reload() {
       try {

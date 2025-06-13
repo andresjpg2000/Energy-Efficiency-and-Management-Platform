@@ -6,6 +6,7 @@ import { URL } from '../utils/constants.js';
 export const useGivenEnergiesStore = defineStore('givenEnergies', {
   state: () => ({
     data: [],
+    lastUpdateDate: null,
   }),
   getters: {
     getGivenEnergiesByEquipment: (state) => (equipmentId) => state.data.filter((p) => p.id_equipment === equipmentId),
@@ -21,12 +22,17 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
   },
   actions: {
     async fetchGivenEnergies() {
-      this.data = [];
       const equipmentsStore = useEquipmentsStore();
 
       let end = new Date(); // hoje
+      let start;
 
-      const start = new Date(end.getFullYear(), end.getMonth(), 1); // 1º dia do mês, 00:00
+      if (this.lastUpdateDate == null) {
+        start = new Date(end.getFullYear(), end.getMonth(), 1); // 1º dia do mês, 00:00
+        this.lastUpdateDate = end;
+      } else {
+        start = new Date(this.lastUpdateDate);
+      }
 
       try {
         const fetches = equipmentsStore.equipments.map((eq) =>
@@ -46,9 +52,10 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
         const results = await Promise.all(fetches);
 
         // Junta todos os dados num único array
-        this.data = results.flat();
-        this.data.forEach(el => {
+        const data = results.flat();
+        data.forEach(el => {
           el.value = parseFloat(el.value);
+          this.data.push(el);
         });
 
       } catch (error) {

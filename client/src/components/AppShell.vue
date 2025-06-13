@@ -53,7 +53,7 @@
             <v-row class="d-flex align-center ga-0">
               <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
                 <v-chip filter selected v-for="house in housingsStore.housings" :key="house.id_housing" rounded="lg"
-                  :value="house.id_housing" @click="housingsStore.selectedHousingId = house.id_housing">{{
+                  :value="house.id_housing" @click="changingHouse(house.id_housing)">{{
                     house.building_type }}</v-chip>
               </v-chip-group>
               <v-btn
@@ -241,6 +241,10 @@ import { useDisplay } from "vuetify";
 import { watch } from "vue";
 import { useWidgetsStore } from "@/stores/widgetsStore";
 import { useNotificationsStore } from "@/stores/notifications";
+import { useConsumptionStore } from "@/stores/consumptionStore";
+import { useProductionsStore } from "@/stores/productionsStore";
+import { useGivenEnergiesStore } from "@/stores/givenEnergiesStore";
+import { useEquipmentsStore } from "@/stores/equipmentsStore";
 
 export default {
   name: "AppShell",
@@ -324,14 +328,24 @@ export default {
       this.$emit("changeHouse", true);
     },
     logout() {
+      const widgetsStore = useWidgetsStore();
+      const consumptionStore = useConsumptionStore();
+      const productionStore = useProductionsStore();
+      const givenStore = useGivenEnergiesStore();
+      const equipmentsStore = useEquipmentsStore();
+      
+      this.housingsStore.resetData();
+
       this.authStore.logout();
 
-      const widgetsStore = useWidgetsStore();
 
       widgetsStore.updateDBWidgets();
+      widgetsStore.userWidgets = [];
+      consumptionStore.resetData();
+      productionStore.resetData();  
+      givenStore.resetData();
+      equipmentsStore.resetData();
 
-      localStorage.clear();
-      sessionStorage.clear();
 
       setTimeout(() => {
         this.$router.push("/login");

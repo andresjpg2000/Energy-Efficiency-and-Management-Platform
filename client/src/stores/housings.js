@@ -154,6 +154,13 @@ export const useHousingsStore = defineStore("housings", {
         throw error;
       }
     },
+    resetData() {
+      this.housings = [];
+      this.selectedHousingId = null;
+      this.loaded = false;
+      this.isFirstRun = true;
+      this.selectedSupplierId = null;
+    },
   },
   persist: true,
 });
