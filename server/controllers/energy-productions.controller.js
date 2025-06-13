@@ -35,7 +35,10 @@ let getAllEnergyProductions = async (req, res, next) => {
       const hs = await Housing.findOne({
         where: { id_housing: eq.housing, id_user: parseInt(req.query.userId) },
       });
-      if (!hs) return res.status(403).json({ message: "House does not belong to the user" });
+      if (!hs)
+        return res
+          .status(403)
+          .json({ message: "House does not belong to the user" });
 
       equipments.push(parseInt(req.query.equipmentId));
     } else {
@@ -56,7 +59,9 @@ let getAllEnergyProductions = async (req, res, next) => {
   }
 
   if (start > end) {
-    return res.status(400).json({ message: "The param end must be after start!" });
+    return res
+      .status(400)
+      .json({ message: "The param end must be after start!" });
   }
 
   // Pagination: parse size and page
@@ -64,7 +69,9 @@ let getAllEnergyProductions = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
 
   if (size <= 0 || page <= 0) {
-    return res.status(400).json({ message: "Page and size must be greater than 0" });
+    return res
+      .status(400)
+      .json({ message: "Page and size must be greater than 0" });
   }
 
   const offset = (page - 1) * size;
@@ -103,80 +110,104 @@ let getAllEnergyProductions = async (req, res, next) => {
 let addEnergyProduction = async (req, res) => {
   const { id_equipment, date, value } = req.body;
 
-  // check if all required fields are provided
   if (!id_equipment || !date || !value) {
     return res.status(400).json({
-      message: " Equipament ID, Date and Value are required",
+      message: "Equipament ID, Date and Value are required",
     });
   }
-  // check if the fields are valid
+
   if (isNaN(id_equipment) || isNaN(value)) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value must be numbers",
+      message: "Equipament ID and Value must be numbers",
     });
   }
 
-  // check if the fields are positive
   if (id_equipment < 0 || value < 0) {
     return res.status(400).json({
-      message: "House ID, Equipament ID and Value must be positive numbers",
+      message: "Equipament ID and Value must be positive numbers",
     });
   }
 
-  let finalDate = date ? new Date(date) : new Date();
-
-  // check if the date is valid
+  const finalDate = new Date(date);
   if (isNaN(finalDate.getTime())) {
     return res.status(400).json({
       message: "Invalid date format",
     });
   }
 
-  let newEnergyProd = {
-    value,
-    id_equipment,
-    date: finalDate,
-  };
+  // ✅ Verifica se o equipamento existe
+  const equipment = await EnergyEquipment.findByPk(id_equipment);
+  if (!equipment) {
+    return res.status(404).json({
+      message: "Equipment not found",
+    });
+  }
+
   try {
-    // create the new energy return
-    const createdEnergyReturn = await EnergyProductions.create(newEnergyProd);
+    const createdEnergyReturn = await EnergyProductions.create({
+      value,
+      id_equipment,
+      date: finalDate,
+    });
 
     res.status(201).json({
       message: "Energy return created",
       data: createdEnergyReturn,
     });
+
+    // Alertas abaixo…
+    try {
+      const housing = await Housing.findByPk(equipment.housing);
+      const user = await User.findByPk(housing.id_user);
+      let prefs = user.notification_settings;
+
+      // Se prefs for string, faz parse
+      if (typeof prefs === "string") {
+        prefs = JSON.parse(prefs);
+      }
+
+      // Verifica se alertas estão ativos
+      let alertsEnabled = false;
+      if (prefs.alerts === true) {
+        alertsEnabled = true;
+      } else if (prefs.alerts === "true") {
+        alertsEnabled = true;
+      } else if (
+        typeof prefs.alerts === "string" &&
+        prefs.alerts.toLowerCase() === "true"
+      ) {
+        alertsEnabled = true;
+      }
+
+      if (!alertsEnabled) {
+        return;
+      }
+
+      // Verifica limiar de produção
+      if (
+        prefs.thresholds &&
+        prefs.thresholds.generation &&
+        createdEnergyReturn.value < prefs.thresholds.generation
+      ) {
+        const date = new Date(createdEnergyReturn.date).toLocaleDateString(
+          "pt-PT"
+        );
+        const valueStr = createdEnergyReturn.value.toFixed(2).replace(".", ",");
+
+        await Notification.create({
+          type: "Alert",
+          id_user: user.id_user,
+          message: `Produção insuficiente: apenas ${valueStr} kWh gerados em ${date}.`,
+        });
+      }
+    } catch (alertError) {
+      console.error("Erro ao gerar alerta de produção:", alertError);
+    }
   } catch (err) {
     res.status(500).json({
       message: "Error creating energy return",
       error: err.message,
     });
-  }
-  try {
-    const equipment = await EnergyEquipment.findByPk(
-      createdEnergyReturn.id_equipment
-    );
-    const housing = await Housing.findByPk(equipment.housing);
-    const user = await User.findByPk(housing.id_user);
-    const prefs = user.notification_settings;
-
-    if (
-      prefs?.alerts &&
-      prefs.thresholds?.generation &&
-      createdEnergyReturn.value < prefs.thresholds.generation
-    ) {
-      const date = new Date(createdEnergyReturn.date).toLocaleDateString(
-        "pt-PT"
-      );
-      const value = createdEnergyReturn.value.toFixed(2).replace(".", ",");
-
-      await Notification.create({
-        type: "Alert",
-        id_user: user.id_user,
-        message: `Produção insuficiente: apenas ${value} kWh gerados em ${date}.`,
-      });
-    }
-  } catch (alertError) {
-    console.error("Erro ao gerar alerta de produção:", alertError);
   }
 };
 
