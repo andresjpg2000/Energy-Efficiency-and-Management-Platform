@@ -1,7 +1,10 @@
 // Import the users data model
-const { GivenEnergies, EnergyEquipment, Housing } = require('../models/index.js');
-const { Op } = require('sequelize');
-
+const {
+  GivenEnergies,
+  EnergyEquipment,
+  Housing,
+} = require("../models/index.js");
+const { Op } = require("sequelize");
 
 // get all energy returns
 let getgivenEnergies = async (req, res) => {
@@ -31,7 +34,10 @@ let getgivenEnergies = async (req, res) => {
           id_user: parseInt(req.query.userId),
         },
       });
-      if (!hs) return res.status(403).json({ message: "House does not belong to the user" });
+      if (!hs)
+        return res
+          .status(403)
+          .json({ message: "House does not belong to the user" });
 
       equipments.push(parseInt(req.query.equipmentId));
     } else {
@@ -64,7 +70,9 @@ let getgivenEnergies = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
 
   if (size <= 0 || page <= 0) {
-    return res.status(400).json({ message: "Page and size must be greater than 0" });
+    return res
+      .status(400)
+      .json({ message: "Page and size must be greater than 0" });
   }
 
   const offset = (page - 1) * size;
@@ -77,7 +85,7 @@ let getgivenEnergies = async (req, res) => {
       },
       limit: size,
       offset,
-      order: [['date', 'ASC']],
+      order: [["date", "ASC"]],
     });
 
     if (rows.length === 0) {
@@ -101,7 +109,6 @@ let getgivenEnergies = async (req, res) => {
     });
   }
 };
-
 
 let addgivenEnergies = async (req, res) => {
   const { id_equipment, date, value } = req.body;
@@ -131,8 +138,15 @@ let addgivenEnergies = async (req, res) => {
       message: "Invalid date format",
     });
   }
+  // Verificar se o equipamento existe
+  const equipment = await EnergyEquipment.findByPk(id_equipment);
+  if (!equipment) {
+    return res.status(404).json({
+      message: "Equipment not found",
+    });
+  }
 
-  let newEnergyReturn = {
+  const newEnergyReturn = {
     value,
     id_equipment,
     date: finalDate,
@@ -150,28 +164,26 @@ let addgivenEnergies = async (req, res) => {
       error: err.message,
     });
   }
-
-}
+};
 
 async function allUserEquipments(user) {
   const houses = await Housing.findAll({
     where: {
-      id_user: user
-    }
+      id_user: user,
+    },
   });
 
-  const houseIds = houses.map(h => h.id_housing);
+  const houseIds = houses.map((h) => h.id_housing);
 
   let equipments = await EnergyEquipment.findAll({
     where: {
       housing: {
-        [Op.in]: houseIds
+        [Op.in]: houseIds,
       },
-    }
+    },
   });
 
-  equipments = equipments.map(e => e.id_equipment);
-
+  equipments = equipments.map((e) => e.id_equipment);
 
   return equipments;
 }
@@ -180,8 +192,8 @@ async function allequipmentsHouse(house, user) {
   const hs = await Housing.findOne({
     where: {
       id_housing: house,
-      id_user: user
-    }
+      id_user: user,
+    },
   });
   if (!hs) {
     const error = new Error("House does not belong to the user");
@@ -190,10 +202,10 @@ async function allequipmentsHouse(house, user) {
   }
   const equipments = await EnergyEquipment.findAll({
     where: {
-      housing: house
-    }
+      housing: house,
+    },
   });
-  const equipmentIds = equipments.map(e => e.id_equipment);
+  const equipmentIds = equipments.map((e) => e.id_equipment);
 
   return equipmentIds;
 }
@@ -218,12 +230,10 @@ let deleteGivenEnergy = async (req, res, next) => {
       error: error.message,
     });
   }
-}
-
-
+};
 
 module.exports = {
   getgivenEnergies,
   addgivenEnergies,
-  deleteGivenEnergy
+  deleteGivenEnergy,
 };

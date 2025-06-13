@@ -135,7 +135,7 @@ let addEnergyProduction = async (req, res) => {
     });
   }
 
-  // ✅ Verifica se o equipamento existe
+  // Verifica se o equipamento existe
   const equipment = await EnergyEquipment.findByPk(id_equipment);
   if (!equipment) {
     return res.status(404).json({
