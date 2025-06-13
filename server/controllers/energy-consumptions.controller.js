@@ -5,7 +5,7 @@ const {
   Notifications,
   User,
 } = require("../models/index.js");
-const { UniqueConstraintError, ValidationError } = require("sequelize");
+const { UniqueConstraintError, ValidationError, Op } = require("sequelize");
 
 // Create consumption
 const addEnergyConsumption = async (req, res, next) => {
@@ -81,7 +81,8 @@ async function generateAlertsIfNeeded(consumption) {
     const value = consumption.value;
 
     if (
-      parsedPrefs.thresholds?.consumption &&
+      parsedPrefs.thresholds &&
+      parsedPrefs.thresholds.consumption !== undefined &&
       value > parsedPrefs.thresholds.consumption
     ) {
       await createNotification(
@@ -92,8 +93,9 @@ async function generateAlertsIfNeeded(consumption) {
     }
 
     const supplier = await Supplier.findByPk(housing.id_supplier);
-    if (supplier && parsedPrefs.thresholds?.cost) {
+    if (parsedPrefs.thresholds && parsedPrefs.thresholds.cost !== undefined) {
       const estimatedCost = supplier.cost_kWh * value;
+
       if (estimatedCost > parsedPrefs.thresholds.cost) {
         await createNotification(
           user.id_user,
@@ -108,12 +110,32 @@ async function generateAlertsIfNeeded(consumption) {
 }
 
 async function createNotification(id_user, id_consumption, message) {
-  await Notifications.create({
-    type: "Alert",
-    id_user,
-    id_consumption,
-    message,
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const exists = await Notifications.findOne({
+    where: {
+      id_user,
+      id_consumption,
+      message,
+      type: "Alert",
+      createdAt: {
+        [Op.between]: [todayStart, todayEnd],
+      },
+    },
   });
+
+  if (!exists) {
+    await Notifications.create({
+      type: "Alert",
+      id_user,
+      id_consumption,
+      message,
+    });
+  }
 }
 
 // Delete consumption

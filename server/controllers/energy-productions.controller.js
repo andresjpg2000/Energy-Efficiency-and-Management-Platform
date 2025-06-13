@@ -5,7 +5,7 @@ const {
   EnergyEquipment,
   Housing,
   User,
-  Notification,
+  Notifications,
 } = require("../models/index.js");
 const { Op } = require("sequelize");
 
@@ -144,15 +144,15 @@ let addEnergyProduction = async (req, res) => {
   }
 
   try {
-    const createdEnergyReturn = await EnergyProductions.create({
+    const createdProduction = await EnergyProductions.create({
       value,
       id_equipment,
       date: finalDate,
     });
 
     res.status(201).json({
-      message: "Energy return created",
-      data: createdEnergyReturn,
+      message: "Energy production created",
+      data: createdProduction,
     });
 
     // Alertas abaixo…
@@ -186,18 +186,18 @@ let addEnergyProduction = async (req, res) => {
       // Verifica limiar de produção
       if (
         prefs.thresholds &&
-        prefs.thresholds.generation &&
-        createdEnergyReturn.value < prefs.thresholds.generation
+        prefs.thresholds.generation !== undefined &&
+        createdProduction.value < prefs.thresholds.generation
       ) {
-        const date = new Date(createdEnergyReturn.date).toLocaleDateString(
-          "pt-PT"
+        const date = new Date(createdProduction.date).toLocaleDateString(
+          "en-GB"
         );
-        const valueStr = createdEnergyReturn.value.toFixed(2).replace(".", ",");
+        const valueStr = createdProduction.value.toFixed(2);
 
-        await Notification.create({
+        await Notifications.create({
           type: "Alert",
           id_user: user.id_user,
-          message: `Produção insuficiente: apenas ${valueStr} kWh gerados em ${date}.`,
+          message: `Low energy generation: only ${valueStr} kWh produced on ${date}.`,
         });
       }
     } catch (alertError) {
@@ -205,7 +205,7 @@ let addEnergyProduction = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({
-      message: "Error creating energy return",
+      message: "Error creating energy production",
       error: err.message,
     });
   }
