@@ -74,10 +74,12 @@ export default {
             if (select === 'today') {
                 productions = this.productionStore.getAllProductionToday;
             } else if (select === 'newDate') {
-                productions = await this.productionStore.fetchProductionsByDate(this.datePicker);
+                console.log(this.datePicker);
+                
+                productions = await this.productionStore.fetchProductionsByDate(this.datePicker);                
             }
             productions.forEach((prod) => {
-                    const hour = new Date(prod.date).getHours();
+                    const hour = new Date(prod.date).getUTCHours()                    
                     allHoursData[hour] += prod.value;
                 });
                 return allHoursData;
@@ -90,9 +92,12 @@ export default {
                 consumptions = this.consumptionStore.getConsumptionToday;
             } else if (select === 'newDate') {
                 consumptions = await this.consumptionStore.fetchConsumptionByDate(this.datePicker);
+                console.log(consumptions);
             }
             consumptions.forEach((cons) => {
-                const hour = new Date(cons.date).getHours();
+                const hour = new Date(cons.date).getUTCHours();
+                console.log(new Date(cons.date).getUTCHours());
+
                 allHoursData[hour] += cons.value;
             });
             return allHoursData;
@@ -108,7 +113,7 @@ export default {
             }
 
             givenEnergies.forEach((prod) => {
-                const hour = new Date(prod.date).getHours();
+                const hour = new Date(prod.date).getUTCHours();
                 allHoursData[hour] += prod.value;
             });
             return allHoursData;  

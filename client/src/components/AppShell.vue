@@ -35,9 +35,13 @@
               <v-btn density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
                 @click="editHouse"><v-icon>mdi-home-edit</v-icon></v-btn>
               <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
-                <v-chip filter selected v-for="house in labeledHousings" :key="house.id_housing" rounded="lg"
-                  :value="house.id_housing" @click="changingHouse(house.id_housing)">{{
-                    house.label }}</v-chip>
+                <v-tooltip v-for="house in labeledHousings" :text="house.address" :key="house.id_housing" location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <v-chip filter selected :="props" :key="house.id_housing" rounded="lg"
+                    :value="house.id_housing" @click="changingHouse(house.id_housing)">{{
+                      house.label }}</v-chip>
+                  </template>
+                </v-tooltip>
               </v-chip-group>
             </v-col>
           </v-row>
