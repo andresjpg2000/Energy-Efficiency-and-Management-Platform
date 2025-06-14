@@ -26,7 +26,7 @@
                                     </v-progress-linear>
                                     <div class="d-flex flex-row justify-space-between mt-2">
                                         <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
-                                        }}
+                                            }}
                                             kWh</v-list-item-subtitle>
                                         <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
                                     </div>
@@ -230,10 +230,10 @@ export default {
             return JSON.parse(this.authStore.getUserNotificationSettings) || {};
         },
         consumptionTarget() {
-            return this.notificationSettings.thresholds?.consumption.toFixed(4) || "Not Set";
+            return this.notificationSettings.thresholds?.consumption || "Not Set";
         },
         productionTarget() {
-            return this.notificationSettings.thresholds?.generation.toFixed(4) || "Not Set";
+            return this.notificationSettings.thresholds?.production || "Not Set";
         },
         costTarget() {
             return this.notificationSettings.thresholds?.cost.toFixed(4) || "Not Set";
@@ -245,7 +245,7 @@ export default {
         },
         productionRatio() {
             const production = this.productionsStore.getProductionThisMonth || 0;
-            const target = this.notificationSettings.thresholds?.generation || 10;
+            const target = this.notificationSettings.thresholds?.production || 10;
             return Math.min(((production / target) * 100), 100);
         },
         costRatio() {
@@ -267,7 +267,7 @@ export default {
             const cost = (this.supplierCost * (consumption - production));
 
             const consumptionTarget = this.notificationSettings.thresholds?.consumption || 10;
-            const productionTarget = this.notificationSettings.thresholds?.generation || 10;
+            const productionTarget = this.notificationSettings.thresholds?.production || 10;
             const costTarget = this.notificationSettings.thresholds?.cost || 10;
 
             // Calculate differences
