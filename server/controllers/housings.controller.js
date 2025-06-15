@@ -561,8 +561,11 @@ const deleteHousing = async (req, res, next) => {
 
     res.status(204).send();
   } catch (err) {
-    // Handle any errors that occur during the database query
     console.error("Error deleting housing:", err);
+
+    if (err.status && err.message) {
+      return res.status(err.status).json({ message: err.message });
+    }
 
     next(err);
   }
