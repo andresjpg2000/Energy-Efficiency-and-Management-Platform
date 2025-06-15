@@ -2,6 +2,7 @@ const {
   Notifications,
   User,
   EnergyConsumption,
+  EnergyEquipment,
 } = require("../models/index.js");
 
 // Create a new notification
@@ -55,7 +56,6 @@ async function createNotification(req, res, next) {
 // Get all notifications for a specific user
 const getMyAlerts = async (req, res) => {
   try {
-
     if (!req.user || !req.user.id_user) {
       return res
         .status(401)
@@ -69,6 +69,12 @@ const getMyAlerts = async (req, res) => {
         id_user,
         type: "Alert",
       },
+      include: [
+        {
+          model: EnergyConsumption,
+          attributes: ["id_housing"],
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
 

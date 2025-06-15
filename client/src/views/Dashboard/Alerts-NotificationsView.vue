@@ -14,7 +14,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="alert in alerts" :key="alert.id_notification">
+          <tr v-for="alert in filteredAlerts" :key="alert.id_notification">
             <td>{{ alert.message }}</td>
             <td>{{ formatDate(alert.createdAt) }}</td>
             <td>
@@ -44,11 +44,13 @@
 
 <script>
 import { useNotificationsStore } from "@/stores/notifications";
+import { useHousingsStore } from "@/stores/housings";
 
 export default {
   data() {
     return {
       store: useNotificationsStore(),
+      housingsStore: useHousingsStore(),
     };
   },
 
@@ -58,6 +60,12 @@ export default {
     },
     isLoading() {
       return this.store.isLoading;
+    },
+    filteredAlerts() {
+      const selectedHouseId = this.housingsStore.selectedHousingId;
+      return this.alerts.filter(
+        (a) => !a.Consumption || a.Consumption.id_housing === selectedHouseId
+      );
     },
   },
 

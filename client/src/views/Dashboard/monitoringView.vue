@@ -1,53 +1,33 @@
 <template>
   <v-container fluid>
-    <!-- Switch de casas -->
-    <v-expansion-panels>
-      <v-expansion-panel rounded="lg" title="Equipment Settings">
-        <v-expansion-panel-text>
-          <v-chip-group
-            mandatory
-            selected-class="text-success"
-            v-model="housingsStore.selectedHousingId"
-          >
-            <v-chip
-              v-for="house in housingsStore.housings"
-              :key="house.id_housing"
-              :value="house.id_housing"
-              rounded="lg"
-            >
-              {{ house.building_type }}
-            </v-chip>
-          </v-chip-group>
-
-          <v-btn
-            color="primary"
-            class="mt-4"
-            @click="openAddEquipmentDialog"
-            prepend-icon="mdi-plus"
-          >
-            Add Equipment
-          </v-btn>
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
+    <!-- Botão para adicionar equipamento -->
+    <v-btn
+      density="comfortable"
+      class="mt-4"
+      color="success"
+      rounded="lg"
+      @click="openAddEquipmentDialog"
+      prepend-icon="mdi-plus"
+      >Add Equipment
+    </v-btn>
 
     <!-- Tabela de equipamentos -->
     <v-card class="mt-4" v-if="equipments.length">
       <v-data-table :headers="headers" :items="equipments" class="elevation-1">
         <template #item.actions="{ item }">
-          <v-icon small class="me-2" @click="editEquipment(item)"
-            >mdi-pencil</v-icon
-          >
-          <v-icon small color="red" @click="deleteEquipment(item)"
-            >mdi-delete</v-icon
-          >
+          <v-icon small class="me-2" @click="editEquipment(item)">
+            mdi-pencil
+          </v-icon>
+          <v-icon small color="red" @click="deleteEquipment(item)">
+            mdi-delete
+          </v-icon>
         </template>
       </v-data-table>
     </v-card>
 
-    <v-alert v-else type="info" class="mt-4"
-      >No equipment found for this house.</v-alert
-    >
+    <v-alert v-else type="info" class="mt-4">
+      No equipment found for this house.
+    </v-alert>
 
     <!-- Modal adicionar/editar equipamento -->
     <v-dialog v-model="openDialog" max-width="500px">
@@ -65,7 +45,6 @@
             variant="outlined"
             required
           />
-
           <v-select
             v-model="equipment.energy_type"
             :items="energyTypes"
@@ -75,7 +54,6 @@
             variant="outlined"
             :disabled="isEditMode"
           />
-
           <v-text-field
             v-model="equipment.capacity"
             label="Capacity (kW)"
