@@ -36,7 +36,7 @@
               :min="0"
               :max="20"
               :step="0.1"
-              placeholder="5"
+              placeholder="1"
               hint="You will receive an alert if your consumption exceeds this threshold."
               :persistent-hint="true"
               class="mt-4"
@@ -55,23 +55,23 @@
         <v-row>
           <v-col>
             <v-number-input
-              v-model.number="ThresholdEnergyGeneration"
-              label="Alert Threshold for Energy Generation (kWh)"
+              v-model.number="ThresholdEnergyProduction"
+              label="Alert Threshold for Energy Production (kWh)"
               variant="outlined"
               density="default"
               :min="0"
               :max="20"
               :step="0.1"
-              placeholder="5"
-              hint="You will receive an alert if your energy generation doesn't reach this threshold."
+              placeholder="10"
+              hint="You will receive an alert if your energy Production doesn't reach this threshold."
               :persistent-hint="true"
             />
           </v-col>
           <v-col class="d-flex align-center">
             <v-switch
-              v-model="ToggleThresholdEnergyGeneration"
+              v-model="ToggleThresholdEnergyProduction"
               color="primary"
-              aria-label="Toggle Energy Generation Alerts"
+              aria-label="Toggle Energy Production Alerts"
               hint="Enable or disable this alert"
             />
           </v-col>
@@ -87,7 +87,7 @@
               :min="0"
               :max="10"
               :step="0.1"
-              placeholder="2.5"
+              placeholder="1"
               hint="You will receive an alert if your costs exceed this threshold."
               :persistent-hint="true"
             />
@@ -124,7 +124,7 @@
 
 <script>
 import { useMessagesStore } from "@/stores/messages.js";
-import { useAuthStore } from "@/stores/auth";
+import { useUsersStore } from "@/stores/users";
 
 export default {
   data() {
@@ -137,8 +137,8 @@ export default {
       ToggleThresholdEnergyConsumption: true,
       ThresholdCosts: 50,
       ToggleThresholdEnergyCosts: true,
-      ThresholdEnergyGeneration: 20,
-      ToggleThresholdEnergyGeneration: true,
+      ThresholdEnergyProduction: 20,
+      ToggleThresholdEnergyProduction: true,
       NotificationFrequencyItems: [
         { title: "Every 15 minutes", value: "15_min" },
         { title: "Every 30 minutes", value: "30_min" },
@@ -153,14 +153,14 @@ export default {
 
   methods: {
     async formSubmit() {
-      const authStore = useAuthStore();
+      const usersStore = useUsersStore();
       this.isSubmitting = true;
 
       const thresholds = {};
       if (this.ToggleThresholdEnergyConsumption)
         thresholds.consumption = this.ThresholdEnergyConsumption;
-      if (this.ToggleThresholdEnergyGeneration)
-        thresholds.generation = this.ThresholdEnergyGeneration;
+      if (this.ToggleThresholdEnergyProduction)
+        thresholds.production = this.ThresholdEnergyProduction;
       if (this.ToggleThresholdEnergyCosts)
         thresholds.cost = this.ThresholdCosts;
 
@@ -168,7 +168,7 @@ export default {
         notification_settings: {
           alerts:
             this.ToggleThresholdEnergyConsumption ||
-            this.ToggleThresholdEnergyGeneration ||
+            this.ToggleThresholdEnergyProduction ||
             this.ToggleThresholdEnergyCosts,
           frequency: this.NotificationFrequency,
           thresholds,
@@ -176,19 +176,8 @@ export default {
       };
 
       try {
-        const res = await fetch(`/users/${authStore.user.id_user}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authStore.token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.message || "Failed to update preferences.");
-        }
+        await usersStore.updateUser(payload);
+        await usersStore.fetchUser();
 
         this.messagesStore.add({
           color: "success",
@@ -210,20 +199,12 @@ export default {
   },
 
   mounted() {
-    const authStore = useAuthStore();
+    const usersStore = useUsersStore();
 
-    fetch(`/users/${authStore.user.id_user}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        const prefs = data.notification_settings;
+    usersStore
+      .fetchUser()
+      .then(() => {
+        const prefs = usersStore.user.notification_settings;
         if (!prefs) return;
 
         this.NotificationFrequency = prefs.frequency || "instant";
@@ -233,8 +214,8 @@ export default {
           this.ToggleThresholdEnergyConsumption = t.consumption != null;
           this.ThresholdEnergyConsumption = t.consumption ?? 100;
 
-          this.ToggleThresholdEnergyGeneration = t.generation != null;
-          this.ThresholdEnergyGeneration = t.generation ?? 20;
+          this.ToggleThresholdEnergyProduction = t.production != null;
+          this.ThresholdEnergyProduction = t.production ?? 20;
 
           this.ToggleThresholdEnergyCosts = t.cost != null;
           this.ThresholdCosts = t.cost ?? 50;
@@ -248,12 +229,11 @@ export default {
         });
       });
   },
-
   watch: {
     Alerts(newVal) {
       this.ToggleThresholdEnergyConsumption = newVal;
       this.ToggleThresholdEnergyCosts = newVal;
-      this.ToggleThresholdEnergyGeneration = newVal;
+      this.ToggleThresholdEnergyProduction = newVal;
     },
   },
 };

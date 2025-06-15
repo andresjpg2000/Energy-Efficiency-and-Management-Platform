@@ -186,8 +186,8 @@ let addEnergyProduction = async (req, res) => {
       // Verifica limiar de produção
       if (
         prefs.thresholds &&
-        prefs.thresholds.generation !== undefined &&
-        createdProduction.value < prefs.thresholds.generation
+        prefs.thresholds.production !== undefined &&
+        createdProduction.value < prefs.thresholds.production
       ) {
         const date = new Date(createdProduction.date).toLocaleDateString(
           "en-GB"
@@ -197,7 +197,7 @@ let addEnergyProduction = async (req, res) => {
         await Notifications.create({
           type: "Alert",
           id_user: user.id_user,
-          message: `Low energy generation: only ${valueStr} kWh produced on ${date}.`,
+          message: `Low energy production: only ${valueStr} kWh produced on ${date}.`,
         });
       }
     } catch (alertError) {

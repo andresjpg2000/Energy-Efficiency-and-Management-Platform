@@ -180,21 +180,21 @@ async function updateUser(req, res, next) {
     if (id_user != req.user.id_user) {
       // Se não for o próprio utilizador, verificar se é admin
       const user = await User.findByPk(req.user.id_user, {
-        attributes: ['id_user', 'admin']
+        attributes: ["id_user", "admin"],
       });
       if (!user || !user.admin) {
         return res.status(403).json({ message: "Forbidden" });
       }
     }
-    const { email, name, password, admin} = req.body;
+    const { email, name, password, admin, notification_settings } = req.body;
     const user = await User.findByPk(id_user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const updateData = { email, name };
-    if (req.body.notification_settings) {
-      updateData.notification_settings = req.body.notification_settings;
+    if (notification_settings) {
+      updateData.notification_settings = notification_settings;
     }
 
     if (password) {

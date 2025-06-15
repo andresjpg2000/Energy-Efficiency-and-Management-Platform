@@ -88,13 +88,17 @@ async function generateAlertsIfNeeded(consumption) {
       await createNotification(
         user.id_user,
         consumption.id_consumption,
-        `High consumption: ${value} kWh`
+        `High consumption: ${value.toFixed(2)} kWh`
       );
     }
 
     const supplier = await Supplier.findByPk(housing.id_supplier);
     if (parsedPrefs.thresholds && parsedPrefs.thresholds.cost !== undefined) {
       const estimatedCost = supplier.cost_kWh * value;
+
+      console.log(
+        `Estimated cost: ${estimatedCost.toFixed(2)}, threshold: ${parsedPrefs.thresholds.cost}`
+      );
 
       if (estimatedCost > parsedPrefs.thresholds.cost) {
         await createNotification(
