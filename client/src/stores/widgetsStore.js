@@ -156,7 +156,7 @@ export const useWidgetsStore = defineStore('widgets', {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${authStore.token}`,
               },
-              body: JSON.stringify(widget.body),
+              body: JSON.stringify({ x: widget.body.x, y: widget.body.y }),
             })
           );
 
