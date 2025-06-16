@@ -124,7 +124,7 @@ export default {
             if (equipments.length > 0) {
                 return equipments;
             } else {
-                return ['Panel Solar 1', 'Panel Solar 2', 'Panel Solar 3', 'Panel Solar 4', 'Panel Solar 5'];
+                return ['No Equipments Found'];
             }    
         },
         Chart() {

@@ -10,6 +10,7 @@ export const useAuthStore = defineStore("auth", {
     refreshToken: null,
     user: null,
     userFetched: false, // Prevent loop error when trying to fetch user data with an expired token
+    //lastUser: null, // Store the last fetched user data to avoid unnecessary API calls
   }),
   getters: {
     isLoggedIn: (state) => !!state.token && !state.isTokenExpired(),
@@ -155,7 +156,7 @@ export const useAuthStore = defineStore("auth", {
   },
   persist: {
     enabled: true,
-    storage: sessionStorage,
-    pick: ["user", "token", "refreshToken"],
+    storage: localStorage,
+    pick: ["user", "token", "refreshToken", "lastUser"],
   },
 });

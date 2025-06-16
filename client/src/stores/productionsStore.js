@@ -109,7 +109,6 @@ export const useProductionsStore = defineStore("productions", {
         let data = results.flat()
         data.forEach((el) => {
           el.value = parseFloat(el.value)
-          this.data.push(el)
         })
         return data
       } catch (error) {
@@ -128,11 +127,13 @@ export const useProductionsStore = defineStore("productions", {
       } else {
         startDate = new Date(startDate);
       }
+      startDate.setHours(1, 0, 0, 0);
       if (!endDate) {
         endDate = new Date();
       } else {
         endDate = new Date(endDate);
       }
+      endDate.setHours(24, 59, 59, 999);
       link += `&start=${startDate.toISOString()}`;
       link += `&end=${endDate.toISOString()}`;
       if (equipmentId) link += `&equipmentId=${equipmentId}`;
@@ -147,7 +148,17 @@ export const useProductionsStore = defineStore("productions", {
         })
         if (!response.ok) {
           const data = await response.json()
-          throw new Error(data.message || 'Network response was not ok')
+          if (data.message) {
+            const messagesStore = useMessagesStore();
+            messagesStore.add({
+              color: 'error',
+              text: data.message,
+            });
+            return {
+              data: [],
+              total: 0,
+            }
+          }
         }
 
         const results = await response.json()
@@ -158,7 +169,7 @@ export const useProductionsStore = defineStore("productions", {
         results.data.forEach(el => {
           delete el.id_production;
           el.value = parseFloat(el.value);
-          el.date = new Date(el.date).toISOString;
+          // el.date = new Date(el.date).toLocaleString();
         });
         return results;
       } catch (error) {

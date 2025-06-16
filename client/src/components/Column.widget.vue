@@ -91,7 +91,7 @@ export default {
             if (select === 'today') {
                 consumptions = this.consumptionStore.getConsumptionToday;
             } else if (select === 'newDate') {
-                consumptions = await this.consumptionStore.fetchConsumptionByDate(this.datePicker);
+                consumptions = await this.consumptionStore.fetchConsumptionDay(this.datePicker);
                 console.log(consumptions);
             }
             consumptions.forEach((cons) => {
