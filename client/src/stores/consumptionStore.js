@@ -107,7 +107,7 @@ export const useConsumptionStore = defineStore("consumption", {
       this.data = []
       this.lastUpdateDate = null
     },
-    async fetchConsumptionByDate(date) {
+    async fetchConsumptionDay(date) {
       const housingsStore = useHousingsStore()
 
       const start = new Date(date)
@@ -138,6 +138,48 @@ export const useConsumptionStore = defineStore("consumption", {
         })
 
         return data
+      } catch (error) {
+        throw error
+      }
+    },
+
+    async fetchConsumptionByDate(date, endDate, page = 1, size = 10) {
+      const housingsStore = useHousingsStore()
+
+      if (!date) {
+        date = new Date(0);
+      } else {
+        date = new Date(date);
+      }
+      date.setHours(1, 0, 0, 0);
+      if (!endDate) {
+        endDate = new Date();
+      } else {
+        endDate = new Date(endDate);
+      }
+      endDate.setHours(24, 59, 59, 999);
+
+      try {
+        const response = await fetchWithAuth(
+          `${URL}/housings/${housingsStore.selectedHousingId
+          }/energy-consumptions?start=${date.toISOString()}&end=${endDate.toISOString()}&page=${page}&size=${size}`,
+          {
+            method: "GET",
+          }
+        )
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.message || "Network response was not ok")
+        }
+
+        const result = await response.json()
+
+        result.data.consumptions.forEach((el) => {
+          el.value = parseFloat(el.value)
+        });
+
+        return result
       } catch (error) {
         throw error
       }

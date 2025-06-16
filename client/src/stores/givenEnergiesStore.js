@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useEquipmentsStore } from './equipmentsStore';
 import { URL } from '../utils/constants.js';
+import { useMessagesStore } from './messages.js';
+import { useAuthStore } from './auth.js';
 
 export const useGivenEnergiesStore = defineStore('givenEnergies', {
   state: () => ({
@@ -93,6 +95,63 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
           el.value = parseFloat(el.value);
         });
         return data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async fetchGivenEnergiesTable(size, page, startDate, endDate, equipmentId, houseId) {
+      const authStore = useAuthStore();
+      let link = `${URL}/given-energies?userId=${authStore.getUserId}`;
+      if (!startDate) {
+        startDate = new Date(0);
+      } else {
+        startDate = new Date(startDate);
+      }
+      startDate.setHours(1, 0, 0, 0);
+      if (!endDate) {
+        endDate = new Date();
+      } else {
+        endDate = new Date(endDate);
+      }
+      endDate.setHours(24, 59, 59, 999);
+      link += `&start=${startDate.toISOString()}`;
+      link += `&end=${endDate.toISOString()}`;
+      if (equipmentId) link += `&equipmentId=${equipmentId}`;
+      if (houseId) link += `&houseId=${houseId}`;
+      if (page) link += `&page=${page}`;
+      if (size) link += `&size=${size}`;
+
+      console.log('link', link);
+      try {
+        const response = await fetchWithAuth(link, {
+          method: 'GET',
+        })
+        if (!response.ok) {
+          const data = await response.json()
+          if (data.message) {
+            const messagesStore = useMessagesStore();
+            messagesStore.add({
+              color: 'error',
+              text: data.message,
+            });
+            return {
+              data: [],
+              total: 0,
+            }
+          }
+        }
+
+        const results = await response.json()
+
+        // Junta todos os dados num único array
+        console.log('data', results.data);
+
+        results.data.forEach(el => {
+          delete el.id;
+          el.value = parseFloat(el.value);
+          // el.date = new Date(el.date).toLocaleString();
+        });
+        return results;
       } catch (error) {
         throw error;
       }

@@ -8,6 +8,14 @@ export const useEquipmentsStore = defineStore('equipments', {
     equipments: [],
   }),
   persist: true,
+  getters: {
+    getEquipmentsByHousingId: (state) => (housingId) =>
+      state.equipments.filter((e) => e.id_housing === housingId),
+    getEquipmentNameById: (state) => (id) => {
+      const equipment = state.equipments.find((e) => e.id_equipment === id);
+      return equipment ? equipment.name : '';
+    }
+  },
   actions: {
     async fetchEquipments() {
       try {
