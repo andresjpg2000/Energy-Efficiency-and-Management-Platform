@@ -209,16 +209,22 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
         },
       ];
     });
-
+    const totalItems = await house.countConsumptions({
+      where: {
+        date: {
+          [Op.and]: [{ [Op.gte]: start }, { [Op.lte]: end }],
+        },
+      },
+    });
     house.dataValues.consumptions = consumptions;
     res.status(200).json({
       data: house,
       pagination: pagination.limit
         ? {
-            page,
-            size,
-            totalPages: Math.ceil(count / size),
-          }
+          page,
+          size,
+          total: totalItems
+        }
         : null,
     });
   } catch (err) {
