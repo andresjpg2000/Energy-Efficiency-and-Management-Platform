@@ -11,6 +11,7 @@ export default {
       checkbox: false,
       password: "passteste",
       username: "greengridesmad@gmail.com",
+      passwordTouched: false,
       // password: "",
       // username: "",
       show1: false,
@@ -29,9 +30,27 @@ export default {
         (v) =>
           v.length <= 100 ||
           "Password must be equal or less than 100 characters",
+        (v) => v.length >= 6 || 'Password must be at least 6 characters',
       ],
       forgotPassword: false,
     };
+  },
+  computed: {
+    progress() {
+      if (this.password.length <= 2) {
+        return 20; // Red for not enough characters
+      } else if (this.password.length <= 5) {
+        return 50; // Yellow for loading
+      } else {
+        return 100; // Green for success
+      }
+    },
+    color() {
+      if (this.password.length <= 2) return 'error';
+      if (this.password.length <= 5) return 'warning';
+      return 'success';
+    },
+
   },
   methods: {
     async validate() {
@@ -168,12 +187,16 @@ export default {
       <v-label>Password</v-label>
       <v-text-field aria-label="password" v-model="password" name="password" :rules="passwordRules" required
         variant="outlined" color="primary" hide-details="auto" :type="show1 ? 'text' : 'password'" class="mt-2"
-        autocomplete="current-password">
+        autocomplete="current-password" @input="passwordTouched = true">
         <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
             <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
             <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>
+        </template>
+        <template v-slot:loader>
+          <v-progress-linear :active="passwordTouched" :color="color" :model-value="progress"
+            :indeterminate="isSubmitting" height="7"></v-progress-linear>
         </template>
       </v-text-field>
     </div>

@@ -4,81 +4,97 @@ import { URL } from '@/utils/constants.js';
 
 export default {
   name: 'HomeView',
-    data() {
-      return {
-        checkbox: false,
-        password: '',
-        username: "",
-        email: "",
-        firstname: "",
-        lastname: "",
-        show1: false,
-        isSubmitting: false,
-        emailRules: [
-          (v) => !!v.trim() || 'E-mail is required',
-          (v) => {
-            const trimmedEmail = v.trim();
-            return !/\s/.test(trimmedEmail) || 'E-mail must not contain spaces';
-          },
-          (v) => /.+@.+\..+/.test(v.trim()) || 'E-mail must be valid'
-        ],
-        passwordRules: [
-          (v) => !!v || 'Password is required',
-          (v) => v === v.trim() || 'Password cannot start or end with spaces',
-          (v) => v.length >= 6 || 'Password must be at least 6 characters',
-          (v) => v.length <= 100 || 'Password must be less than 100 characters'
-        ],
-        firstRules: [(v) => !!v || 'First Name is required'],
-        lastRules: [(v) => !!v || 'Last Name is required'],
-      };
+  data() {
+    return {
+      checkbox: false,
+      password: '',
+      username: "",
+      email: "",
+      firstname: "",
+      lastname: "",
+      show1: false,
+      isSubmitting: false,
+      emailRules: [
+        (v) => !!v.trim() || 'E-mail is required',
+        (v) => {
+          const trimmedEmail = v.trim();
+          return !/\s/.test(trimmedEmail) || 'E-mail must not contain spaces';
+        },
+        (v) => /.+@.+\..+/.test(v.trim()) || 'E-mail must be valid'
+      ],
+      passwordRules: [
+        (v) => !!v || 'Password is required',
+        (v) => v === v.trim() || 'Password cannot start or end with spaces',
+        (v) => v.length >= 6 || 'Password must be at least 6 characters',
+        (v) => v.length <= 100 || 'Password must be less than 100 characters'
+      ],
+      firstRules: [(v) => !!v || 'First Name is required'],
+      lastRules: [(v) => !!v || 'Last Name is required'],
+    };
+  },
+  computed: {
+    progress() {
+      if (this.password.length <= 2) {
+        return 20; // Red for not enough characters
+      } else if (this.password.length <= 5) {
+        return 50; // Yellow for loading
+      } else {
+        return 100; // Green for success
+      }
     },
-    methods: {
-      async validate() {
-        this.isSubmitting = true;
-        const messagesStore = useMessagesStore();
+    color() {
+      if (this.password.length <= 2) return 'error';
+      if (this.password.length <= 5) return 'warning';
+      return 'success';
+    },
+  },
+  methods: {
+    async validate() {
+      this.isSubmitting = true;
+      const messagesStore = useMessagesStore();
 
-        try {
+      try {
 
-          const response = await fetch(`${URL}/users/register`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: this.email,
-              name: this.firstname + ' ' + this.lastname,
-              password: this.password
-            }),
+        const response = await fetch(`${URL}/users/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: this.email,
+            name: this.firstname + ' ' + this.lastname,
+            password: this.password
+          }),
+        });
+
+        if (!response.ok) {
+          messagesStore.add({
+            text: data.message || 'Error processing registration',
+            color: 'error',
+            timeout: 3000,
           });
 
-          if (!response.ok) {
-            messagesStore.add({
-              text: data.message || 'Error processing registration',
-              color: 'error',
-              timeout: 3000,
-            });
-
-            throw new Error('Error processing registration');
-          }
-
-          messagesStore.add({
-              text: 'Registration successful, please login',
-              color: 'success',
-              timeout: 3000,
-            });
-
-          setTimeout(() => {
-            this.$router.push('/login');
-          }, 100);
-
-        } catch (error) {
-          console.log(error);
-        } finally {
-          this.isSubmitting = false;
+          throw new Error('Error processing registration');
         }
 
-      },
+        messagesStore.add({
+          text: 'Registration successful, please login',
+          color: 'success',
+          timeout: 3000,
+        });
+
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 100);
+
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.isSubmitting = false;
+      }
+
     },
+  },
 };
 
 </script>
@@ -93,73 +109,38 @@ export default {
       <v-col cols="12" sm="6" class="py-0">
         <div class="mb-6">
           <v-label>First Name*</v-label>
-          <v-text-field
-            v-model="firstname"
-            name="firstname"
-            :rules="firstRules"
-            hide-details="auto"
-            required
-            variant="outlined"
-            class="mt-2"
-            color="primary"
-            placeholder="John"
-          ></v-text-field>
+          <v-text-field v-model="firstname" name="firstname" :rules="firstRules" hide-details="auto" required
+            variant="outlined" class="mt-2" color="primary" placeholder="John"></v-text-field>
         </div>
       </v-col>
       <v-col cols="12" sm="6" class="py-0">
         <div class="mb-6">
           <v-label>Last Name*</v-label>
-          <v-text-field
-            v-model="lastname"
-            name="lastname"
-            :rules="lastRules"
-            hide-details="auto"
-            required
-            variant="outlined"
-            class="mt-2"
-            color="primary"
-            placeholder="Doe"
-          ></v-text-field>
+          <v-text-field v-model="lastname" name="lastname" :rules="lastRules" hide-details="auto" required
+            variant="outlined" class="mt-2" color="primary" placeholder="Doe"></v-text-field>
         </div>
       </v-col>
     </v-row>
     <div class="mb-6">
       <v-label>Email Address*</v-label>
-      <v-text-field
-        v-model="email"
-        name="email"
-        :rules="emailRules"
-        placeholder="user@company.com"
-        class="mt-2"
-        required
-        hide-details="auto"
-        variant="outlined"
-        color="primary"
-        @input="email"
-        autocomplete="email"
-      ></v-text-field>
+      <v-text-field v-model="email" name="email" :rules="emailRules" placeholder="user@company.com" class="mt-2"
+        required hide-details="auto" variant="outlined" color="primary" @input="email"
+        autocomplete="email"></v-text-field>
     </div>
     <div class="mb-6">
       <v-label>Password</v-label>
-      <v-text-field
-        v-model="password"
-        name="password"
-        :rules="passwordRules"
-        placeholder="*****"
-        required
-        variant="outlined"
-        color="primary"
-        hide-details="auto"
-        :type="show1 ? 'text' : 'password'"
-        class="mt-2"
-        @input="password"
-        autocomplete="new-password"
-      >
+      <v-text-field v-model="password" name="password" :rules="passwordRules" placeholder="*****" required
+        variant="outlined" color="primary" hide-details="auto" :type="show1 ? 'text' : 'password'" class="mt-2"
+        @input="password" autocomplete="new-password">
         <template v-slot:append-inner>
           <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
             <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
             <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>
+        </template>
+        <template v-slot:loader>
+          <v-progress-linear :active="password.length >= 1" :color="color" :model-value="progress"
+            :indeterminate="isSubmitting" height="7"></v-progress-linear>
         </template>
       </v-text-field>
     </div>

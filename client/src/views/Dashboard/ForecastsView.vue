@@ -26,7 +26,7 @@
                                     </v-progress-linear>
                                     <div class="d-flex flex-row justify-space-between mt-2">
                                         <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
-                                            }}
+                                        }}
                                             kWh</v-list-item-subtitle>
                                         <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
                                     </div>
@@ -34,7 +34,7 @@
                                 <v-list-item class="px-0">
                                     <v-list-item-title>Production</v-list-item-title>
                                     <v-progress-linear v-model="productionRatio" height="20"
-                                        :color="productionRatio >= 100 ? 'error' : (productionRatio > 65 ? 'warning' : 'success')">
+                                        :color="productionRatio >= 100 ? 'success' : (productionRatio > 65 ? 'warning' : 'error')">
                                         <strong>{{ Math.ceil(productionRatio) }}%</strong>
                                     </v-progress-linear>
                                     <div class="d-flex flex-row justify-space-between mt-2">
@@ -212,13 +212,21 @@ export default {
         };
     },
     computed: {
+        dayOfMonth() {
+            return new Date().getDate();
+        },
+        currentMonth() {
+            return new Date().getMonth();
+        },
+        currentMonthDaysCount() {
+            return new Date(new Date().getFullYear(), this.currentMonth + 1, 0).getDate();
+        },
         supplierCost() {
             // This will return the cost per kWh for the selected housing's supplier
             return this.suppliersStore.getSupplierCostByID(
                 this.housingsStore.getSelectedHousing?.id_supplier
             ) || 0;
         },
-
         series() {
             const consumption = this.consumptionStore.getConsumptionThisMonth;
             const production = this.productionsStore.getProductionThisMonth;
@@ -227,13 +235,13 @@ export default {
             return [this.calculateEnergyScore({ consumption, production, cost })];
         },
         notificationSettings() {
-            return JSON.parse(this.authStore.getUserNotificationSettings) || {};
+            return this.authStore.getUserNotificationSettings || {};
         },
         consumptionTarget() {
-            return (this.notificationSettings.thresholds?.consumption * 24 * 30) || "Not Set";
+            return parseFloat((this.notificationSettings.thresholds?.consumption * 24 * 30).toFixed(2)) || "Not Set";
         },
         productionTarget() {
-            return (this.notificationSettings.thresholds?.production * 24 * 30) || "Not Set";
+            return parseFloat((this.notificationSettings.thresholds?.production * 24 * parseFloat(this.currentMonthDaysCount)).toFixed(2)) || "Not Set";
         },
         costTarget() {
             return (this.notificationSettings.thresholds?.cost.toFixed(2)) || "Not Set";
@@ -271,14 +279,14 @@ export default {
             const costTarget = this.notificationSettings.thresholds?.cost || 10;
 
             // Calculate differences
-            const consumptionOverage = consumption - consumptionTarget;
-            const productionShortfall = productionTarget - production;
+            const consumptionOverage = consumption - (consumptionTarget / this.currentMonthDaysCount) * this.dayOfMonth;
+            const productionShortfall = (productionTarget / this.currentMonthDaysCount) * this.dayOfMonth - production;
             const costOverage = cost - costTarget;
 
             // CONSUMPTION RECOMMENDATIONS
             if (consumptionOverage > 0) {
                 const percentageOver = ((consumptionOverage / consumptionTarget) * 100).toFixed(1);
-                const dailyReduction = (consumptionOverage / 30).toFixed(2);
+                const dailyReduction = (consumptionOverage / this.currentMonthDaysCount).toFixed(2);
 
                 if (percentageOver <= 10) {
                     recommendations.push({
@@ -295,7 +303,7 @@ export default {
                     });
                 } else if (percentageOver <= 25) {
                     recommendations.push({
-                        type: 'error',
+                        type: 'warning',
                         icon: 'mdi-alert',
                         title: 'Significant Overconsumption',
                         message: `You're ${percentageOver}% over target (${consumptionOverage.toFixed(2)} kWh excess). Focus on high-energy appliances.`,
@@ -371,9 +379,7 @@ export default {
                 });
             }
 
-            // SEASONAL/WEATHER RECOMMENDATIONS (you can enhance this with weather API)
-            const currentMonth = new Date().getMonth();
-            if ([11, 0, 1].includes(currentMonth)) { // Winter months
+            if ([11, 0, 1].includes(this.currentMonth)) { // Winter months
                 recommendations.push({
                     type: 'info',
                     icon: 'mdi-snowflake',
@@ -416,7 +422,6 @@ export default {
             // Make sure cost is not negative and fixed to 2 decimals
             return Math.max(0, projectedCost).toFixed(2);
         },
-
     },
     methods: {
         calculateEnergyScore({
@@ -424,7 +429,6 @@ export default {
             production,
             cost,
         }) {
-            console.log(`Calculating energy score with consumption: ${consumption}, production: ${production}, cost: ${cost}`);
             const maxCost = 500;
             let score = 0;
             let weightSum = 0;

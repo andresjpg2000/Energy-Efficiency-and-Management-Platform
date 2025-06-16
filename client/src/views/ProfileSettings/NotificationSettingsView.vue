@@ -19,7 +19,7 @@
 
         <v-row>
           <v-col>
-            <v-number-input v-model.number="ThresholdEnergyConsumption"
+            <v-text-field type="number" v-model.number="ThresholdEnergyConsumption"
               label="Alert Threshold for Energy Consumption (kWh)" variant="outlined" density="default" :min="0"
               :max="20" :step="0.1" placeholder="1"
               hint="You will receive an alert if your consumption exceeds this threshold." :persistent-hint="true"
@@ -33,7 +33,7 @@
 
         <v-row>
           <v-col>
-            <v-number-input v-model.number="ThresholdEnergyProduction"
+            <v-text-field type="number" v-model="ThresholdEnergyProduction"
               label="Alert Threshold for Energy Production (kWh)" variant="outlined" density="default" :min="0"
               :max="20" :step="0.1" placeholder="10"
               hint="You will receive an alert if your energy Production doesn't reach this threshold."
@@ -47,7 +47,7 @@
 
         <v-row>
           <v-col>
-            <v-number-input v-model.number="ThresholdCosts" label="Alert Threshold for energy costs (€)"
+            <v-text-field type="number" v-model="ThresholdCosts" label="Alert Threshold for energy costs (€)"
               variant="outlined" density="default" :min="0" :max="10" :step="0.1" placeholder="1"
               hint="You will receive an alert if your costs exceed this threshold." :persistent-hint="true" />
           </v-col>
@@ -150,7 +150,7 @@ export default {
     const authStore = useAuthStore();
 
     try {
-      const prefs = JSON.parse(authStore.user.notification_settings);
+      const prefs = authStore.user.notification_settings;
 
       if (!prefs) return;
 
@@ -158,7 +158,6 @@ export default {
 
       if (prefs.thresholds) {
         const t = prefs.thresholds;
-        console.log("tresholds:", t);
 
         this.ToggleThresholdEnergyConsumption = t.consumption != null;
         this.ThresholdEnergyConsumption = t.consumption ?? 100;
