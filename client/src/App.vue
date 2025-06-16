@@ -7,7 +7,7 @@ const messagesStore = useMessagesStore()
 <template>
   <RouterView />
 
-  <v-snackbar-queue v-model="messagesStore.queue"></v-snackbar-queue>
+  <v-snackbar-queue v-model="messagesStore.queue" :timeout="1000" closable></v-snackbar-queue>
 
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
 </template>

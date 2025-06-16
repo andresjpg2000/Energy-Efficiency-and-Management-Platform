@@ -10,109 +10,57 @@
       <v-form ref="form" @submit.prevent="formSubmit">
         <v-row>
           <v-col>
-            <v-select
-              variant="outlined"
-              label="Notification Frequency"
-              density="default"
-              v-model="NotificationFrequency"
-              :clearable="false"
-              :multiple="false"
-              placeholder="Instant"
-              :items="NotificationFrequencyItems"
-              hint="Choose how often you would like to receive notifications."
-              :persistent-hint="true"
-              name="NotificationFrequency"
-            />
+            <v-select variant="outlined" label="Notification Frequency" density="default"
+              v-model="NotificationFrequency" :clearable="false" :multiple="false" placeholder="Instant"
+              :items="NotificationFrequencyItems" hint="Choose how often you would like to receive notifications."
+              :persistent-hint="true" name="NotificationFrequency" />
           </v-col>
         </v-row>
 
         <v-row>
           <v-col>
-            <v-number-input
-              v-model.number="ThresholdEnergyConsumption"
-              label="Alert Threshold for Energy Consumption (kWh)"
-              variant="outlined"
-              density="default"
-              :min="0"
-              :max="20"
-              :step="0.1"
-              placeholder="1"
-              hint="You will receive an alert if your consumption exceeds this threshold."
-              :persistent-hint="true"
-              class="mt-4"
-            />
+            <v-number-input v-model.number="ThresholdEnergyConsumption"
+              label="Alert Threshold for Energy Consumption (kWh)" variant="outlined" density="default" :min="0"
+              :max="20" :step="0.1" placeholder="1"
+              hint="You will receive an alert if your consumption exceeds this threshold." :persistent-hint="true"
+              class="mt-4" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch
-              v-model="ToggleThresholdEnergyConsumption"
-              color="primary"
-              aria-label="Toggle Energy Consumption Alerts"
-              hint="Enable or disable this alert"
-            />
+            <v-switch v-model="ToggleThresholdEnergyConsumption" color="primary"
+              aria-label="Toggle Energy Consumption Alerts" hint="Enable or disable this alert" />
           </v-col>
         </v-row>
 
         <v-row>
           <v-col>
-            <v-number-input
-              v-model.number="ThresholdEnergyProduction"
-              label="Alert Threshold for Energy Production (kWh)"
-              variant="outlined"
-              density="default"
-              :min="0"
-              :max="20"
-              :step="0.1"
-              placeholder="10"
+            <v-number-input v-model.number="ThresholdEnergyProduction"
+              label="Alert Threshold for Energy Production (kWh)" variant="outlined" density="default" :min="0"
+              :max="20" :step="0.1" placeholder="10"
               hint="You will receive an alert if your energy Production doesn't reach this threshold."
-              :persistent-hint="true"
-            />
+              :persistent-hint="true" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch
-              v-model="ToggleThresholdEnergyProduction"
-              color="primary"
-              aria-label="Toggle Energy Production Alerts"
-              hint="Enable or disable this alert"
-            />
+            <v-switch v-model="ToggleThresholdEnergyProduction" color="primary"
+              aria-label="Toggle Energy Production Alerts" hint="Enable or disable this alert" />
           </v-col>
         </v-row>
 
         <v-row>
           <v-col>
-            <v-number-input
-              v-model.number="ThresholdCosts"
-              label="Alert Threshold for energy costs (€)"
-              variant="outlined"
-              density="default"
-              :min="0"
-              :max="10"
-              :step="0.1"
-              placeholder="1"
-              hint="You will receive an alert if your costs exceed this threshold."
-              :persistent-hint="true"
-            />
+            <v-number-input v-model.number="ThresholdCosts" label="Alert Threshold for energy costs (€)"
+              variant="outlined" density="default" :min="0" :max="10" :step="0.1" placeholder="1"
+              hint="You will receive an alert if your costs exceed this threshold." :persistent-hint="true" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch
-              v-model="ToggleThresholdEnergyCosts"
-              color="primary"
-              aria-label="Toggle Energy Cost Alerts"
-              hint="Enable or disable this alert"
-            />
+            <v-switch v-model="ToggleThresholdEnergyCosts" color="primary" aria-label="Toggle Energy Cost Alerts"
+              hint="Enable or disable this alert" />
           </v-col>
         </v-row>
 
         <v-row>
           <v-col>
-            <v-btn
-              color="primary"
-              :loading="isSubmitting"
-              block
-              class="mt-4"
-              variant="flat"
-              size="large"
-              @click="formSubmit"
-            >
+            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large"
+              @click="formSubmit">
               Save Changes
             </v-btn>
           </v-col>
@@ -124,7 +72,8 @@
 
 <script>
 import { useMessagesStore } from "@/stores/messages.js";
-import { useUsersStore } from "@/stores/users";
+import { useAuthStore } from "@/stores/auth.js";
+import { useUsersStore } from "@/stores/users.js";
 
 export default {
   data() {
@@ -177,7 +126,6 @@ export default {
 
       try {
         await usersStore.updateUser(payload);
-        await usersStore.fetchUser();
 
         this.messagesStore.add({
           color: "success",
@@ -199,35 +147,35 @@ export default {
   },
 
   mounted() {
-    const usersStore = useUsersStore();
+    const authStore = useAuthStore();
 
-    usersStore
-      .fetchUser()
-      .then(() => {
-        const prefs = usersStore.user.notification_settings;
-        if (!prefs) return;
+    try {
+      const prefs = JSON.parse(authStore.user.notification_settings);
 
-        this.NotificationFrequency = prefs.frequency || "instant";
+      if (!prefs) return;
 
-        if (prefs.thresholds) {
-          const t = prefs.thresholds;
-          this.ToggleThresholdEnergyConsumption = t.consumption != null;
-          this.ThresholdEnergyConsumption = t.consumption ?? 100;
+      this.NotificationFrequency = prefs.frequency || "instant";
 
-          this.ToggleThresholdEnergyProduction = t.production != null;
-          this.ThresholdEnergyProduction = t.production ?? 20;
+      if (prefs.thresholds) {
+        const t = prefs.thresholds;
+        console.log("tresholds:", t);
 
-          this.ToggleThresholdEnergyCosts = t.cost != null;
-          this.ThresholdCosts = t.cost ?? 50;
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load preferences:", err);
-        this.messagesStore?.add({
-          color: "error",
-          text: "Failed to load notification settings.",
-        });
+        this.ToggleThresholdEnergyConsumption = t.consumption != null;
+        this.ThresholdEnergyConsumption = t.consumption ?? 100;
+
+        this.ToggleThresholdEnergyProduction = t.production != null;
+        this.ThresholdEnergyProduction = t.production ?? 20;
+
+        this.ToggleThresholdEnergyCosts = t.cost != null;
+        this.ThresholdCosts = t.cost ?? 50;
+      }
+    } catch (err) {
+      console.error("Failed to load preferences:", err);
+      this.messagesStore?.add({
+        color: "error",
+        text: "Failed to load notification settings.",
       });
+    };
   },
   watch: {
     Alerts(newVal) {

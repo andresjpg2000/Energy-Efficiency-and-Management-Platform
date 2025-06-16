@@ -58,7 +58,6 @@ export default {
           messagesStore.add({
             text: data.message || "Error processing login",
             color: "error",
-            timeout: 3000,
           });
 
           throw new Error(data.message || "Error processing login");
@@ -77,10 +76,9 @@ export default {
         messagesStore.add({
           text: data.message || "Login successful",
           color: "success",
-          timeout: 3000,
         });
 
-         authStore.setUser(data);
+        authStore.setUser(data);
 
         //await housingsStore.fetchHousings();
 
@@ -126,7 +124,6 @@ export default {
           messagesStore.add({
             text: data.message || "Error processing request",
             color: "error",
-            timeout: 3000,
           });
           throw new Error(data.message || "Error processing request");
         }
@@ -142,7 +139,6 @@ export default {
         messagesStore.add({
           text: "An unexpected error occurred.",
           color: "error",
-          timeout: 3000,
         });
       } finally {
         this.isSubmitting = false;
@@ -158,120 +154,47 @@ export default {
       Reset Password
     </h3>
     <h3 class="text-h3 text-center mb-0" v-else>Login</h3>
-    <router-link
-      to="/register"
-      class="text-primary text-decoration-none"
-      v-if="!this.forgotPassword"
-      >Don't Have an account?</router-link
-    >
+    <router-link to="/register" class="text-primary text-decoration-none" v-if="!this.forgotPassword">Don't Have an
+      account?</router-link>
   </div>
-  <v-form
-    @submit.prevent="forgotPassword ? resetPassword : validate"
-    class="mt-7 loginForm bg-transparent"
-    @keydown.enter.prevent
-  >
+  <v-form @submit.prevent="forgotPassword ? resetPassword : validate" class="mt-7 loginForm bg-transparent"
+    @keydown.enter.prevent>
     <div class="mb-6">
       <v-label>Email Address</v-label>
-      <v-text-field
-        aria-label="email address"
-        v-model="username"
-        name="email"
-        :rules="emailRules"
-        class="mt-2"
-        required
-        hide-details="auto"
-        variant="outlined"
-        color="primary"
-        autocomplete="email"
-      ></v-text-field>
+      <v-text-field aria-label="email address" v-model="username" name="email" :rules="emailRules" class="mt-2" required
+        hide-details="auto" variant="outlined" color="primary" autocomplete="email"></v-text-field>
     </div>
     <div v-if="!this.forgotPassword">
       <v-label>Password</v-label>
-      <v-text-field
-        aria-label="password"
-        v-model="password"
-        name="password"
-        :rules="passwordRules"
-        required
-        variant="outlined"
-        color="primary"
-        hide-details="auto"
-        :type="show1 ? 'text' : 'password'"
-        class="mt-2"
-        autocomplete="current-password"
-      >
+      <v-text-field aria-label="password" v-model="password" name="password" :rules="passwordRules" required
+        variant="outlined" color="primary" hide-details="auto" :type="show1 ? 'text' : 'password'" class="mt-2"
+        autocomplete="current-password">
         <template v-slot:append-inner>
-          <v-btn
-            color="secondary"
-            icon
-            rounded
-            variant="text"
-            @click="show1 = !show1"
-          >
-            <v-icon
-              size="large"
-              icon="mdi-eye-outline"
-              v-if="show1 == false"
-            ></v-icon>
-            <v-icon
-              size="large"
-              icon="mdi-eye-off-outline"
-              v-if="show1 == true"
-            ></v-icon>
+          <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
+            <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
+            <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>
         </template>
       </v-text-field>
     </div>
 
     <div class="d-flex align-center mt-4 mb-7 mb-sm-0">
-      <v-checkbox
-        v-model="checkbox"
-        label="Keep me sign in"
-        required
-        class="ms-n2"
-        hide-details
-        v-if="!this.forgotPassword"
-      ></v-checkbox>
+      <v-checkbox v-model="checkbox" label="Keep me sign in" required class="ms-n2" hide-details
+        v-if="!this.forgotPassword"></v-checkbox>
       <div class="ml-auto">
-        <p
-          class="text-darkText link-hover cursor-pointer forgotText"
-          @click="switchToForgotPassword"
-          v-if="!this.forgotPassword"
-        >
+        <p class="text-darkText link-hover cursor-pointer forgotText" @click="switchToForgotPassword"
+          v-if="!this.forgotPassword">
           Forgot Password?
         </p>
-        <p
-          class="text-darkText link-hover cursor-pointer forgotText"
-          @click="switchToLogin"
-          v-else
-        >
+        <p class="text-darkText link-hover cursor-pointer forgotText" @click="switchToLogin" v-else>
           Back to Login
         </p>
       </div>
     </div>
-    <v-btn
-      id="loginButton"
-      color="primary"
-      :loading="isSubmitting"
-      block
-      class="mt-4"
-      variant="flat"
-      size="large"
-      @click="validate"
-      v-if="!this.forgotPassword"
-      >Login</v-btn
-    >
-    <v-btn
-      color="primary"
-      :loading="isSubmitting"
-      block
-      class="mt-4"
-      variant="flat"
-      size="large"
-      @click="resetPassword"
-      v-else
-      >Submit</v-btn
-    >
+    <v-btn id="loginButton" color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large"
+      @click="validate" v-if="!this.forgotPassword">Login</v-btn>
+    <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large" @click="resetPassword"
+      v-else>Submit</v-btn>
   </v-form>
 </template>
 <style>

@@ -36,6 +36,9 @@ export const useAuthStore = defineStore("auth", {
       this.token = userData.accessToken;
       this.refreshToken = userData.refreshToken;
       this.user = userData.user;
+      console.log("Setting user data:", userData);
+      console.log("User state:", this.user);
+
       this.userFetched = true;
       // Set a timeout to clear the token when it expires
       try {
