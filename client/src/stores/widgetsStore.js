@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth.js'
 import { URL } from '../utils/constants.js'
+import { useMessagesStore } from './messages.js';
 
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({
@@ -163,7 +164,6 @@ export const useWidgetsStore = defineStore('widgets', {
         const responses = await Promise.all(promises);
 
         responses.forEach((response, index) => {
-          console.log(`Response for widget "${changedWidgets[index]}":`, response.status);
           if (!response.ok) {
             console.error(`Erro ao atualizar widget "${changedWidgets[index]}":`, response.statusText);
           }
@@ -174,6 +174,7 @@ export const useWidgetsStore = defineStore('widgets', {
     },
 
     async addWidget(widget) {
+      const messagesStore = useMessagesStore();
       try {
         const authStore = useAuthStore();
         widget.id_user = authStore.user.id_user;
@@ -194,7 +195,10 @@ export const useWidgetsStore = defineStore('widgets', {
         const data = await response.json();
         this.userWidgets.push(data);
       } catch (error) {
-        console.log(error);
+        messagesStore.add({
+          color: 'error',
+          text: error.message || 'Failed to add widget',
+        });
       }
     },
   },

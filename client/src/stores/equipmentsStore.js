@@ -37,7 +37,6 @@ export const useEquipmentsStore = defineStore("equipments", {
           throw new Error(data.message || "Network response was not ok");
         }
         const data = await response.json();
-        console.log("Equipments fetched successfully:", data.data);
 
         this.equipments = data.data.equipments || [];
       } catch (error) {

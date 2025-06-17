@@ -103,7 +103,10 @@ export default {
 
         this.$router.push({ path: "/" });
       } catch (error) {
-        console.log(error);
+        messagesStore.add({
+          text: error.message || "An unexpected error occurred.",
+          color: "error",
+        });
       } finally {
         this.isSubmitting = false;
       }

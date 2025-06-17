@@ -74,7 +74,6 @@ export default {
           this.page,
           this.itemsPerPage,
         );
-        console.log('Fetched data:', data);
 
         this.energies = data.data.consumptions;
         this.totalItems = data.pagination.total;
@@ -93,7 +92,6 @@ export default {
       this.loading = false;
     },
     async changeEquipments() {
-      console.log('Selected equipment:', this.equipment);
       if (this.equipment === null) {
         this.houseId = this.houseStore.selectedHousingId;
       } else {
@@ -105,7 +103,6 @@ export default {
   },
   watch: {
     dateRange(newRange) {
-      console.log('Date range changed:', newRange);
       if (newRange) {
         this.startDate = newRange[0];
         this.endDate = newRange[newRange.length - 1];

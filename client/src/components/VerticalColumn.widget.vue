@@ -36,9 +36,6 @@ export default {
             select: 'month', // default selection
         };
     },
-    mounted () {
-        console.log(this.colorsStore.getProdAndGivenColors + ' colorsStore.getProdAndGivenColors');
-    },
     methods: {
         makeGivenEnergiesData(date) {
             let data = Array(this.equipmentsStore.equipments.length).fill(0);

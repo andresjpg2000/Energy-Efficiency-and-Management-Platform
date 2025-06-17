@@ -81,7 +81,6 @@ export const useProductionsStore = defineStore("productions", {
       const equipmentsStore = useEquipmentsStore()
 
       const start = new Date(date)
-      console.log("start", start)
 
       start.setHours(1, 0, 0, 0) // 00:00:00.000
       const end = new Date(start)
@@ -141,7 +140,6 @@ export const useProductionsStore = defineStore("productions", {
       if (page) link += `&page=${page}`;
       if (size) link += `&size=${size}`;
 
-      console.log('link', link);
       try {
         const response = await fetchWithAuth(link, {
           method: 'GET',
@@ -162,9 +160,6 @@ export const useProductionsStore = defineStore("productions", {
         }
 
         const results = await response.json()
-
-        // Junta todos os dados num único array
-        console.log('data', results.data);
 
         results.data.forEach(el => {
           delete el.id_production;
