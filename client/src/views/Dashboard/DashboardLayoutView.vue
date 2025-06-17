@@ -1,7 +1,7 @@
 <template>
   <AppShell @changeHouse="tradingHouse()" :items="items" :showSettings="true" :showHouses="true">
     <div v-if="isReady == true">
-      <router-view/>
+      <router-view />
     </div>
     <div v-else class="loading-container">
       <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
@@ -107,11 +107,6 @@ export default {
           ],
         },
         {
-          title: "Resource Allocation",
-          prependIcon: "mdi-account-cog-outline",
-          to: { name: "Resource Allocation" },
-        },
-        {
           title: "Alerts & Notifications",
           prependIcon: "mdi-bell-outline",
           to: { name: "Alerts & Notifications" },
@@ -154,28 +149,28 @@ export default {
 
       //   this.isReady = true;
       // }else {
-        try {
-          this.colorsStore.init();
+      try {
+        this.colorsStore.init();
 
-          await this.widgetsStore.fetchUserWidgets();
-          await this.housingsStore.fetchHousings();
-          console.log("2");
-          
-          if (!this.housingsStore.housings?.length) {
-            this.dialog = true; // Exibe o diálogo se não houver casas
-            return
-          }
+        await this.widgetsStore.fetchUserWidgets();
+        await this.housingsStore.fetchHousings();
+        console.log("2");
 
-          await this.equipmentsStore.fetchEquipments();
-          await this.productionsStore.fetchProductions();
-          await this.consumptionStore.fetchConsumption();
-          await this.givenEnergiesStore.fetchGivenEnergies();
-
-
-          this.isReady = true;
-        } catch (error) {
-          console.error("Erro ao carregar dados:", error);
+        if (!this.housingsStore.housings?.length) {
+          this.dialog = true; // Exibe o diálogo se não houver casas
+          return
         }
+
+        await this.equipmentsStore.fetchEquipments();
+        await this.productionsStore.fetchProductions();
+        await this.consumptionStore.fetchConsumption();
+        await this.givenEnergiesStore.fetchGivenEnergies();
+
+
+        this.isReady = true;
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
     },
     async reload() {
       try {

@@ -2,13 +2,15 @@
   <v-container>
     <v-row class="mb-4 d-flex flex-column">
       <h1 class="text-h5 pl-4">Suppliers Management</h1>
-      <v-btn color="success" class="w-25 pl-4" @click="openDialog = true">Add Supplier</v-btn>
     </v-row>
 
     <v-data-table :headers="headers" :items="Suppliers" item-value="id" class="elevation-1 p-0">
       <template #item.actions="{ item }">
         <v-icon small class="me-2" @click="editSupplier(item)">mdi-pencil</v-icon>
         <v-icon small color="red" @click="deleteSupplier(item)">mdi-delete</v-icon>
+      </template>
+      <template v-slot:top>
+        <v-btn color="success" class="w-25 pl-4 ma-2" @click="openDialog = true">Add Supplier</v-btn>
       </template>
     </v-data-table>
 
