@@ -34,7 +34,9 @@ export default {
   },
   computed: {
     progress() {
-      if (this.password.length <= 2) {
+      if (this.password.length == 0) {
+        return 0;
+      } else if (this.password.length <= 2) {
         return 20; // Red for not enough characters
       } else if (this.password.length <= 5) {
         return 50; // Yellow for loading

@@ -24,7 +24,12 @@
 
             <v-text-field variant="outlined" label="Current Password" density="default" v-model="CurrentPassword"
               placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false"
-              class="" autocomplete="new-password" name="Current Password" :rules="passwordRules">
+              class="" autocomplete="new-password" name="Current Password" :rules="passwordRules"
+              @input="currentPasswordTouched = true">
+              <template v-slot:loader>
+                <v-progress-linear :active="currentPasswordTouched" :color="color(CurrentPassword)"
+                  :model-value="progress(CurrentPassword)" :indeterminate="isSubmitting" height="7"></v-progress-linear>
+              </template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -33,14 +38,23 @@
           <v-col>
             <v-text-field variant="outlined" label="New Password" density="default" v-model="NewPassword" placeholder=""
               type="password" hint="Password must be less than 10 characters" :persistent-hint="false" class=""
-              autocomplete="new-password" name="New Password" :rules="passwordRules">
+              autocomplete="new-password" name="New Password" :rules="passwordRules" @input="newPasswordTouched = true">
+              <template v-slot:loader>
+                <v-progress-linear :active="newPasswordTouched" :color="color(NewPassword)"
+                  :model-value="progress(NewPassword)" :indeterminate="isSubmitting" height="7"></v-progress-linear>
+              </template>
             </v-text-field>
           </v-col>
 
           <v-col>
             <v-text-field variant="outlined" label="Confirm New Password" density="default" v-model="ConfirmPassword"
               placeholder="" type="password" hint="Password must be less than 10 characters" :persistent-hint="false"
-              class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules">
+              class="" autocomplete="new-password" name="Confirm Password" :rules="passwordRules"
+              @input="confirmPasswordTouched = true">
+              <template v-slot:loader>
+                <v-progress-linear :active="confirmPasswordTouched" :color="color(ConfirmPassword)"
+                  :model-value="progress(ConfirmPassword)" :indeterminate="isSubmitting" height="7"></v-progress-linear>
+              </template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -82,12 +96,15 @@ export default {
         (v) => v.length <= 10 || 'Password must be less than 10 characters'
       ],
       localTwoFactorEnabled: authStore.isTwoFactorEnabled || false,
+      currentPasswordTouched: false,
+      newPasswordTouched: false,
+      confirmPasswordTouched: false,
     }
   },
   computed: {
     isTwoFactorEnabled() {
       return this.authStore.isTwoFactorEnabled;
-    }
+    },
   },
   methods: {
     async formSubmit() {
@@ -190,7 +207,23 @@ export default {
     async handleToggleTwoFactor() {
       await this.toggleTwoFactor();
       this.localTwoFactorEnabled = this.authStore.isTwoFactorEnabled;
-    }
+    },
+    progress(password) {
+      if (!password) return 0;
+      if (password.length <= 2) {
+        return 20;
+      }
+      if (password.length <= 5) {
+        return 50;
+      }
+      return 100;
+    },
+    color(password) {
+      if (!password) return 'grey';
+      if (password.length <= 2) return 'error';
+      if (password.length <= 5) return 'warning';
+      return 'success';
+    },
   },
   mounted() {
     this.userEmail = this.authStore.getUserEmail;

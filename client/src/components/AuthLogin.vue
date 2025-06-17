@@ -37,7 +37,10 @@ export default {
   },
   computed: {
     progress() {
-      if (this.password.length <= 2) {
+      if (this.password.length == 0) {
+        return 0;
+      }
+      else if (this.password.length <= 2) {
         return 20; // Red for not enough characters
       } else if (this.password.length <= 5) {
         return 50; // Yellow for loading
@@ -205,8 +208,6 @@ export default {
     </div>
 
     <div class="d-flex align-center mt-4 mb-7 mb-sm-0">
-      <v-checkbox v-model="checkbox" label="Keep me sign in" required class="ms-n2" hide-details
-        v-if="!this.forgotPassword"></v-checkbox>
       <div class="ml-auto">
         <p class="text-darkText link-hover cursor-pointer forgotText" @click="switchToForgotPassword"
           v-if="!this.forgotPassword">

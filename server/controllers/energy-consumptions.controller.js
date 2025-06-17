@@ -88,7 +88,7 @@ async function generateAlertsIfNeeded(consumption) {
       await createNotification(
         user.id_user,
         consumption.id_consumption,
-        `High consumption: ${value.toFixed(2)} kWh`
+        `High consumption: ${value.toFixed(2)} kWh`,
       );
     }
 
@@ -97,14 +97,16 @@ async function generateAlertsIfNeeded(consumption) {
       const estimatedCost = supplier.cost_kWh * value;
 
       console.log(
-        `Estimated cost: ${estimatedCost.toFixed(2)}, threshold: ${parsedPrefs.thresholds.cost}`
+        `Estimated cost: ${estimatedCost.toFixed(2)}, threshold: ${
+          parsedPrefs.thresholds.cost
+        }`,
       );
 
       if (estimatedCost > parsedPrefs.thresholds.cost) {
         await createNotification(
           user.id_user,
           consumption.id_consumption,
-          `Estimated cost: ${estimatedCost.toFixed(2)}€`
+          `Estimated cost: ${estimatedCost.toFixed(2)}€`,
         );
       }
     }
@@ -156,11 +158,6 @@ const deleteEnergyConsumption = async (req, res, next) => {
     res.status(204).json({
       message: "Consumption deleted successfully!",
       links: [
-        {
-          rel: "self",
-          href: `/energy-consumptions/${req.params.id_consumption}`,
-          method: "DELETE",
-        },
         {
           rel: "create",
           href: `/energy-consumptions`,
