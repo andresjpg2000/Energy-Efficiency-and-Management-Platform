@@ -37,8 +37,6 @@ export const useAuthStore = defineStore("auth", {
       this.token = userData.accessToken;
       this.refreshToken = userData.refreshToken;
       this.user = userData.user;
-      console.log("Setting user data:", userData);
-      console.log("User state:", this.user);
 
       this.userFetched = true;
       // Set a timeout to clear the token when it expires
@@ -50,7 +48,6 @@ export const useAuthStore = defineStore("auth", {
         const expirationTime = exp * 1000 - Date.now() - 1000; // 1 second before expiration
         setTimeout(async () => {
           const refreshed = await this.refreshAccessToken();
-          console.log(refreshed);
           if (!refreshed) {
             // if the token couldnt be refreshed, logout
             const messagesStore = useMessagesStore();

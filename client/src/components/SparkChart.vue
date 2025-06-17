@@ -36,19 +36,13 @@ export default {
     apexchart: ApexChart,
   },
   beforeMount() {
-    ///////////////// total consumption
-    console.log(this.colorsStore.consumptionColor + " - " +this.colorsStore.productionColor);
-    
+    ///////////////// total consumption    
     if (this.title == "Total-Consumption") {
       const thisYear = new Date().getFullYear();
-
-      console.log("thisYear:", thisYear);
-      console.log("total consumption:", this.consumptionStore.data);
       
       this.data = this.consumptionStore.data
         .filter((c) => new Date(c.date).getFullYear() === thisYear)
         .map((c) => c.value);
-      console.log("filtered data:", this.data);
       
       this.total = this.data.reduce((total, c) => total + c, 0);
       ///////////////// corrent consumption
@@ -84,7 +78,6 @@ export default {
       const supplier = this.suppliersStore.suppliers.find(
         s => s.id == this.housingsStore.selectedSupplierId
       );
-      console.log(supplier);
       let price = consumptionData - productionData;
       this.total = price > 0 ? price * supplier.cost_kWh : 0;//multiplicação e validação aqui
     }
@@ -106,12 +99,6 @@ export default {
         61, 27, 54, 43, 19, 46,
       ],
     };
-  },
-  mounted() {
-    // console.log(
-    //   'SparkChart mounted',
-    //   this.body
-    // );
   },
   computed: {
     chartSeries() {

@@ -20,8 +20,6 @@ export const useEquipmentsStore = defineStore('equipments', {
     async fetchEquipments() {
       try {
         const housingsStore = useHousingsStore();
-        console.log("3");
-        console.log(`Fetching equipments for housing ID: ${housingsStore.selectedHousingId}`);
                
         const response = await fetchWithAuth(`${URL}/housings/${housingsStore.selectedHousingId}/equipments`, {
           method: 'GET',
@@ -32,7 +30,6 @@ export const useEquipmentsStore = defineStore('equipments', {
           throw new Error(data.message || 'Network response was not ok')
         }
         const data = await response.json()
-        console.log('Equipments fetched successfully:', data.data);
 
         this.equipments = data.data.equipments || [];
 

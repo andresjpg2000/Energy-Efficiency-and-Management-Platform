@@ -419,7 +419,6 @@ export default {
       if (this.isEditMode) {
         await this.housingsStore.updateHousing(this.housing);
       } else {
-        console.log("Adding new housing:", this.housing);
         await this.housingsStore.addHousing(this.housing);
       }
 

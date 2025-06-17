@@ -121,7 +121,6 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
       if (page) link += `&page=${page}`;
       if (size) link += `&size=${size}`;
 
-      console.log('link', link);
       try {
         const response = await fetchWithAuth(link, {
           method: 'GET',
@@ -142,9 +141,6 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
         }
 
         const results = await response.json()
-
-        // Junta todos os dados num único array
-        console.log('data', results.data);
 
         results.data.forEach(el => {
           delete el.id;

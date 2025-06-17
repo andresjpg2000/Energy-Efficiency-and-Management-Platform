@@ -46,7 +46,7 @@ export default {
 
     //authStore.lastUser = authStore.user.id_user; // salva o usuário atual antes de sair
 
-    if (this.saveTimeout && window.innerWidth > 950) {
+    if (this.saveTimeout && window.innerWidth > 850) {
       clearTimeout(this.saveTimeout);
       this.saveTimeout = null;
 
@@ -76,7 +76,6 @@ export default {
         breakpoints: [
           { w: 700, c: 1 },
           { w: 850, c: 1 },
-          { w: 950, c: 2 },
           { w: 1100, c: 9 },
         ],
       },

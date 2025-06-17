@@ -15,7 +15,7 @@
         height="auto"
         persistent
     >
-      <v-date-picker class="rounded-b-0" @update:model-value="console.log(new Date(datePicker).toISOString()); dialog=false;select='newDate'" v-model="datePicker"></v-date-picker>
+      <v-date-picker class="rounded-b-0" @update:model-value="dialog=false;select='newDate'" v-model="datePicker"></v-date-picker>
       <v-btn @click="dialog=false;select='today';datePicker=null" variant="flat" class="rounded-t-0">cancel</v-btn>
     </v-dialog>
 </template>
@@ -74,8 +74,6 @@ export default {
             if (select === 'today') {
                 productions = this.productionStore.getAllProductionToday;
             } else if (select === 'newDate') {
-                console.log(this.datePicker);
-                
                 productions = await this.productionStore.fetchProductionsByDate(this.datePicker);                
             }
             productions.forEach((prod) => {
@@ -92,11 +90,9 @@ export default {
                 consumptions = this.consumptionStore.getConsumptionToday;
             } else if (select === 'newDate') {
                 consumptions = await this.consumptionStore.fetchConsumptionDay(this.datePicker);
-                console.log(consumptions);
             }
             consumptions.forEach((cons) => {
                 const hour = new Date(cons.date).getUTCHours();
-                console.log(new Date(cons.date).getUTCHours());
 
                 allHoursData[hour] += cons.value;
             });

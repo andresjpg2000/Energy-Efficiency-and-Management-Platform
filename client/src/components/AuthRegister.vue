@@ -88,7 +88,11 @@ export default {
         }, 100);
 
       } catch (error) {
-        console.log(error);
+        messagesStore.add({
+          text: error.message || 'An error occurred during registration',
+          color: 'error',
+          timeout: 3000,
+        });
       } finally {
         this.isSubmitting = false;
       }

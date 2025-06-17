@@ -50,9 +50,6 @@ export const useHousingsStore = defineStore("housings", {
             this.housings.length > 0 ? this.housings[0].id_housing : null;
           this.selectedSupplierId =
             this.housings.length > 0 ? this.housings[0].id_supplier : null;
-          console.log("Housings fetched successfully:", this.selectedHousingId);
-          console.log("1");
-
 
         } catch (error) {
           throw error;
