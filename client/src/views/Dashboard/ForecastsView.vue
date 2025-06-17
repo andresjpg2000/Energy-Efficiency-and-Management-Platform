@@ -26,7 +26,7 @@
                                     </v-progress-linear>
                                     <div class="d-flex flex-row justify-space-between mt-2">
                                         <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
-                                        }}
+                                            }}
                                             kWh</v-list-item-subtitle>
                                         <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
                                     </div>
@@ -235,7 +235,7 @@ export default {
             return [this.calculateEnergyScore({ consumption, production, cost })];
         },
         notificationSettings() {
-            return this.authStore.getUserNotificationSettings || {};
+            return JSON.parse(this.authStore.getUserNotificationSettings) || {};
         },
         consumptionTarget() {
             return parseFloat((this.notificationSettings.thresholds?.consumption * 24 * 30).toFixed(2)) || "Not Set";

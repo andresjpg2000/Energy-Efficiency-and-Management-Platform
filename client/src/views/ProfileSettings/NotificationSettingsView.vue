@@ -99,7 +99,6 @@ export default {
       ],
     };
   },
-
   methods: {
     async formSubmit() {
       const usersStore = useUsersStore();
@@ -150,7 +149,7 @@ export default {
     const authStore = useAuthStore();
 
     try {
-      const prefs = authStore.user.notification_settings;
+      const prefs = JSON.parse(authStore.user.notification_settings);
 
       if (!prefs) return;
 
