@@ -2,25 +2,15 @@
 <template>
   <v-app>
     <v-layout>
-      <v-navigation-drawer
-        v-if="showDrawer"
-        v-model="drawer"
-        expand-on-hover
-        :permanent="!isMobile"
-        :temporary="isMobile"
-        :floating="!isMobile"
-        :rail="!isMobile && rail"
-      >
+      <v-navigation-drawer v-if="showDrawer" v-model="drawer" expand-on-hover :permanent="!isMobile"
+        :temporary="isMobile" :floating="!isMobile" :rail="!isMobile && rail">
         <v-list density="compact" mandatory item-props :items="items" nav />
 
         <template v-if="showDrawer" v-slot:prepend>
-          <router-link
-            to="/"
-            :style="{
-              textDecoration: 'none',
-              color: 'inherit',
-            }"
-          >
+          <router-link to="/" :style="{
+            textDecoration: 'none',
+            color: 'inherit',
+          }">
             <div class="d-flex flex-row align-center mx-3">
               <img :src="logo" alt="logo" width="32" height="32" class="mr-4" />
               <h1 class="text-h5">GreenGrid</h1>
@@ -29,68 +19,27 @@
         </template>
 
         <template #append>
-          <v-list-item
-            v-if="showSettings"
-            class="ma-2"
-            link
-            :to="{ path: '/settings' }"
-            router
-            nav
-            prepend-icon="mdi-cog-outline"
-            title="Settings"
-          />
+          <v-list-item v-if="showSettings" class="ma-2" link :to="{ path: '/settings' }" router nav
+            prepend-icon="mdi-cog-outline" title="Settings" />
         </template>
       </v-navigation-drawer>
 
       <v-app-bar flat>
-        <v-app-bar-nav-icon
-          variant="text"
-          @click.stop="clickApp()"
-        ></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
 
         <template v-if="showHouses">
           <v-row>
             <v-col class="d-flex flex-row align-center scroll">
-              <v-btn
-                density="comfortable"
-                color="success"
-                rounded="lg"
-                variant="outlined"
-                class="mr-2"
-                @click="addHousing"
-                ><v-icon>mdi-home-plus add</v-icon></v-btn
-              >
-              <v-btn
-                density="comfortable"
-                color="success"
-                rounded="lg"
-                variant="outlined"
-                class="mr-2"
-                @click="editHouse"
-                ><v-icon>mdi-home-edit</v-icon></v-btn
-              >
-              <v-chip-group
-                mandatory
-                selected-class="text-success"
-                v-model="housingsStore.selectedHousingId"
-              >
-                <v-tooltip
-                  v-for="house in labeledHousings"
-                  :text="house.address"
-                  :key="house.id_housing"
-                  location="bottom"
-                >
+              <v-btn density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
+                @click="addHousing"><v-icon>mdi-home-plus add</v-icon></v-btn>
+              <v-btn density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
+                @click="editHouse"><v-icon>mdi-home-edit</v-icon></v-btn>
+              <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
+                <v-tooltip v-for="house in labeledHousings" :text="house.address" :key="house.id_housing"
+                  location="bottom">
                   <template v-slot:activator="{ props }">
-                    <v-chip
-                      filter
-                      selected
-                      :="props"
-                      :key="house.id_housing"
-                      rounded="lg"
-                      :value="house.id_housing"
-                      @click="changingHouse(house.id_housing)"
-                      >{{ house.label }}</v-chip
-                    >
+                    <v-chip filter selected :="props" :key="house.id_housing" rounded="lg" :value="house.id_housing"
+                      @click="changingHouse(house.id_housing)">{{ house.label }}</v-chip>
                   </template>
                 </v-tooltip>
               </v-chip-group>
@@ -99,15 +48,11 @@
         </template>
 
         <template #append>
-          <router-link
-            v-if="isAdmin && showSettings"
-            to="admin"
-            :style="{
-              textDecoration: 'none',
-              color: 'inherit',
-              marginLeft: showDrawer ? '0' : '32px',
-            }"
-          >
+          <router-link v-if="isAdmin && showSettings" to="admin" :style="{
+            textDecoration: 'none',
+            color: 'inherit',
+            marginLeft: showDrawer ? '0' : '32px',
+          }">
             <v-app-bar-title><v-icon>mdi-tools</v-icon></v-app-bar-title>
           </router-link>
 
@@ -120,10 +65,7 @@
 
             <div style="max-height: 300px; overflow-y: auto">
               <v-list>
-                <v-list-item
-                  v-for="notification in notificationsStore.alerts"
-                  :key="notification.id_notification"
-                >
+                <v-list-item v-for="notification in notificationsStore.alerts" :key="notification.id_notification">
                   <v-list-item-title>{{
                     notification.message
                   }}</v-list-item-title>
@@ -137,12 +79,7 @@
           </v-menu>
 
           <v-btn class="text-none mr-4" height="48" icon slim>
-            <v-avatar
-              color="surface-light"
-              class="profileAvatar"
-              text=""
-              size="small"
-            >
+            <v-avatar color="surface-light" class="profileAvatar" text="" size="small">
               <span class="initialsText">{{ userInitials }}</span>
             </v-avatar>
 
@@ -150,20 +87,9 @@
               <v-list density="compact" nav>
                 <h3 class="text-center">{{ username }}</h3>
                 <v-divider class="my-2"></v-divider>
-                <v-list-item
-                  v-if="showSettings"
-                  append-icon="mdi-cog-outline"
-                  link
-                  title="Settings"
-                  :to="{ path: '/settings' }"
-                  router
-                />
-                <v-list-item
-                  @click="logout()"
-                  append-icon="mdi-logout"
-                  link
-                  title="Logout"
-                />
+                <v-list-item v-if="showSettings" append-icon="mdi-cog-outline" link title="Settings"
+                  :to="{ path: '/settings' }" router />
+                <v-list-item @click="logout()" append-icon="mdi-logout" link title="Logout" />
               </v-list>
             </v-menu>
           </v-btn>
@@ -180,50 +106,18 @@
           </v-card-title>
 
           <v-card-text>
-            <v-text-field
-              v-model="housing.address"
-              variant="outlined"
-              label="Address"
-              required
-            />
-            <v-text-field
-              v-model="housing.pc"
-              variant="outlined"
-              label="Postal Code"
-              required
-            />
-            <v-text-field
-              v-model="housing.location"
-              variant="outlined"
-              label="Location"
-              required
-            />
-            <v-select
-              v-model="housing.id_supplier"
-              :items="formattedSuppliers"
-              item-title="title"
-              item-value="value"
-              variant="outlined"
-              label="Energy Suppliers"
-              placeholder="Choose your current energy supplier"
-            />
-            <v-select
-              v-model="housing.building_type"
-              :items="['flat', 'house', 'studio']"
-              variant="outlined"
-              label="Building Type"
-              placeholder="Choose the type of building"
-            />
+            <v-text-field v-model="housing.address" variant="outlined" label="Address" required />
+            <v-text-field v-model="housing.pc" variant="outlined" label="Postal Code" required />
+            <v-text-field v-model="housing.location" variant="outlined" label="Location" required />
+            <v-select v-model="housing.id_supplier" :items="formattedSuppliers" item-title="title" item-value="value"
+              variant="outlined" label="Energy Suppliers" placeholder="Choose your current energy supplier" />
+            <v-select v-model="housing.building_type" :items="['flat', 'house', 'studio']" variant="outlined"
+              label="Building Type" placeholder="Choose the type of building" />
           </v-card-text>
 
           <v-card-actions>
             <v-spacer />
-            <v-btn
-              v-if="isEditMode"
-              color="error"
-              @click="openDeleteHousingDialog"
-              >Delete</v-btn
-            >
+            <v-btn v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
             <v-btn text @click="closeDialog">Cancel</v-btn>
             <v-btn color="primary" @click="saveHousing">Save</v-btn>
           </v-card-actions>
@@ -232,9 +126,7 @@
       <!-- Dialog for confirm deletion of House -->
       <v-dialog v-model="openDeleteDialog" max-width="500px">
         <v-card>
-          <v-card-title
-            >Are you sure you want to delete this housing?</v-card-title
-          >
+          <v-card-title>Are you sure you want to delete this housing?</v-card-title>
           <v-card-actions>
             <v-spacer />
             <v-btn text @click="closeDeleteHousingDialog">Cancel</v-btn>
@@ -325,13 +217,6 @@ export default {
         .join("")
         .toUpperCase();
     },
-    clickApp() {
-      if (this.isMobile) {
-        this.drawer = !this.drawer;
-      } else {
-        this.rail = !this.rail;
-      }
-    },
     suppliers() {
       return this.suppliersStore.suppliers;
     },
@@ -361,11 +246,18 @@ export default {
     },
   },
   methods: {
+    clickApp() {
+      if (this.isMobile) {
+        this.drawer = !this.drawer;
+      } else {
+        this.rail = !this.rail;
+      }
+    },
     changingHouse(housingId) {
       this.housingsStore.selectedHousingId = housingId;
       this.$emit("changeHouse", true);
     },
-    logout() {
+    async logout() {
       const widgetsStore = useWidgetsStore();
       const consumptionStore = useConsumptionStore();
       const productionStore = useProductionsStore();
@@ -373,15 +265,14 @@ export default {
       const equipmentsStore = useEquipmentsStore();
 
       this.housingsStore.resetData();
+      await givenStore.resetData();
+      await widgetsStore.updateDBWidgets();
+      widgetsStore.userWidgets = [];
+      await consumptionStore.resetData();
+      await productionStore.resetData();
+      await equipmentsStore.resetData();
 
       this.authStore.logout();
-
-      widgetsStore.updateDBWidgets();
-      widgetsStore.userWidgets = [];
-      consumptionStore.resetData();
-      productionStore.resetData();
-      givenStore.resetData();
-      equipmentsStore.resetData();
 
       setTimeout(() => {
         this.$router.push("/login");
@@ -496,8 +387,7 @@ export default {
 .main-container {
   border-top-left-radius: 1rem;
   height: auto;
-  min-height: 100svh -
-    calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
+  min-height: 100svh - calc(var(--v-app-bar-height) + var(--v-navigation-drawer-width));
 }
 
 .initialsText {
@@ -512,8 +402,12 @@ export default {
   padding-bottom: 0;
 }
 
-.scroll > * {
+.scroll>* {
   flex-shrink: 0;
+}
+
+.v-list-group__items .v-list-item {
+  padding-inline-start: 8px !important;
 }
 
 @media (max-width: 610px) {

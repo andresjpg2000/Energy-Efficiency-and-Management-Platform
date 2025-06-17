@@ -105,22 +105,18 @@ export default {
 </script>
 
 <template>
-  <v-expansion-panels>
-    <v-expansion-panel rounded="lg" title="Dashboard Settings">
-      <v-expansion-panel-text>
-        <v-row>
-          <v-col cols="12" md="6" class="d-flex justify-end">
-            <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" variant="outlined"
-              @click="alterFloat" :text="float ? 'Disable Float' : 'Enable Float'"></v-btn>
-            <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" variant="outlined" @click="remove">
-              <v-icon class="pr-3" left>mdi-pencil</v-icon>
-              {{ doEnable ? "Disable Edit mode" : "Enable Edit mode" }}
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-expansion-panel-text>
-    </v-expansion-panel>
-  </v-expansion-panels>
+
+  <v-row>
+    <v-col cols="12" md="6" class="d-flex my-2">
+      <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="alterFloat"
+        :text="float ? 'Disable Float' : 'Enable Float'"></v-btn>
+      <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="remove">
+        <v-icon class="pr-3" left>mdi-pencil</v-icon>
+        {{ doEnable ? "Disable Edit mode" : "Enable Edit mode" }}
+      </v-btn>
+    </v-col>
+  </v-row>
+
   <v-sheet color="#E0E0E0" rounded="lg" width="100%" class="grid-stack">
     <div class="grid-stack-item widgets" v-for="(item, i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x"
       :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">

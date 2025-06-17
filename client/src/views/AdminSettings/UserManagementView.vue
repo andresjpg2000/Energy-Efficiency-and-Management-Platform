@@ -1,20 +1,11 @@
 <template>
   <v-container class="container">
-    <v-row justify="space-between" align="center" class="mb-4">
+    <v-row class="mb-4">
       <h1 class="text-h5 pl-4">User Management</h1>
     </v-row>
 
-    <v-data-table-server
-      :headers="headers"
-      :items="users"
-      :items-per-page="itemsPerPage"
-      :items-length="totalItems"
-      :loading="loading"
-      :page="page"
-      @update:page="onPageChange"
-      item-value="id_user"
-      class="elevation-1 p-0"
-    >
+    <v-data-table-server :headers="headers" :items="users" :items-per-page="itemsPerPage" :items-length="totalItems"
+      :loading="loading" :page="page" @update:page="onPageChange" item-value="id_user" class="elevation-1 p-0">
       <template #item.actions="{ item }">
         <v-icon small class="me-2" @click="editUser(item)">mdi-pencil</v-icon>
         <v-icon small class="me-2" @click="exportUser(item)">mdi-file</v-icon>
@@ -32,10 +23,7 @@
         <v-card-text>
           <v-text-field v-model="form.name" variant="outlined" label="Name" required></v-text-field>
           <v-text-field v-model="form.email" variant="outlined" label="Email" required></v-text-field>
-          <v-checkbox
-            v-model="form.admin"
-            label="Admin"
-          />
+          <v-checkbox v-model="form.admin" label="Admin" />
         </v-card-text>
 
         <v-card-actions>
@@ -90,7 +78,7 @@ export default {
           const data = await response.json()
           throw new Error(data.message || 'Network response was not ok')
         }
-        
+
         const data = await response.json()
 
         this.users = data.users;
@@ -110,7 +98,7 @@ export default {
     },
     async deleteUser(user) {
       // Not working because of relation with housings. Must delete housings from the user first
-      
+
       try {
         const response = await fetchWithAuth(`${API_URL}/users/${user.id_user}`, {
           method: 'DELETE',
@@ -136,7 +124,7 @@ export default {
       }
     },
     async saveUser() {
-        try {
+      try {
         const response = await fetchWithAuth(`${API_URL}/users/${this.editingUser.id_user}`, {
           method: 'PATCH',
           body: JSON.stringify({
@@ -201,17 +189,17 @@ export default {
       }
       // Remove links from each house object
       const houses = responseData.data.houses.map(({ links, ...rest }) => {
-      // Format energyEquipments into a readable string
-      if (rest.energyEquipments && Array.isArray(rest.energyEquipments)) {
-        rest.energyEquipments = rest.energyEquipments
-          .map(eq => `${eq.name}`)
-          .join(', ');
-      }
-      if (rest.energyConsumptions && Array.isArray(rest.energyConsumptions)) {
-        rest.energyConsumptions = rest.energyConsumptions
-          .map(eq => `${eq.value} (${eq.date})`)
-          .join(', ');
-      }
+        // Format energyEquipments into a readable string
+        if (rest.energyEquipments && Array.isArray(rest.energyEquipments)) {
+          rest.energyEquipments = rest.energyEquipments
+            .map(eq => `${eq.name}`)
+            .join(', ');
+        }
+        if (rest.energyConsumptions && Array.isArray(rest.energyConsumptions)) {
+          rest.energyConsumptions = rest.energyConsumptions
+            .map(eq => `${eq.value} (${eq.date})`)
+            .join(', ');
+        }
         return rest;
       });
       // Convert to CSV 
@@ -232,13 +220,11 @@ export default {
   },
   watch: {
     itemsPerPage() {
-      this.page = 1; 
+      this.page = 1;
       this.fetchUsers();
     },
   },
 };
 </script>
 
-<style>
-
-</style>
+<style></style>

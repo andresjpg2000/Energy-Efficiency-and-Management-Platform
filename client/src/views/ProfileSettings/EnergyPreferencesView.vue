@@ -1,31 +1,12 @@
 <template>
-  <v-container class="container">
-    <v-row justify="space-between" align="center" class="mb-4">
+  <v-container>
+    <v-row class="mb-4">
       <h1 class="text-h5 pl-4">Energy Preferences</h1>
     </v-row>
     <v-card class="pa-4">
       <p class="text-subtitle-1 mb-4">Select your current energy supplier</p>
       <v-form ref="form" @submit.prevent="formSubmit">
-        <v-row>
-          <v-col>
-            <v-select
-              variant="outlined"
-              label="Energy Suppliers"
-              density="default"
-              v-model="selectedSupplier"
-              :clearable="false"
-              :multiple="false"
-              placeholder="Choose your current energy supplier"
-              :items="formattedSuppliers"
-              item-title="title"
-              item-value="value"
-              name="Suppliers"
-              :rules="supplierRules"
-            >
-            </v-select>
-          </v-col>
-        </v-row>
-        <v-row justify="space-between align-center" class="mb-4">
+        <v-row class="mb-4">
           <div>
             <h1 class="text-body-1 pl-4 mt-1">
               Customize the colors used to represent different types of energy in the application.
@@ -33,60 +14,34 @@
           </div>
         </v-row>
         <v-row>
-          <v-col
-            cols="12"
-            class="d-flex flex-wrap gap-4 justify-content-between"
-          >
+          <v-col cols="12" class="d-flex flex-wrap gap-4 justify-content-between">
             <v-menu v-model="menu1" :close-on-content-click="false" max-width="300">
               <template #activator="{ props }">
-                <v-text-field
-                  variant="outlined"
-                  v-model="colorsStore.consumptionColor"
-                  label="Consumption Color"
-                  readonly
-                  v-bind="props"
-                />
+                <v-text-field variant="outlined" v-model="colorsStore.consumptionColor" label="Consumption Color"
+                  readonly v-bind="props" />
               </template>
-              <v-color-picker :modes="['hex','hexa']" show-swatches v-model="colorsStore.consumptionColor" />
+              <v-color-picker :modes="['hex', 'hexa']" show-swatches v-model="colorsStore.consumptionColor" />
             </v-menu>
             <v-menu v-model="menu2" :close-on-content-click="false" max-width="300">
               <template #activator="{ props }">
-                <v-text-field
-                  variant="outlined"
-                  class="mx-4"
-                  v-model="colorsStore.productionColor"
-                  label="Production Color"
-                  readonly
-                  v-bind="props"
-                />
+                <v-text-field variant="outlined" class="mx-4" v-model="colorsStore.productionColor"
+                  label="Production Color" readonly v-bind="props" />
               </template>
-              <v-color-picker :modes="['hex','hexa']" show-swatches v-model="colorsStore.productionColor" />
+              <v-color-picker :modes="['hex', 'hexa']" show-swatches v-model="colorsStore.productionColor" />
             </v-menu>
             <v-menu v-model="menu3" :close-on-content-click="false" max-width="300">
               <template #activator="{ props }">
-                <v-text-field
-                  variant="outlined"
-                  v-model="colorsStore.givenEnergyColor"
-                  label="Given Energy Color"
-                  readonly
-                  v-bind="props"
-                />
+                <v-text-field variant="outlined" v-model="colorsStore.givenEnergyColor" label="Given Energy Color"
+                  readonly v-bind="props" />
               </template>
-              <v-color-picker :modes="['hex','hexa']" show-swatches v-model="colorsStore.givenEnergyColor" />
+              <v-color-picker :modes="['hex', 'hexa']" show-swatches v-model="colorsStore.givenEnergyColor" />
             </v-menu>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <v-btn
-              color="primary"
-              :loading="isSubmitting"
-              block
-              class="mt-4"
-              variant="flat"
-              size="large"
-              @click="formSubmit"
-            >
+            <v-btn color="success" :loading="isSubmitting" block class="mt-4" variant="flat" size="large"
+              @click="formSubmit">
               Save Changes
             </v-btn>
           </v-col>

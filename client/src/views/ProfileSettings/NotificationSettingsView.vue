@@ -1,6 +1,6 @@
 <template>
   <v-container class="container">
-    <v-row justify="space-between" align="center" class="mb-4">
+    <v-row class="mb-4">
       <h1 class="text-h5 pl-4">Notification Settings</h1>
     </v-row>
 
@@ -26,7 +26,7 @@
               class="mt-4" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyConsumption" color="primary"
+            <v-switch v-model="ToggleThresholdEnergyConsumption" color="success"
               aria-label="Toggle Energy Consumption Alerts" hint="Enable or disable this alert" />
           </v-col>
         </v-row>
@@ -40,7 +40,7 @@
               :persistent-hint="true" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyProduction" color="primary"
+            <v-switch v-model="ToggleThresholdEnergyProduction" color="success"
               aria-label="Toggle Energy Production Alerts" hint="Enable or disable this alert" />
           </v-col>
         </v-row>
@@ -52,14 +52,14 @@
               hint="You will receive an alert if your costs exceed this threshold." :persistent-hint="true" />
           </v-col>
           <v-col class="d-flex align-center">
-            <v-switch v-model="ToggleThresholdEnergyCosts" color="primary" aria-label="Toggle Energy Cost Alerts"
+            <v-switch v-model="ToggleThresholdEnergyCosts" color="success" aria-label="Toggle Energy Cost Alerts"
               hint="Enable or disable this alert" />
           </v-col>
         </v-row>
 
         <v-row>
           <v-col>
-            <v-btn color="primary" :loading="isSubmitting" block class="mt-4" variant="flat" size="large"
+            <v-btn color="success" :loading="isSubmitting" block class="mt-4" variant="flat" size="large"
               @click="formSubmit">
               Save Changes
             </v-btn>

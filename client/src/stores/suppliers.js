@@ -1,6 +1,6 @@
-import { defineStore } from "pinia"
-import { fetchWithAuth } from "@/utils/fetchWithAuth"
-import { URL } from "../utils/constants.js"
+import { defineStore } from "pinia";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import { URL } from "../utils/constants.js";
 
 export const useSuppliersStore = defineStore("suppliers", {
   state: () => ({
@@ -12,23 +12,23 @@ export const useSuppliersStore = defineStore("suppliers", {
     async fetchSuppliers(attributes) {
       const query = attributes
         ? `?attributes=${encodeURIComponent(attributes)}`
-        : ""
-      this.loading = true
+        : "";
+      this.loading = true;
       try {
-        const response = await fetch(`${URL}/suppliers${query}`)
+        const response = await fetch(`${URL}/suppliers${query}`);
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || "Network response was not ok")
+          const data = await response.json();
+          throw new Error(data.message || "Network response was not ok");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        this.suppliers = data.data
+        this.suppliers = data.data;
       } catch (error) {
-        throw error
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async addSupplier(supplier) {
@@ -36,17 +36,17 @@ export const useSuppliersStore = defineStore("suppliers", {
         const response = await fetchWithAuth(`${URL}/suppliers`, {
           method: "POST",
           body: JSON.stringify(supplier),
-        })
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || "Network response was not ok")
+          const data = await response.json();
+          throw new Error(data.message || "Network response was not ok");
         }
 
-        const newSupplier = await response.json()
-        this.suppliers.push(newSupplier.data)
+        const newSupplier = await response.json();
+        this.suppliers.push(newSupplier.data);
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     async updateSupplier(supplier) {
@@ -56,43 +56,42 @@ export const useSuppliersStore = defineStore("suppliers", {
           {
             method: "PATCH",
             body: JSON.stringify(supplier),
-          }
-        )
+          },
+        );
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || "Network response was not ok")
+          const data = await response.json();
+          throw new Error(data.message || "Network response was not ok");
         }
 
-        await this.fetchSuppliers()
+        await this.fetchSuppliers();
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     async deleteSupplier(id) {
       try {
         const response = await fetchWithAuth(`${URL}/suppliers/${id}`, {
           method: "DELETE",
-        })
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.message || "Network response was not ok")
+          const data = await response.json();
+          throw new Error(data.message || "Network response was not ok");
         }
 
-        await this.fetchSuppliers()
+        await this.fetchSuppliers();
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     getSupplierCostByID(id) {
-      const supplier = this.suppliers.find((s) => s.id === id)
+      const supplier = this.suppliers.find((s) => s.id === id);
       if (supplier) {
-        return supplier.cost_kWh
+        return supplier.cost_kWh;
       } else {
-        console.error("Supplier not found with ID:", id)
-        return 0
+        return 0;
       }
     },
   },
-})
+});

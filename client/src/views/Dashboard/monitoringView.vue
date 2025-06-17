@@ -1,14 +1,8 @@
 <template>
   <v-container fluid>
     <!-- Botão para adicionar equipamento -->
-    <v-btn
-      density="comfortable"
-      class="mt-4"
-      color="success"
-      rounded="lg"
-      @click="openAddEquipmentDialog"
-      prepend-icon="mdi-plus"
-      >Add Equipment
+    <v-btn density="comfortable" class="mt-4" color="success" rounded="lg" @click="openAddEquipmentDialog"
+      prepend-icon="mdi-plus">Add Equipment
     </v-btn>
 
     <!-- Tabela de equipamentos -->
@@ -33,35 +27,15 @@
     <v-dialog v-model="openDialog" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h6"
-            >{{ isEditMode ? "Edit" : "Add" }} Equipment</span
-          >
+          <span class="text-h6">{{ isEditMode ? "Edit" : "Add" }} Equipment</span>
         </v-card-title>
 
         <v-card-text>
-          <v-text-field
-            v-model="equipment.name"
-            label="Name"
-            variant="outlined"
-            required
-          />
-          <v-select
-            v-model="equipment.energy_type"
-            :items="energyTypes"
-            item-title="label"
-            item-value="id"
-            label="Energy Type"
-            variant="outlined"
-            :disabled="isEditMode"
-          />
-          <v-text-field
-            v-model="equipment.capacity"
-            label="Capacity (kW)"
-            type="number"
-            variant="outlined"
-            required
-            :disabled="isEditMode"
-          />
+          <v-text-field v-model="equipment.name" label="Name" variant="outlined" required />
+          <v-select v-model="equipment.energy_type" :items="energyTypes" item-title="label" item-value="id"
+            label="Energy Type" variant="outlined" :disabled="isEditMode" />
+          <v-text-field v-model="equipment.capacity" label="Capacity (kW)" type="number" variant="outlined" required
+            :disabled="isEditMode" />
         </v-card-text>
 
         <v-card-actions>
@@ -238,11 +212,11 @@ export default {
     },
   },
 
-  watch: {
-    selectedHouseId() {
-      this.fetchEquipments();
-    },
-  },
+  // watch: {
+  //   selectedHouseId() {
+  //     this.fetchEquipments();
+  //   },
+  // },
 
   mounted() {
     if (this.selectedHouseId) {

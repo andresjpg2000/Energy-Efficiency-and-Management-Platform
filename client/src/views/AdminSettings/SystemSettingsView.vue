@@ -1,16 +1,11 @@
 <template>
-  <v-container class="container">
-    <v-row justify="space-between" align="center" class="mb-4">
+  <v-container>
+    <v-row class="mb-4 d-flex flex-column">
       <h1 class="text-h5 pl-4">Suppliers Management</h1>
-      <v-btn color="primary" @click="openDialog = true">Add Supplier</v-btn>
+      <v-btn color="success" class="w-25 pl-4" @click="openDialog = true">Add Supplier</v-btn>
     </v-row>
 
-    <v-data-table
-      :headers="headers"
-      :items="Suppliers"
-      item-value="id"
-      class="elevation-1 p-0"
-    >
+    <v-data-table :headers="headers" :items="Suppliers" item-value="id" class="elevation-1 p-0">
       <template #item.actions="{ item }">
         <v-icon small class="me-2" @click="editSupplier(item)">mdi-pencil</v-icon>
         <v-icon small color="red" @click="deleteSupplier(item)">mdi-delete</v-icon>
@@ -76,18 +71,18 @@ export default {
     },
     async deleteSupplier(Supplier) {
       try {
-          await this.suppliersStore.deleteSupplier(Supplier.id);
-          this.messagesStore.add({
-            color: 'success',
-            text: 'Supplier deleted successfully!',
-          });
+        await this.suppliersStore.deleteSupplier(Supplier.id);
+        this.messagesStore.add({
+          color: 'success',
+          text: 'Supplier deleted successfully!',
+        });
 
-        } catch (error) {
-          this.messagesStore.add({
-              color: 'error',
-              text: error.message || 'Error editing supplier',
-          });
-        }
+      } catch (error) {
+        this.messagesStore.add({
+          color: 'error',
+          text: error.message || 'Error editing supplier',
+        });
+      }
     },
     async saveSupplier() {
       try {
@@ -128,7 +123,7 @@ export default {
     },
   },
   mounted() {
-    
+
   },
   async created() {
     this.messagesStore = useMessagesStore();
@@ -138,8 +133,4 @@ export default {
 };
 </script>
 
-<style scoped>
-
-
-
-</style>
+<style scoped></style>
