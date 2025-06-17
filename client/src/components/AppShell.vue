@@ -106,13 +106,17 @@
           </v-card-title>
 
           <v-card-text>
-            <v-text-field v-model="housing.address" variant="outlined" label="Address" required />
-            <v-text-field v-model="housing.pc" variant="outlined" label="Postal Code" required />
-            <v-text-field v-model="housing.location" variant="outlined" label="Location" required />
-            <v-select v-model="housing.id_supplier" :items="formattedSuppliers" item-title="title" item-value="value"
-              variant="outlined" label="Energy Suppliers" placeholder="Choose your current energy supplier" />
-            <v-select v-model="housing.building_type" :items="['flat', 'house', 'studio']" variant="outlined"
+            <v-text-field v-model="housing.address" clearable variant="outlined" label="Address" required />
+            <v-text-field v-model="housing.pc" clearable variant="outlined" label="Postal Code" required />
+            <v-text-field v-model="housing.location" clearable variant="outlined" label="Location" required />
+            <v-select v-model="housing.building_type" clearable :items="['flat', 'house', 'studio']" variant="outlined"
               label="Building Type" placeholder="Choose the type of building" />
+            <v-select v-model="housing.id_supplier" clearable :items="formattedSuppliers" item-title="title"
+              item-value="value" variant="outlined" label="Energy Suppliers"
+              placeholder="Choose your current energy supplier" />
+            <v-text-field v-model="housing.custom_supplier_price" clearable variant="outlined"
+              label="Custom Supplier Cost €/kWh" type="number" min="0" step="0.01"
+              hint="Leave blank to use the supplier's default price" persistent-hint />
           </v-card-text>
 
           <v-card-actions>
@@ -198,6 +202,7 @@ export default {
         pc: "",
         location: "",
         id_supplier: null,
+        custom_supplier_price: null,
         building_type: "",
         id_user: null,
       },
@@ -328,6 +333,7 @@ export default {
         pc: "",
         location: "",
         id_supplier: null,
+        custom_supplier_price: null,
         building_type: "",
         id_user: null,
       };

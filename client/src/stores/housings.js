@@ -46,11 +46,11 @@ export const useHousingsStore = defineStore("housings", {
           }
           const data = await response.json();
           this.housings = data.data;
+          console.log("Fetched housings:", this.housings);
           this.selectedHousingId =
             this.housings.length > 0 ? this.housings[0].id_housing : null;
           this.selectedSupplierId =
             this.housings.length > 0 ? this.housings[0].id_supplier : null;
-
         } catch (error) {
           throw error;
         } finally {

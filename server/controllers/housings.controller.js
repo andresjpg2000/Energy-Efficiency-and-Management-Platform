@@ -53,6 +53,7 @@ const getAllHousings = async (req, res, next) => {
         "building_type",
         "id_user",
         "id_supplier",
+        "custom_supplier_price",
       ],
       order: [["id_housing", "ASC"]],
     });
@@ -221,10 +222,10 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
       data: house,
       pagination: pagination.limit
         ? {
-          page,
-          size,
-          total: totalItems
-        }
+            page,
+            size,
+            total: totalItems,
+          }
         : null,
     });
   } catch (err) {
@@ -296,7 +297,8 @@ const createHousing = async (req, res, next) => {
     !req.body.id_supplier
   ) {
     return res.status(400).json({
-      message: "Address, postal code, location and building type are required!",
+      message:
+        "Address, postal code, location, supplier and building type are required!",
     });
   }
 
@@ -305,13 +307,19 @@ const createHousing = async (req, res, next) => {
     // Create or update the postal code if it exists
     await createOrUpdatePostalCode(req.body.pc, req.body.location);
 
-    const newHousing = await Housing.create({
+    const housingData = {
       address: req.body.address,
       pc: req.body.pc,
       building_type: req.body.building_type,
       id_supplier: req.body.id_supplier,
       id_user: userID,
-    });
+    };
+    // Add custom supplier cost if provided
+    if (req.body.custom_supplier_price !== undefined) {
+      housingData.custom_supplier_price = req.body.custom_supplier_price;
+    }
+
+    const newHousing = await Housing.create(housingData);
 
     res.status(201).json({
       data: newHousing,
@@ -461,11 +469,12 @@ const partialUpdateHousing = async (req, res, next) => {
     (!req.body.address &&
       !req.body.pc &&
       !req.body.building_type &&
-      !req.body.id_supplier)
+      !req.body.id_supplier &&
+      !req.body.custom_supplier_price)
   ) {
     return res.status(400).json({
       message:
-        "At least one of address, postal code, id_supplier or building type must be provided!",
+        "At least one of address, postal code, id_supplier, supplier price or building type must be provided!",
     });
   }
 

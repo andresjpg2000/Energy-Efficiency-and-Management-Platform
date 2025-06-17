@@ -87,7 +87,7 @@
                     <v-expansion-panels v-if="smartRecommendations.length > 0" multiple>
                         <v-expansion-panel v-for="(rec, index) in smartRecommendations" :key="index" class="mb-2">
                             <v-expansion-panel-title>
-                                <v-row no-gutters align="center">
+                                <v-row no-gutters>
                                     <v-col cols="auto">
                                         <v-icon :color="getRecommendationColor[rec.type]" class="mr-3">
                                             {{ rec.icon }}
@@ -223,9 +223,14 @@ export default {
         },
         supplierCost() {
             // This will return the cost per kWh for the selected housing's supplier
-            return this.suppliersStore.getSupplierCostByID(
-                this.housingsStore.getSelectedHousing?.id_supplier
-            ) || 0;
+            if (!this.housingsStore.getSelectedHousing) {
+                return 0;
+            }
+            if (this.housingsStore.getSelectedHousing.custom_supplier_price != null) {
+                return this.housingsStore.getSelectedHousing.custom_supplier_price;
+            } else {
+                return this.suppliersStore.getSupplierCostByID(this.housingsStore.getSelectedHousing?.id_supplier) || 0;
+            }
         },
         series() {
             const consumption = this.consumptionStore.getConsumptionThisMonth;
