@@ -43,7 +43,6 @@ import { useHousingsStore } from "@/stores/housings.js";
 import { useEquipmentsStore } from "@/stores/equipmentsStore.js";
 import { useProductionsStore } from "@/stores/productionsStore.js";
 import { useGivenEnergiesStore } from "@/stores/givenEnergiesStore";
-import { useColorsStore } from "@/stores/colorsStore";
 import { useAuthStore } from "@/stores/auth";
 
 export default {
@@ -61,7 +60,6 @@ export default {
       housingsStore: useHousingsStore(),
       consumptionStore: useConsumptionStore(),
       givenEnergiesStore: useGivenEnergiesStore(),
-      colorsStore: useColorsStore(),
       authStore: useAuthStore(),
       items: [
         {
@@ -150,8 +148,6 @@ export default {
       //   this.isReady = true;
       // }else {
       try {
-        this.colorsStore.init();
-
         await this.widgetsStore.fetchUserWidgets();
         await this.housingsStore.fetchHousings();
         console.log("2");

@@ -154,6 +154,7 @@ export const useGivenEnergiesStore = defineStore('givenEnergies', {
     },
     resetData() {
       this.data = [];
+      this.lastUpdateDate = null;
     }
   },
   persist: {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { useAuthStore } from './auth.js'
 import { URL } from '../utils/constants.js'
 import { useMessagesStore } from './messages.js';
+import { useColorsStore } from './colorsStore.js';
 
 export const useWidgetsStore = defineStore('widgets', {
   state: () => ({
@@ -70,6 +71,15 @@ export const useWidgetsStore = defineStore('widgets', {
           title: 'Vertical-Column',
           body: { x: 6, y: 3, w: 6, h: 3 }
         },
+        {
+          type: 99,
+          title: 'Colors',
+          body: {
+            consumptionColor: "#E87461",
+            productionColor: "#7AC74F",
+            givenEnergyColor: "#326273"
+          }
+        },
       ];
       if (this.userWidgets.length == 0) {
         const response = await fetch(`${URL}/users/${authStore.user.id_user}/widgets`, {
@@ -94,12 +104,22 @@ export const useWidgetsStore = defineStore('widgets', {
 
         gridItems.forEach(w => {
           const jaExiste = widgets.some(widget => widget.title.trim() === w.title.trim());
-
-          if (!jaExiste) {
-            widgets.push(w);
-            this.addWidget(w)
+          if (w.type === 99) {
+            const colorsStore = useColorsStore();
+            if (jaExiste) {
+              colorsStore.init(widgets.find(widget => widget.title.trim() === "Colors").body);
+              widgets.splice(widgets.findIndex(widget => widget.title.trim() === "Colors"), 1);
+            }
+            else {
+              colorsStore.init(w.body);
+              this.addWidget(w);
+            }
+          } else {
+            if (!jaExiste) {
+              widgets.push(w);
+              this.addWidget(w);
+            }
           }
-
         });
 
         this.userWidgets = widgets;
@@ -192,12 +212,33 @@ export const useWidgetsStore = defineStore('widgets', {
         if (!response.ok) {
           throw new Error('Failed to add widget');
         }
-        const data = await response.json();
-        this.userWidgets.push(data);
       } catch (error) {
         messagesStore.add({
           color: 'error',
           text: error.message || 'Failed to add widget',
+        });
+      }
+    },
+    async deleteWidget(title) {
+      const authStore = useAuthStore();
+      const messagesStore = useMessagesStore();
+      try {
+        const response = await fetch(`${URL}/widgets/${title}?id_user=${authStore.user.id_user}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${authStore.token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete widget');
+        }
+      } catch (error) {
+        messagesStore.add({
+          color: 'error',
+          text: error.message || 'Failed to delete widget',
         });
       }
     },
