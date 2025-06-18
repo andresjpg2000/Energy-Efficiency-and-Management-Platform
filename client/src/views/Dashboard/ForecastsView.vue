@@ -1,6 +1,6 @@
 <template>
     <v-container class="py-6 px-6">
-        <v-row justify="space-between" align="center" class="mb-4">
+        <v-row class="mb-4">
             <h1 class="text-h5 pl-2">Forecasts</h1>
         </v-row>
 
@@ -26,7 +26,7 @@
                                     </v-progress-linear>
                                     <div class="d-flex flex-row justify-space-between mt-2">
                                         <v-list-item-subtitle>{{ consumptionStore.getConsumptionThisMonth.toFixed(4)
-                                        }}
+                                            }}
                                             kWh</v-list-item-subtitle>
                                         <v-list-item-subtitle>{{ consumptionTarget }} kWh</v-list-item-subtitle>
                                     </div>
