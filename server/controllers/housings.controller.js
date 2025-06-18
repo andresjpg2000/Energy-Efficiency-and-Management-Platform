@@ -235,57 +235,6 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
   }
 };
 
-// Get a housing by ID
-const getHousingById = async (req, res, next) => {
-  try {
-    const user = req.user;
-    const id_housing = req.params.id_housing;
-
-    const housing = await checkIfUserIsTheOwner(user, id_housing);
-
-    res.status(200).json({
-      data: housing,
-      links: [
-        {
-          rel: "self",
-          href: `/housings/${housing.id_housing}`,
-          method: "GET",
-        },
-        {
-          rel: "get-all",
-          href: `/housings`,
-          method: "GET",
-        },
-        {
-          rel: "create",
-          href: `/housings`,
-          method: "POST",
-        },
-        {
-          rel: "update",
-          href: `/housings/${housing.id_housing}`,
-          method: "PUT",
-        },
-        {
-          rel: "partial-update",
-          href: `/housings/${housing.id_housing}`,
-          method: "PATCH",
-        },
-        {
-          rel: "delete",
-          href: `/housings/${housing.id_housing}`,
-          method: "DELETE",
-        },
-      ],
-    });
-  } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error fetching housing:", err);
-
-    next(err);
-  }
-};
-
 // Create a new housing
 const createHousing = async (req, res, next) => {
   if (
@@ -373,91 +322,6 @@ const createHousing = async (req, res, next) => {
       });
     }
     // Handle other errors
-    next(err);
-  }
-};
-
-const updateHousing = async (req, res, next) => {
-  if (
-    !req.body ||
-    !req.body.address ||
-    !req.body.pc ||
-    !req.body.building_type ||
-    !req.body.id_supplier
-  ) {
-    return res.status(400).json({
-      message:
-        "Address, postal code, id_supplier and building type are required!",
-    });
-  }
-
-  try {
-    const user = req.user;
-    const id_housing = req.params.id_housing;
-
-    const housing = await checkIfUserIsTheOwner(user, id_housing);
-
-    if (req.body.pc) {
-      // Create or update the postal code if it exists
-      await createOrUpdatePostalCode(req.body.pc, req.body.location);
-    }
-
-    // Only update if the user is the owner
-    await Housing.update(req.body, {
-      where: {
-        id_housing: id_housing,
-        id_user: user.id_user,
-      },
-    });
-
-    res.status(200).json({
-      message: `Housing with ID ${id_housing} updated successfully!`,
-      links: [
-        {
-          rel: "self",
-          href: `/housings/${id_housing}`,
-          method: "PUT",
-        },
-        {
-          rel: "get-by-id",
-          href: `/housings/${id_housing}`,
-          method: "GET",
-        },
-        {
-          rel: "get-all",
-          href: `/housings`,
-          method: "GET",
-        },
-        {
-          rel: "create",
-          href: `/housings`,
-          method: "POST",
-        },
-        {
-          rel: "partial-update",
-          href: `/housings/${id_housing}`,
-          method: "PATCH",
-        },
-        {
-          rel: "delete",
-          href: `/housings/${id_housing}`,
-          method: "DELETE",
-        },
-      ],
-    });
-  } catch (err) {
-    console.error("Error updating housing:", err);
-
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Housing already exists!",
-      });
-    }
     next(err);
   }
 };
@@ -635,9 +499,7 @@ const getLocationByHousingId = async (req, res, next) => {
 
 module.exports = {
   getAllHousings,
-  getHousingById,
   createHousing,
-  updateHousing,
   partialUpdateHousing,
   deleteHousing,
   getAllEquipsFromHouse,

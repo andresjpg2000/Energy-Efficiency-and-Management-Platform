@@ -140,7 +140,7 @@ let getAllUserHousesInfo = async (req, res, next) => {
       } catch (error) {
         console.error(
           `Error fetching data for housing ${h.id_housing}:`,
-          error
+          error,
         );
       }
     }
@@ -155,22 +155,6 @@ let getAllUserHousesInfo = async (req, res, next) => {
     next(err);
   }
 };
-
-// Obter um utilizador por ID
-async function getUserById(req, res, next) {
-  try {
-    const { id_user } = req.params;
-    const user = await User.findByPk(id_user);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(user);
-  } catch (error) {
-    next(error);
-  }
-}
 
 // Atualizar dados de um utilizador
 async function updateUser(req, res, next) {
@@ -228,7 +212,7 @@ async function updateUserPassword(req, res, next) {
     // Verificar se a password atual está correta
     const passwordMatches = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password,
     );
 
     if (!passwordMatches) {
@@ -285,7 +269,6 @@ async function deleteUser(req, res, next) {
 
 module.exports = {
   getAllUsers,
-  getUserById,
   updateUser,
   deleteUser,
   toggle2FA,

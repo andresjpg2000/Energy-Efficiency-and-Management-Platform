@@ -4,13 +4,15 @@ const notificationsController = require("../controllers/notifications.controller
 const auth = require("../middleware/auth.js");
 const validateIdParam = require("../middleware/validateIdParam.js");
 
-// Create a new notification
-router.post("/", auth, notificationsController.createNotification);
-
 // Get user notifications
-router.get('/mine', auth, notificationsController.getMyAlerts);
+router.get("/mine", auth, notificationsController.getMyAlerts);
 
 // Delete a notification by ID
-router.delete("/:id_notification", auth, validateIdParam("id_notification"), notificationsController.deleteNotification);
+router.delete(
+  "/:id_notification",
+  auth,
+  validateIdParam("id_notification"),
+  notificationsController.deleteNotification,
+);
 
 module.exports = router;

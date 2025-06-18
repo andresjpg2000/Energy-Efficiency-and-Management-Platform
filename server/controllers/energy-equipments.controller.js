@@ -1,16 +1,6 @@
 const { EnergyEquipment, Housing } = require("../models/index.js");
 const { Op } = require("sequelize");
 
-// Listar todos os equipamentos
-async function getAllEnergyEquipments(req, res, next) {
-  try {
-    const equipments = await EnergyEquipment.findAll();
-    res.status(200).json({ data: equipments });
-  } catch (error) {
-    next(error);
-  }
-}
-
 // Criar um novo equipamento
 async function createEnergyEquipment(req, res, next) {
   try {
@@ -208,7 +198,6 @@ async function getEnergyProductionsOfEquipment(req, res, next) {
 }
 
 module.exports = {
-  getAllEnergyEquipments,
   createEnergyEquipment,
   updateEnergyEquipmentName,
   deleteEnergyEquipment,
