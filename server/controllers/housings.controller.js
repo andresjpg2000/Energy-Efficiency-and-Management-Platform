@@ -1,5 +1,4 @@
 const { Housing, PostalCode } = require("../models/index.js");
-const { ValidationError, UniqueConstraintError } = require("sequelize");
 const { Op } = require("sequelize");
 
 async function checkIfUserIsTheOwner(user, id_housing) {
@@ -98,8 +97,6 @@ const getAllHousings = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    console.error("Error fetching housings:", err);
-
     next(err);
   }
 };
@@ -147,8 +144,6 @@ let getAllEquipsFromHouse = async (req, res, next) => {
       data: house,
     });
   } catch (err) {
-    console.error("Error fetching equipments:", err);
-
     next(err);
   }
 };
@@ -229,8 +224,6 @@ let getAllEnergyConsumptionsFromHouse = async (req, res, next) => {
         : null,
     });
   } catch (err) {
-    console.error("Error fetching consumptions:", err);
-
     next(err);
   }
 };
@@ -306,22 +299,6 @@ const createHousing = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error creating housing:", err);
-
-    // Handle specific db.Sequelize validation errors and join them into a single message
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    // Handle unique constraint errors
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Housing already exists!",
-      });
-    }
-    // Handle other errors
     next(err);
   }
 };
@@ -403,21 +380,6 @@ const partialUpdateHousing = async (req, res, next) => {
     });
   } catch (err) {
     // Handle any errors that occur during the database query
-    console.error("Error patching housing:", err);
-
-    // Handle specific Sequelize validation errors and join them into a single message
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    // Handle unique constraint errors
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Housing already exists!",
-      });
-    }
-    // Handle other errors
     next(err);
   }
 };
@@ -445,12 +407,6 @@ const deleteHousing = async (req, res, next) => {
 
     res.status(204).send();
   } catch (err) {
-    console.error("Error deleting housing:", err);
-
-    if (err.status && err.message) {
-      return res.status(err.status).json({ message: err.message });
-    }
-
     next(err);
   }
 };
@@ -496,8 +452,6 @@ const getLocationByHousingId = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    console.error("Error fetching location:", err);
-
     next(err);
   }
 };
