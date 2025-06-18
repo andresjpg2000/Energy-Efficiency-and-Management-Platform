@@ -19,7 +19,7 @@ app.sequelize = db.sequelize; // Expose sequelize instance for testing purposes
 const allowedOrigins = [
   "http://localhost:5173", // Vite development server
   "http://localhost:5174", // Interactive house
-  "http://localhost:4173/"
+  "http://localhost:4173"
 ];
 
 app.use(

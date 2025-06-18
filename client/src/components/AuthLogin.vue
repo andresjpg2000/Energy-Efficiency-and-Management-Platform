@@ -60,14 +60,15 @@ export default {
       this.isSubmitting = true;
       const authStore = useAuthStore();
       const messagesStore = useMessagesStore();
-      const housingsStore = useHousingsStore();
       // this.$refs.form.validate(); // Validate the form
       try {
         const response = await fetch(`${URL}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            
           },
+          credentials: "include",
           body: JSON.stringify({
             email: this.username,
             password: this.password,
@@ -138,6 +139,7 @@ export default {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             email: this.username,
           }),

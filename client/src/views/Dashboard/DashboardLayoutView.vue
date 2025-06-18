@@ -112,21 +112,6 @@ export default {
       ],
     };
   },
-  // watch: {
-  //   'housingsStore.selectedHousingId': {
-  //     immediate: true,
-  //     handler(newVal) {
-  //       if (!newVal) return;
-  //       this.isReady = false;
-  //       this.consumptionStore.resetData();
-  //       this.equipmentsStore.resetData();
-  //       this.productionsStore.resetData();
-  //       this.givenEnergiesStore.resetData();
-
-  //       this.reload(); // sempre que mudar a casa, recarrega dados
-  //     },
-  //   },
-  // },
   methods: {
     tradingHouse() {
       this.isReady = false;

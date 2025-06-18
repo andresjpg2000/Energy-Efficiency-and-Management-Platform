@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"red,blue\" -p \"{time}-{name}\" -t \"HH:mm\" \"cd server && npm run dev\" \"cd client && npm run dev\""
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"red,blue\" -p \"{time}-{name}\" -t \"HH:mm\" \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "build": "cd client && npm run build",
+    "prod": "concurrently -n \"SERVER,CLIENT\" -c \"red,blue\" -p \"{time}-{name}\" -t \"HH:mm\" \"cd server && npm run dev\" \"cd client && npm run preview\"",
+    "build-prod": "npm run build && concurrently -n \"SERVER,CLIENT\" -c \"red,blue\" -p \"{time}-{name}\" -t \"HH:mm\" \"cd server && npm run dev\" \"cd client && npm run preview\""
   },
   "repository": {
     "type": "git",

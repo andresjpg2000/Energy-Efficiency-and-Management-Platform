@@ -17,6 +17,7 @@ export async function fetchWithAuth(url, options = {}) {
   let response = await fetch(url, {
     ...options,
     headers,
+    credentials: 'include',
   });
 
   const encoding = response.headers.get('content-encoding');
@@ -34,6 +35,7 @@ export async function fetchWithAuth(url, options = {}) {
       response = await fetch(url, {
         ...options,
         headers: retryHeaders,
+        credentials: 'include',
       });
 
       if (response.ok) return response;
