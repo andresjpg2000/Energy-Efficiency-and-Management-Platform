@@ -65,20 +65,22 @@ export default {
       ///////////////// total expenses
     } else if (this.title == "Total-Expenses") {
       const thisMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-
+      console.log("This Month:", thisMonth);
 
       const productionData = (this.productionsStore.data || [])
         .filter((p) => p.date.startsWith(thisMonth))
         .reduce((total, p) => total + (p.value || 0), 0);
       
       const consumptionData = (this.consumptionStore.data || [])
-        .filter((c) => c.date?.startsWith(thisMonth))
-        .reduce((total, c) => total + (c.production || 0), 0);
+        .filter((c) => c.date.startsWith(thisMonth))
+        .reduce((total, c) => total + (c.value || 0), 0);
 
       const supplier = this.suppliersStore.suppliers.find(
         s => s.id == this.housingsStore.selectedSupplierId
       );
+      
       let price = consumptionData - productionData;
+      
       this.total = price > 0 ? price * supplier.cost_kWh : 0;//multiplicação e validação aqui
     }
     if (this.data.length < 5|| this.data.length > 25) {

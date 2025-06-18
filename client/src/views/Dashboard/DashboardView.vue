@@ -24,6 +24,7 @@ export default {
       grid: null, // para armazenar a instância do GridStack
       doEnable: true,
       float: false, // para controlar o modo de flutuação
+      innerWidth: window.innerWidth,
     };
   },
   computed: {
@@ -39,13 +40,12 @@ export default {
       this.grid.float(this.float);
       console.log("Float mode:", this.float);
     },
+    updateWidth() {
+      this.innerWidth = window.innerWidth;
+    },
 
   },
   beforeRouteLeave(to, from, next) {
-    //const authStore = useAuthStore();
-
-    //authStore.lastUser = authStore.user.id_user; // salva o usuário atual antes de sair
-
     if (this.saveTimeout && window.innerWidth > 850) {
       clearTimeout(this.saveTimeout);
       this.saveTimeout = null;
@@ -66,40 +66,58 @@ export default {
       next();
     }
   },
-
+  beforeUnmount() {
+    // Remove the resize event listener
+    window.removeEventListener('resize', this.updateWidth);
+  },
   mounted() {
     // Initialize GridStack
     this.grid = GridStack.init({
       float: false,
       cellHeight: "120px",
+      column: 'auto',
       columnOpts: {
         breakpoints: [
-          { w: 700, c: 1 },
-          { w: 850, c: 1 },
-          { w: 1100, c: 9 },
+          { w: 600, c: 1 },
+          { w: 950, c: 6 },
+          { w: 1100, c: 12 },
         ],
       },
     });
 
+    window.addEventListener('resize', this.updateWidth);
+
     this.grid.on("change", (event, items) => {
-      items.forEach((item) => {
-        console.log("Item moved:", item.el.id, "to", item.x, item.y);
+      if (window.innerWidth > 950) {
 
-        this.widgetsStore.updateWidget(item.x, item.y, item.el.id);
+        items.forEach((item) => {
+          console.log("Item moved:", item.el.id, "to", item.x, item.y);
 
-        this.changedWidgets.add(item.el.id);
-      });
+          this.widgetsStore.updateWidget(item.x, item.y, item.el.id);
 
-      this.saveTimeout = setTimeout(() => {
-        if (window.innerWidth > 950) {
-          this.widgetsStore.updateDBWidgets([...this.changedWidgets]);
-          this.changedWidgets.clear();
-        } else {
+          this.changedWidgets.add(item.el.id);
+        });
+
+        this.saveTimeout = setTimeout(() => {
+            this.widgetsStore.updateDBWidgets([...this.changedWidgets]);
+            this.changedWidgets.clear();
+          
+        }, 10000);
+      } else {
           console.log("📱 Mobile width detected. Not saving widget positions.");
-        }
-      }, 10000);
+      }
     });
   },
+  watch: {
+  innerWidth(newWidth, oldWidth) {
+    const crossed950 =
+      (newWidth > 950 && oldWidth <= 950) ||
+      (newWidth <= 950 && oldWidth > 950);
+    if (crossed950) {
+      window.location.reload(); // 🔁 recarrega a página
+    }
+  },
+}
 };
 </script>
 
