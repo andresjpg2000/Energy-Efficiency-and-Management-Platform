@@ -1,6 +1,5 @@
 import { defineStore } from "pinia"
 import { useWidgetsStore } from "./widgetsStore";
-import { URL } from "../utils/constants.js";
 import { useMessagesStore } from "./messages";
 
 export const useColorsStore = defineStore("colors", {
@@ -32,9 +31,13 @@ export const useColorsStore = defineStore("colors", {
       this.productionColor = ""
       this.givenEnergyColor = ""
     },
-    async saveColors() {
+    async saveColors(consumptionColor, productionColor, givenEnergyColor) {
       const messagesStore = useMessagesStore()
       const widgetsStore = useWidgetsStore()
+      this.consumptionColor = consumptionColor;
+      this.productionColor = productionColor;
+      this.givenEnergyColor = givenEnergyColor;
+
       const body = {
         consumptionColor: this.consumptionColor,
         productionColor: this.productionColor,
@@ -50,10 +53,6 @@ export const useColorsStore = defineStore("colors", {
         await widgetsStore.deleteWidget("Colors")
         await widgetsStore.addWidget(ColorWidget)
 
-        messagesStore.add({
-          color: "success",
-          text: "Colors saved successfully!",
-        })
       } catch (error) {
         messagesStore.add({
           color: "error",
