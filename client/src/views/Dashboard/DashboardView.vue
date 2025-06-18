@@ -46,7 +46,7 @@ export default {
 
   },
   beforeRouteLeave(to, from, next) {
-    if (this.saveTimeout && window.innerWidth > 850) {
+    if (this.saveTimeout && window.innerWidth > 1050) {
       clearTimeout(this.saveTimeout);
       this.saveTimeout = null;
 
@@ -75,7 +75,6 @@ export default {
     this.grid = GridStack.init({
       float: false,
       cellHeight: "120px",
-      column: 'auto',
       columnOpts: {
         breakpoints: [
           { w: 600, c: 1 },
@@ -88,7 +87,7 @@ export default {
     window.addEventListener('resize', this.updateWidth);
 
     this.grid.on("change", (event, items) => {
-      if (window.innerWidth > 950) {
+      if (window.innerWidth > 1050) {
 
         items.forEach((item) => {
           console.log("Item moved:", item.el.id, "to", item.x, item.y);
@@ -113,7 +112,10 @@ export default {
     const crossed950 =
       (newWidth > 950 && oldWidth <= 950) ||
       (newWidth <= 950 && oldWidth > 950);
-    if (crossed950) {
+    const crossed1050 =
+      (newWidth > 1050 && oldWidth <= 1050) ||
+      (newWidth <= 1050 && oldWidth > 1050);
+    if (crossed950 || crossed1050) {
       window.location.reload(); // 🔁 recarrega a página
     }
   },
