@@ -10,12 +10,12 @@ async function checkIfUserIsTheOwner(user, id_housing) {
   });
 
   if (!housing) {
-    throw { status: 404, message: "Housing not found!" };
+    throw { statusCode: 404, message: "Housing not found!" };
   }
 
   if (housing.id_user !== user.id_user && !user.admin) {
     throw {
-      status: 403,
+      statusCode: 403,
       message: "You are not authorized to access this housing!",
     };
   }
@@ -347,6 +347,11 @@ const partialUpdateHousing = async (req, res, next) => {
     const id_housing = req.params.id_housing;
 
     const housing = await checkIfUserIsTheOwner(user, id_housing);
+
+    // Check if the housing exists
+    if (!housing) {
+      return res.status(404).json({ message: "Housing not found!" });
+    }
 
     if (req.body.pc) {
       // Create or update the postal code if it exists

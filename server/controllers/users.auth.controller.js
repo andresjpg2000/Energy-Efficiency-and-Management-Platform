@@ -332,4 +332,5 @@ module.exports = {
   refreshToken,
   resetPasswordEmail,
   resetPassword,
+  twoFactorCodes, // Export the twoFactorCodes map for testing purposes
 };

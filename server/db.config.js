@@ -1,4 +1,5 @@
 // This file contains the database configuration for the application.
+const { logging } = require("selenium-webdriver");
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize(
@@ -9,7 +10,8 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
-    // logging: console.log, //Enable logging for debugging
+    // logging: console.log,
+    logging: false,
   },
 );
 

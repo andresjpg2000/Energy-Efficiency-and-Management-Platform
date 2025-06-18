@@ -25,8 +25,17 @@ async function getAllUsers(req, res, next) {
   }
 }
 
-// Get all equipments from a housing
+// Get all widgets from a housing
 let getAllUserWidgets = async (req, res, next) => {
+  // Verify housing ownership or admin rights
+  if (req.params.id_user != req.user.id_user) {
+    const user = await User.findByPk(req.user.id_user, {
+      attributes: ["id_user", "admin"],
+    });
+    if (!user || !user.admin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
   try {
     const user = await User.findByPk(req.params.id_user, {
       attributes: ["id_user"],
@@ -54,6 +63,16 @@ let getAllUserWidgets = async (req, res, next) => {
 };
 
 let getAllUserHouses = async (req, res, next) => {
+  // Verify housing ownership or admin rights
+  if (req.params.id_user != req.user.id_user) {
+    const user = await User.findByPk(req.user.id_user, {
+      attributes: ["id_user", "admin"],
+    });
+    if (!user || !user.admin) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+
   try {
     const user = await User.findByPk(req.params.id_user, {
       attributes: ["id_user"],
