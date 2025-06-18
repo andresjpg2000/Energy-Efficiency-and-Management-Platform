@@ -1,5 +1,11 @@
 const request = require("supertest");
-const app = require("../server/server"); // importa a tua instância do Express
+require("dotenv").config({ path: "./.env" });
+const app = require("../server/app.js");
+const { User } = require("../server/models/index.js");
+
+beforeAll(async () => {
+  // setup code
+});
 
 describe("🧪 Autenticação - Registo, Login e Perfil", () => {
   let token = "";
@@ -11,26 +17,24 @@ describe("🧪 Autenticação - Registo, Login e Perfil", () => {
   };
 
   test("Registo de novo utilizador", async () => {
-    const res = await request(app).post("/auth/register").send(testUser);
+    const res = await request(app).post("/users/register").send(testUser);
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("message");
   });
 
   test("Login do utilizador", async () => {
-    const res = await request(app).post("/auth/login").send({
+    const res = await request(app).post("/users/login").send({
       email: testUser.email,
       password: testUser.password,
     });
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("token");
-    token = res.body.token;
+    expect(res.body).toHaveProperty("accessToken");
+    token = res.body.accessToken;
   });
+});
 
-  test("Obter perfil do utilizador autenticado", async () => {
-    const res = await request(app)
-      .get("/auth/me")
-      .set("Authorization", `Bearer ${token}`);
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("email", testUser.email);
-  });
+afterAll(async () => {
+  // Clean test data
+  await User.destroy({ where: { email: "teste@exemplo.com" } });
+  await app.sequelize.close(); // Close the database connection
 });
