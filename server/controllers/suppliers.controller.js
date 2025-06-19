@@ -1,7 +1,5 @@
 // Import the suppliers model
-//const { log } = require('three/tsl');
 const { Supplier } = require("../models/index.js");
-const { ValidationError, UniqueConstraintError } = require("sequelize");
 
 // Get all suppliers
 const getAllSuppliers = async (req, res, next) => {
@@ -61,8 +59,6 @@ const getAllSuppliers = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error fetching suppliers:", err);
     next(err);
   }
 };
@@ -116,96 +112,6 @@ const createSupplier = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error creating supplier:", err);
-
-    // Handle specific Sequelize validation errors and join them into a single message
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    // Handle unique constraint errors
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Supplier already exists!",
-      });
-    }
-    // Handle other errors
-    next(err);
-  }
-};
-
-// Put update a supplier
-const updateSupplier = async (req, res, next) => {
-  // Find the supplier by ID
-  const supplier = await Supplier.findByPk(req.params.id);
-  if (!supplier) {
-    return res.status(404).json({
-      message: `Supplier with ID ${req.params.id} not found!`,
-    });
-  }
-
-  // Update the supplier's properties
-  supplier.enterprise = req.body.enterprise;
-  supplier.cost_kWh = req.body.cost_kWh;
-
-  try {
-    // Save the updated supplier to the database
-    await supplier.save();
-    // Send a response with the updated supplier
-    res.status(200).json({
-      data: supplier,
-      message: `Supplier with ID ${supplier.id} updated successfully!`,
-      links: [
-        {
-          rel: "self",
-          href: `/suppliers/${supplier.id}`,
-          method: "PUT",
-        },
-        {
-          rel: "get-by-id",
-          href: `/suppliers/${supplier.id}`,
-          method: "GET",
-        },
-        {
-          rel: "get-all",
-          href: `/suppliers`,
-          method: "GET",
-        },
-        {
-          rel: "create",
-          href: `/suppliers`,
-          method: "POST",
-        },
-        {
-          rel: "partial-update",
-          href: `/suppliers/${supplier.id}`,
-          method: "PATCH",
-        },
-        {
-          rel: "delete",
-          href: `/suppliers/${supplier.id}`,
-          method: "DELETE",
-        },
-      ],
-    });
-  } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error creating supplier:", err);
-
-    // Handle specific Sequelize validation errors and join them into a single message
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    // Handle unique constraint errors
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Supplier already exists!",
-      });
-    }
     // Handle other errors
     next(err);
   }
@@ -270,22 +176,6 @@ const partialUpdateSupplier = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error creating supplier:", err);
-
-    // Handle specific Sequelize validation errors and join them into a single message
-    if (err instanceof ValidationError) {
-      return res.status(400).json({
-        message: err.errors.map((err) => err.message).join(", "),
-      });
-    }
-    // Handle unique constraint errors
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "Supplier already exists!",
-      });
-    }
-    // Handle other errors
     next(err);
   }
 };
@@ -309,9 +199,6 @@ const deleteSupplier = async (req, res, next) => {
       message: `Supplier with ID ${req.params.id} deleted successfully!`,
     });
   } catch (err) {
-    // Handle any errors that occur during the database query
-    console.error("Error deleting supplier:", err);
-
     next(err);
   }
 };
@@ -319,7 +206,6 @@ const deleteSupplier = async (req, res, next) => {
 module.exports = {
   getAllSuppliers,
   createSupplier,
-  updateSupplier,
   deleteSupplier,
   partialUpdateSupplier,
 };

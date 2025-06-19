@@ -12,15 +12,6 @@ router.get("/", suppliersController.getAllSuppliers);
 // POST /suppliers - Create a new supplier
 router.post("/", auth, authorizeAdmin, suppliersController.createSupplier);
 
-// PUT /suppliers/:id - Update a supplier by ID
-router.put(
-  "/:id",
-  auth,
-  authorizeAdmin,
-  validateParamIsInt("id"),
-  suppliersController.updateSupplier,
-);
-
 // PATCH /suppliers/:id - Partially update a supplier by ID
 router.patch(
   "/:id",
