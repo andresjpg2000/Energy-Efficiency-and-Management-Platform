@@ -1,5 +1,4 @@
 // Import the users data model
-const e = require("cors");
 const {
   EnergyProductions,
   EnergyEquipment,
@@ -24,7 +23,7 @@ let getAllEnergyProductions = async (req, res, next) => {
     } else if (!req.query.equipmentId && req.query.houseId) {
       equipments = await allequipmentsHouse(
         parseInt(req.query.houseId),
-        parseInt(req.query.userId)
+        parseInt(req.query.userId),
       );
     } else if (req.query.equipmentId && !req.query.houseId) {
       const eq = await EnergyEquipment.findOne({
@@ -100,14 +99,11 @@ let getAllEnergyProductions = async (req, res, next) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({
-      message: "Error retrieving energy returns",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-let addEnergyProduction = async (req, res) => {
+const addEnergyProduction = async (req, res, next) => {
   const { id_equipment, date, value } = req.body;
 
   if (!id_equipment || !date || !value) {
@@ -135,7 +131,6 @@ let addEnergyProduction = async (req, res) => {
     });
   }
 
-  // Verifica se o equipamento existe
   const equipment = await EnergyEquipment.findByPk(id_equipment);
   if (!equipment) {
     return res.status(404).json({
@@ -150,64 +145,52 @@ let addEnergyProduction = async (req, res) => {
       date: finalDate,
     });
 
+    // Fetch housing and user
+    const housing = await Housing.findByPk(equipment.housing);
+    const user = await User.findByPk(housing.id_user);
+
+    if (!user || !user.notification_settings) {
+      return res.status(201).json({
+        message: "Energy production created",
+        data: createdProduction,
+      });
+    }
+
+    let prefs =
+      typeof user.notification_settings === "string"
+        ? JSON.parse(user.notification_settings)
+        : user.notification_settings;
+
+    const alertsEnabled =
+      prefs.alerts === true ||
+      prefs.alerts === "true" ||
+      (typeof prefs.alerts === "string" &&
+        prefs.alerts.toLowerCase() === "true");
+
+    if (
+      alertsEnabled &&
+      prefs.thresholds &&
+      prefs.thresholds.production !== undefined &&
+      createdProduction.value < prefs.thresholds.production
+    ) {
+      const dateStr = new Date(createdProduction.date).toLocaleDateString(
+        "en-GB",
+      );
+      const valueStr = createdProduction.value.toFixed(2);
+
+      await Notifications.create({
+        type: "Alert",
+        id_user: user.id_user,
+        message: `Low energy production: only ${valueStr} kWh produced on ${dateStr}.`,
+      });
+    }
+
     res.status(201).json({
       message: "Energy production created",
       data: createdProduction,
     });
-
-    // Alertas abaixo…
-    try {
-      const housing = await Housing.findByPk(equipment.housing);
-      const user = await User.findByPk(housing.id_user);
-      let prefs = user.notification_settings;
-
-      // Se prefs for string, faz parse
-      if (typeof prefs === "string") {
-        prefs = JSON.parse(prefs);
-      }
-
-      // Verifica se alertas estão ativos
-      let alertsEnabled = false;
-      if (prefs.alerts === true) {
-        alertsEnabled = true;
-      } else if (prefs.alerts === "true") {
-        alertsEnabled = true;
-      } else if (
-        typeof prefs.alerts === "string" &&
-        prefs.alerts.toLowerCase() === "true"
-      ) {
-        alertsEnabled = true;
-      }
-
-      if (!alertsEnabled) {
-        return;
-      }
-
-      // Verifica limiar de produção
-      if (
-        prefs.thresholds &&
-        prefs.thresholds.production !== undefined &&
-        createdProduction.value < prefs.thresholds.production
-      ) {
-        const date = new Date(createdProduction.date).toLocaleDateString(
-          "en-GB"
-        );
-        const valueStr = createdProduction.value.toFixed(2);
-
-        await Notifications.create({
-          type: "Alert",
-          id_user: user.id_user,
-          message: `Low energy production: only ${valueStr} kWh produced on ${date}.`,
-        });
-      }
-    } catch (alertError) {
-      console.error("Erro ao gerar alerta de produção:", alertError);
-    }
   } catch (err) {
-    res.status(500).json({
-      message: "Error creating energy production",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
@@ -226,10 +209,7 @@ let deleteEnergyProduction = async (req, res, next) => {
     await energy.destroy();
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({
-      message: "Error creating energy return",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
