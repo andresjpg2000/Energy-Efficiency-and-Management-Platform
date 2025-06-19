@@ -75,6 +75,8 @@ export default {
         .filter((c) => c.date.startsWith(thisMonth))
         .reduce((total, c) => total + (c.value || 0), 0);
 
+      
+
       const supplier = this.suppliersStore.suppliers.find(
         s => s.id == this.housingsStore.selectedSupplierId
       );
@@ -82,9 +84,16 @@ export default {
       let price = consumptionData - productionData;
       
       this.total = price > 0 ? price * supplier.cost_kWh : 0;//multiplicação e validação aqui
+      if (price > 0) {
+          this.data = this.sparklineData;
+      }
     }
-    if (this.data.length < 5|| this.data.length > 25) {
-      this.data = this.sparklineData;
+    if (this.data.length < 5) {
+      for (let i = 0; i < 15; i++) {
+        this.data.push(
+          0
+        );
+      }
     }
   },
   data() {
@@ -158,16 +167,17 @@ export default {
         subtitle: {
           text: this.name,
           floating: true,
-          offsetX: 30,
+          offsetX: window.innerWidth < 1200 ? 10 : 30,
           offsetY: 15,
           style: {
-            fontSize: "14px",
+            fontSize: window.innerWidth < 1200 && window.innerWidth > 1050 ? "12px" : "14px",
           },
         },
       };
     },
   },
   methods: {},
+
 };
 </script>
 
