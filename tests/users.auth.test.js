@@ -142,4 +142,5 @@ describe("Authentication tests (with two factor authentication enabled)", () => 
 afterAll(async () => {
   // Clean test data
   await User.destroy({ where: { email: "authteste@exemplo.com" } });
+  await app.sequelize.close();
 });

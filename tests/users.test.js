@@ -125,5 +125,6 @@ describe("User related tests", () => {
     // Clean test data
     await User.destroy({ where: { email: "usersteste@exemplo.com" } });
     await User.destroy({ where: { email: "usersteste2@exemplo.com" } });
+    await app.sequelize.close();
   });
 });

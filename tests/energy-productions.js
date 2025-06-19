@@ -73,5 +73,6 @@ describe("Energy-production related tests", () => {
     // Clean test data
     await User.destroy({ where: { email: "productionsteste@exemplo.com" } }); // This will also delete the housing due to cascading
     await User.destroy({ where: { email: "productionsteste2@exemplo.com" } });
+    await app.sequelize.close();
   });
 });

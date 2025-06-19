@@ -179,5 +179,6 @@ describe("Housing management tests", () => {
     // Clean test data
     await User.destroy({ where: { email: "housingsteste@exemplo.com" } }); // This will also delete the housing due to cascading
     await User.destroy({ where: { email: "housingsteste2@exemplo.com" } });
+    await app.sequelize.close();
   });
 });

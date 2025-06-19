@@ -15,6 +15,10 @@ async function createEnergyEquipment(req, res, next) {
       return res.status(400).json({ message: "Housing ID does not exist." });
     }
 
+    if (housingExists.id_user !== req.user.id_user) {
+      return res.status(403).json({ message: "You do not own this housing." });
+    }
+
     const equipmentData = {
       energy_type,
       capacity,
@@ -61,6 +65,15 @@ async function updateEnergyEquipmentName(req, res, next) {
     const equipment = await EnergyEquipment.findByPk(id);
     if (!equipment) {
       return res.status(404).json({ message: "Equipment not found." });
+    }
+
+    const housing = await Housing.findByPk(equipment.housing);
+
+    // Verificar se o utilizador é o dono do equipamento
+    if (req.user.id_user !== housing.id_user) {
+      return res
+        .status(403)
+        .json({ message: "You do not own this equipment." });
     }
 
     await equipment.update({ name });
