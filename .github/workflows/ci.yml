@@ -22,5 +22,25 @@ jobs:
           npm install
           cd ..
 
+      - name: Create .env file for tests
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_DIALECT=${{ secrets.DB_DIALECT }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}" >> .env
+          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
+          echo "JWT_REFRESH_EXPIRATION=${{ secrets.JWT_REFRESH_EXPIRATION }}" >> .env
+          echo "JWT_RESET_SECRET=${{ secrets.JWT_RESET_SECRET }}" >> .env
+          echo "JWT_RESET_EXPIRATION=${{ secrets.JWT_RESET_EXPIRATION }}" >> .env
+          echo "JWT_2FA_SECRET=${{ secrets.JWT_2FA_SECRET }}" >> .env
+          echo "JWT_2FA_EXPIRATION=${{ secrets.JWT_2FA_EXPIRATION }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+
       - name: Run tests
         run: npm test
