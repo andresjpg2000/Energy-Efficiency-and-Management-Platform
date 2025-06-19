@@ -2,13 +2,13 @@
   <v-card class="rounded-xl teste">
     <v-card-item class="h-100">
       <div class="h-100 d-flex justify-space-between align-center mb-mb-0 mb-3">
-        <v-card-title class="text-h5 text-md-body2"
+        <v-card-title class="text-h6 text-lg-h5"
           >Energy Consumption</v-card-title
         >
         <v-chip-group mandatory class="chips" v-model="select">
-          <v-chip rounded="lg" value="year">year</v-chip>
-          <v-chip rounded="lg" value="month">last month</v-chip>
-          <v-chip rounded="lg" value="week">last week</v-chip>
+          <v-chip class="text-caption text-md-body-2 text-lg-body-1 px-2 py-1" rounded="lg" value="year">year</v-chip>
+          <v-chip class="text-caption text-md-body-2 text-lg-body-1 px-2 py-1" rounded="lg" value="month">last month</v-chip>
+          <v-chip class="text-caption text-md-body-2 text-lg-body-1 px-2 py-1" rounded="lg" value="week">last week</v-chip>
         </v-chip-group>
       </div>
       <apexchart

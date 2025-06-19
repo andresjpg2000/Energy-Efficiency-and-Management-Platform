@@ -73,6 +73,7 @@ export default {
 .loginBox {
   max-width: 475px;
   margin: 0 auto;
+  border-radius: 18px;
 }
 .blur-logo {
   position: absolute;
