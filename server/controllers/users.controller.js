@@ -25,9 +25,8 @@ async function getAllUsers(req, res, next) {
   }
 }
 
-// Get all widgets from a housing
 let getAllUserWidgets = async (req, res, next) => {
-  // Verify housing ownership or admin rights
+  // Verificar se o utilizador é o dono das casas ou admin
   if (req.params.id_user != req.user.id_user) {
     const user = await User.findByPk(req.user.id_user, {
       attributes: ["id_user", "admin"],
@@ -56,14 +55,12 @@ let getAllUserWidgets = async (req, res, next) => {
       data: user,
     });
   } catch (err) {
-    console.error("Error fetching Users Widgets:", err);
-
     next(err);
   }
 };
 
 let getAllUserHouses = async (req, res, next) => {
-  // Verify housing ownership or admin rights
+  // Verificar se o utilizador é o dono das casas ou admin
   if (req.params.id_user != req.user.id_user) {
     const user = await User.findByPk(req.user.id_user, {
       attributes: ["id_user", "admin"],
@@ -110,13 +107,12 @@ let getAllUserHouses = async (req, res, next) => {
       data: user,
     });
   } catch (err) {
-    console.error("Error fetching Users Houses:", err);
-
     next(err);
   }
 };
 
 let getAllUserHousesInfo = async (req, res, next) => {
+  // Usado para exportar dados de utilizadores e casas para ficheiro CSV (admin dashboard)
   try {
     const user = await User.findByPk(req.params.id_user, {
       attributes: ["id_user"],
@@ -157,10 +153,8 @@ let getAllUserHousesInfo = async (req, res, next) => {
         });
         h.dataValues.energyConsumptions = energyConsumptions;
       } catch (error) {
-        console.error(
-          `Error fetching data for housing ${h.id_housing}:`,
-          error,
-        );
+        // parar loop se houver erro ao obter informações de uma casa e passar o erro para o middleware de erro
+        throw error;
       }
     }
 
@@ -169,8 +163,6 @@ let getAllUserHousesInfo = async (req, res, next) => {
       data: user,
     });
   } catch (err) {
-    console.error("Error fetching Users Houses:", err);
-
     next(err);
   }
 };

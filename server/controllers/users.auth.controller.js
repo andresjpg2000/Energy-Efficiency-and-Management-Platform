@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/index.js");
-const { ValidationError } = require("sequelize");
 const mailSender = require("../mailSender.js");
 
 // Store 2fa verification codes, in the future use redis or a database
@@ -52,42 +51,35 @@ async function login(req, res, next) {
     if (!user) {
       return res.status(401).json({ message: "Invalid email" });
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the password with the hashed password in the database
-
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
+
     // If the user has 2FA enabled
     if (user.two_factor_enabled) {
-      try {
-        // Generate a temporary token for 2FA verification
-        const tempToken = jwt.sign(
-          { id_user: user.id_user, type: "2fa" },
-          process.env.JWT_2FA_SECRET,
-          { expiresIn: process.env.JWT_2FA_EXPIRATION },
-        );
-        // Send the 2FA code to the user's email
-        const verificationCode = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit verification code
-        // Store the verification code
-        twoFactorCodes.set(user.id_user, verificationCode);
+      // Generate a temporary token for 2FA verification
+      const tempToken = jwt.sign(
+        { id_user: user.id_user, type: "2fa" },
+        process.env.JWT_2FA_SECRET,
+        { expiresIn: process.env.JWT_2FA_EXPIRATION },
+      );
+      // Send the 2FA code to the user's email
+      const verificationCode = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit verification code
+      // Store the verification code
+      twoFactorCodes.set(user.id_user, verificationCode);
 
-        await mailSender.send2FACodeEmail(user.email, verificationCode);
-        return res.status(200).json({
-          message: "Two factor authentication link sent to your email",
-          user: {
-            id_user: user.id_user,
-            two_factor_enabled: user.two_factor_enabled,
-          },
-          tempToken,
-        });
-      } catch (error) {
-        return res.status(500).json({
-          message: "Error generating 2FA token",
-          error: error.message,
-        });
-      }
+      await mailSender.send2FACodeEmail(user.email, verificationCode);
+      return res.status(200).json({
+        message: "Two factor authentication link sent to your email",
+        user: {
+          id_user: user.id_user,
+          two_factor_enabled: user.two_factor_enabled,
+        },
+        tempToken,
+      });
     }
+
     // If the user does not have 2FA enabled, generate the access and refresh tokens
     const token = jwt.sign({ id_user: user.id_user }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION,
@@ -113,21 +105,12 @@ async function login(req, res, next) {
       },
     });
   } catch (error) {
-    if (error instanceof ValidationError) {
-      return res
-        .status(400)
-        .json({ success: false, msg: error.map((e) => e.message) });
-    } else {
-      return res.status(500).json({
-        success: false,
-        msg: error.message || "Some error occurred at login.",
-      });
-    }
+    next(error);
   }
 }
 
 // Function to verify the 2FA token
-async function verify2FA(req, res) {
+async function verify2FA(req, res, next) {
   if (!req.body || !req.body.token || !req.body.code) {
     return res.status(400).json({ message: "Token is required" });
   }
@@ -182,15 +165,12 @@ async function verify2FA(req, res) {
       },
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Error with the two factor authentication.",
-      error: error.message,
-    });
+    next(error);
   }
 }
 
 // Function to refresh the token
-async function refreshToken(req, res) {
+async function refreshToken(req, res, next) {
   const { refreshToken } = req.body;
   if (!refreshToken) {
     return res
@@ -238,14 +218,12 @@ async function refreshToken(req, res) {
       },
     });
   } catch (err) {
-    return res
-      .status(401)
-      .json({ message: "Invalid or expired refresh token" });
+    next(err);
   }
 }
 
 // Function to send reset password email
-async function resetPasswordEmail(req, res) {
+async function resetPasswordEmail(req, res, next) {
   if (!req.body || !req.body.email) {
     return res.status(400).json({ message: "Email is required" });
   }
@@ -254,9 +232,9 @@ async function resetPasswordEmail(req, res) {
 
   // Showing the same message regardless of whether the user exists or not to prevent user enumeration attacks
   if (!user) {
-    return res
-      .status(404)
-      .json({ message: "Password reset link sent to your email" });
+    return res.status(404).json({
+      message: "If an account with that email exists, a reset link was sent.",
+    });
   }
 
   try {
@@ -269,19 +247,16 @@ async function resetPasswordEmail(req, res) {
     // send email with link to reset password
     const resetLink = `${process.env.FRONTEND_URL}reset-password?token=${resetToken}`;
     await mailSender.sendResetPasswordEmail(user.email, resetLink);
-    return res
-      .status(200)
-      .json({ message: "Password reset link sent to your email" });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error sending password reset email",
-      error: error.message,
+    return res.status(200).json({
+      message: "If an account with that email exists, a reset link was sent.",
     });
+  } catch (error) {
+    next(error);
   }
 }
 
 // function to actually reset the password
-async function resetPassword(req, res) {
+async function resetPassword(req, res, next) {
   if (!req.body || !req.body.token || !req.body.newPassword) {
     return res
       .status(400)
@@ -319,9 +294,7 @@ async function resetPassword(req, res) {
       .status(200)
       .json({ message: "Password has been reset successfully" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error resetting password", error: error.message });
+    next(error);
   }
 }
 
