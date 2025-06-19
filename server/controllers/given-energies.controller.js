@@ -7,7 +7,7 @@ const {
 const { Op } = require("sequelize");
 
 // get all energy returns
-let getgivenEnergies = async (req, res) => {
+let getgivenEnergies = async (req, res, next) => {
   if (!req.query.userId) {
     return res.status(400).json({ message: "user ID is required" });
   }
@@ -20,7 +20,7 @@ let getgivenEnergies = async (req, res) => {
     } else if (!req.query.equipmentId && req.query.houseId) {
       equipments = await allequipmentsHouse(
         parseInt(req.query.houseId),
-        parseInt(req.query.userId)
+        parseInt(req.query.userId),
       );
     } else if (req.query.equipmentId && !req.query.houseId) {
       const eq = await EnergyEquipment.findOne({
@@ -103,14 +103,11 @@ let getgivenEnergies = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({
-      message: "Error retrieving energy returns",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-let addgivenEnergies = async (req, res) => {
+let addgivenEnergies = async (req, res, next) => {
   const { id_equipment, date, value } = req.body;
 
   if (!id_equipment || !value) {
@@ -159,10 +156,7 @@ let addgivenEnergies = async (req, res) => {
       data: createdEnergyReturn,
     });
   } catch (err) {
-    res.status(500).json({
-      message: "Error creating energy return",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
@@ -225,10 +219,7 @@ let deleteGivenEnergy = async (req, res, next) => {
     await energy.destroy();
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({
-      message: "Error creating energy return",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
