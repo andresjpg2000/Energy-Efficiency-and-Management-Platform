@@ -14,16 +14,25 @@ const router = createRouter({
           path: "",
           name: "Dashboard",
           component: () => import("@/views/Dashboard/DashboardView.vue"),
+          meta: {
+            title: "Dashboard - GreenGrid",
+          },
         }, // root "/"
         {
           path: "Monitoring",
           name: "Monitoring",
-          component: () => import("../views/Dashboard/MonitoringView.vue"),
+          component: () => import("../views/Dashboard/monitoringView.vue"),
+          meta: {
+            title: "Monitoring - GreenGrid",
+          },
         },
         {
           path: "Forecasts",
           name: "Forecasts",
           component: () => import("../views/Dashboard/ForecastsView.vue"),
+          meta: {
+            title: "Forecasts - GreenGrid",
+          },
         },
 
         {
@@ -31,17 +40,26 @@ const router = createRouter({
           name: "dataConsumption",
           component: () =>
             import("../views/DataTables/dataConsumptionView.vue"),
+          meta: {
+            title: "Consumption Data - GreenGrid",
+          },
         },
         {
           path: "Production-data",
           name: "dataProduction",
           component: () => import("../views/DataTables/dataProductionView.vue"),
+          meta: {
+            title: "Production Data - GreenGrid",
+          },
         },
         {
           path: "givenEnergies-data",
           name: "dataGivenEnergies",
           component: () =>
             import("../views/DataTables/dataGivenEnergiesView.vue"),
+          meta: {
+            title: "Given Energies Data - GreenGrid",
+          },
         },
         {
           path: "Calendar",
@@ -53,6 +71,9 @@ const router = createRouter({
           name: "Alerts & Notifications",
           component: () =>
             import("../views/Dashboard/Alerts-NotificationsView.vue"),
+          meta: {
+            title: "Alerts & Notifications - GreenGrid",
+          },
         },
       ],
       meta: {
@@ -68,11 +89,17 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: () => import("@/views/LoginView.vue"),
+      meta: {
+        title: "Login - GreenGrid",
+      },
     },
     {
       path: "/register",
       name: "register",
       component: () => import("@/views/RegisterView.vue"),
+      meta: {
+        title: "Register - GreenGrid",
+      },
     },
     {
       path: "/settings",
@@ -86,24 +113,36 @@ const router = createRouter({
           name: "account-information",
           component: () =>
             import("../views/ProfileSettings/AccountInformationView.vue"),
+          meta: {
+            title: "Account Information - GreenGrid",
+          }
         },
         {
           path: "energy-preferences",
           name: "energy-preferences",
           component: () =>
             import("../views/ProfileSettings/EnergyPreferencesView.vue"),
+          meta: {
+            title: "Energy Preferences - GreenGrid",
+          },
         },
         {
           path: "notification-settings",
           name: "notification-settings",
           component: () =>
             import("../views/ProfileSettings/NotificationSettingsView.vue"),
+          meta: {
+            title: "Notification Settings - GreenGrid",
+          },
         },
         {
           path: "security-settings",
           name: "security-settings",
           component: () =>
             import("../views/ProfileSettings/SecuritySettingsView.vue"),
+          meta: {
+            title: "Security Settings - GreenGrid",
+          },
         },
       ],
       meta: {
@@ -142,6 +181,9 @@ const router = createRouter({
       path: "/:pathMatch(.*)*",
       name: "NotFound",
       component: () => import("../views/NotFoundView.vue"),
+      meta: {
+        title: "Page Not Found - GreenGrid",
+      },
     },
     {
       path: "/forbidden",
@@ -164,7 +206,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   // Update the document title based on the route
-  const defaultTitle = "AMA ";
+  const defaultTitle = "GreenGrid - Smart Energy Management";
   document.title = to.meta.title || defaultTitle;
 
   const needsAuth = to.matched.some((record) => record.meta.requiresAuth);
