@@ -2,7 +2,7 @@
 const db = require("../models/index.js");
 const Widgets = db.widgets;
 
-let addWidgets = async (req, res) => {
+let addWidgets = async (req, res, next) => {
   const { id_user, title, body, type } = req.body; // token verificar aqui
 
   if (!id_user || !title || !body || !type) {
@@ -25,14 +25,11 @@ let addWidgets = async (req, res) => {
       data: createdWiget,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Error creating widget",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
-let updateWidgets = async (req, res) => {
+let updateWidgets = async (req, res, next) => {
   const { title } = req.params;
   const { id_user } = req.query;
   const { x, y, ...extraFields } = req.body;
@@ -62,13 +59,11 @@ let updateWidgets = async (req, res) => {
 
     return res.status(200).json({ message: "Widget updated", data: widget });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error updating widget", error: error.message });
+    next(error);
   }
 };
 
-let deleteWidgets = async (req, res) => {
+let deleteWidgets = async (req, res, next) => {
   const { id_user } = req.query; // token verificar aqui
   const { title } = req.params;
 
@@ -95,10 +90,7 @@ let deleteWidgets = async (req, res) => {
     await widget.destroy();
     return res.status(204).send(); // No content response
   } catch (error) {
-    return res.status(500).json({
-      message: "Error deleting widget",
-      error: error.message,
-    });
+    next(error);
   }
 };
 

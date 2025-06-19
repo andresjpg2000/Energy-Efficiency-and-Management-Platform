@@ -98,28 +98,28 @@ export default {
         });
 
         this.saveTimeout = setTimeout(() => {
-            this.widgetsStore.updateDBWidgets([...this.changedWidgets]);
-            this.changedWidgets.clear();
-          
+          this.widgetsStore.updateDBWidgets([...this.changedWidgets]);
+          this.changedWidgets.clear();
+
         }, 10000);
       } else {
-          console.log("📱 Mobile width detected. Not saving widget positions.");
+        console.log("Mobile width detected. Not saving widget positions.");
       }
     });
   },
   watch: {
-  innerWidth(newWidth, oldWidth) {
-    const crossed950 =
-      (newWidth > 950 && oldWidth <= 950) ||
-      (newWidth <= 950 && oldWidth > 950);
-    const crossed1050 =
-      (newWidth > 1050 && oldWidth <= 1050) ||
-      (newWidth <= 1050 && oldWidth > 1050);
-    if (crossed950 || crossed1050) {
-      window.location.reload(); // 🔁 recarrega a página
-    }
-  },
-}
+    innerWidth(newWidth, oldWidth) {
+      const crossed950 =
+        (newWidth > 950 && oldWidth <= 950) ||
+        (newWidth <= 950 && oldWidth > 950);
+      const crossed1050 =
+        (newWidth > 1050 && oldWidth <= 1050) ||
+        (newWidth <= 1050 && oldWidth > 1050);
+      if (crossed950 || crossed1050) {
+        window.location.reload(); // 🔁 recarrega a página
+      }
+    },
+  }
 };
 </script>
 
