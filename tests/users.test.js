@@ -3,38 +3,38 @@ require("dotenv").config({ path: "./.env" });
 const app = require("../server/app.js");
 const { User } = require("../server/models/index.js");
 
-let token = "";
-let id_user = "";
-let id_user2 = "";
+describe("User related tests", () => {
+  let token = "";
+  let id_user = "";
+  let id_user2 = "";
 
-beforeAll(async () => {
-  // Create a test user
-  const testUser = {
-    email: "usersteste@exemplo.com",
-    password: "Password123",
-    name: "Test User",
-  };
-  // Create a second test user for ownership tests
-  const testUser2 = {
-    email: "usersteste2@exemplo.com",
-    password: "Password123",
-    name: "Test User 2",
-  };
+  beforeAll(async () => {
+    // Create a test user
+    const testUser = {
+      email: "usersteste@exemplo.com",
+      password: "Password123",
+      name: "Test User",
+    };
+    // Create a second test user for ownership tests
+    const testUser2 = {
+      email: "usersteste2@exemplo.com",
+      password: "Password123",
+      name: "Test User 2",
+    };
 
-  const created = await request(app).post("/users/register").send(testUser);
-  const created2 = await request(app).post("/users/register").send(testUser2);
+    const created = await request(app).post("/users/register").send(testUser);
+    const created2 = await request(app).post("/users/register").send(testUser2);
 
-  const res = await request(app).post("/users/login").send({
-    email: testUser.email,
-    password: testUser.password,
+    const res = await request(app).post("/users/login").send({
+      email: testUser.email,
+      password: testUser.password,
+    });
+
+    token = res.body.accessToken; // Store the token for authenticated requests
+    id_user = res.body.user.id_user; // Store the user ID for further tests
+    id_user2 = created2.body.id_user; // Store the second user's ID for ownership tests
   });
 
-  token = res.body.accessToken; // Store the token for authenticated requests
-  id_user = res.body.user.id_user; // Store the user ID for further tests
-  id_user2 = created2.body.id_user; // Store the second user's ID for ownership tests
-});
-
-describe("User related tests", () => {
   test("PATCH /users/:id_user - update user info", async () => {
     const res = await request(app)
       .patch(`/users/${id_user}`)
@@ -120,11 +120,10 @@ describe("User related tests", () => {
     expect(res.statusCode).toBe(403);
     expect(res.body.message).toBe("Forbidden");
   });
-});
 
-afterAll(async () => {
-  // Clean test data
-  await User.destroy({ where: { email: "usersteste@exemplo.com" } });
-  await User.destroy({ where: { email: "usersteste2@exemplo.com" } });
-  await app.sequelize.close(); // Close the database connection
+  afterAll(async () => {
+    // Clean test data
+    await User.destroy({ where: { email: "usersteste@exemplo.com" } });
+    await User.destroy({ where: { email: "usersteste2@exemplo.com" } });
+  });
 });

@@ -3,59 +3,59 @@ require("dotenv").config({ path: "./.env" });
 const app = require("../server/app.js");
 const { User } = require("../server/models/index.js");
 
-let token = "";
-let token2 = "";
-let id_housing;
-let wrongId = 9999999; // A non-existing housing ID for testing
-let wrongId2; // housing id not owned by test user
+describe("Housing management tests", () => {
+  let token = "";
+  let token2 = "";
+  let id_housing;
+  let wrongId = 9999999; // A non-existing housing ID for testing
+  let wrongId2; // housing id not owned by test user
 
-beforeAll(async () => {
-  // Create a test user
-  const testUser = {
-    email: "housingsteste@exemplo.com",
-    password: "Password123",
-    name: "Test User",
-  };
-  // Create a second test user for ownership tests
-  const testUser2 = {
-    email: "housingsteste2@exemplo.com",
-    password: "Password123",
-    name: "Test User 2",
-  };
+  beforeAll(async () => {
+    // Create a test user
+    const testUser = {
+      email: "housingsteste@exemplo.com",
+      password: "Password123",
+      name: "Test User",
+    };
+    // Create a second test user for ownership tests
+    const testUser2 = {
+      email: "housingsteste2@exemplo.com",
+      password: "Password123",
+      name: "Test User 2",
+    };
 
-  const created = await request(app).post("/users/register").send(testUser);
-  const created2 = await request(app).post("/users/register").send(testUser2);
+    const created = await request(app).post("/users/register").send(testUser);
+    const created2 = await request(app).post("/users/register").send(testUser2);
 
-  const res = await request(app).post("/users/login").send({
-    email: testUser.email,
-    password: testUser.password,
-  });
-
-  const res2 = await request(app).post("/users/login").send({
-    email: testUser2.email,
-    password: testUser2.password,
-  });
-
-  token = res.body.accessToken; // Store the token for authenticated requests
-  token2 = res2.body.accessToken; // Store the second user's token for ownership tests
-
-  // Create a new housing and get a housing ID that belongs to the second user
-  const res3 = await request(app)
-    .post("/housings")
-    .set("Authorization", `Bearer ${token2}`)
-    .send({
-      address: "123 Test Street 2",
-      pc: "1234567",
-      location: "Test City",
-      building_type: "studio",
-      id_supplier: 2,
-      custom_supplier_price: 0.3,
+    const res = await request(app).post("/users/login").send({
+      email: testUser.email,
+      password: testUser.password,
     });
 
-  wrongId2 = res3.body.data.id_housing;
-});
+    const res2 = await request(app).post("/users/login").send({
+      email: testUser2.email,
+      password: testUser2.password,
+    });
 
-describe("Housing management tests", () => {
+    token = res.body.accessToken; // Store the token for authenticated requests
+    token2 = res2.body.accessToken; // Store the second user's token for ownership tests
+
+    // Create a new housing and get a housing ID that belongs to the second user
+    const res3 = await request(app)
+      .post("/housings")
+      .set("Authorization", `Bearer ${token2}`)
+      .send({
+        address: "123 Test Street 2",
+        pc: "1234567",
+        location: "Test City",
+        building_type: "studio",
+        id_supplier: 2,
+        custom_supplier_price: 0.3,
+      });
+
+    wrongId2 = res3.body.data.id_housing;
+  });
+
   test("GET /housings - should return 401 if not authenticated", async () => {
     const res = await request(app).get("/housings");
     expect(res.statusCode).toBe(401);
@@ -174,11 +174,10 @@ describe("Housing management tests", () => {
 
     expect(res.statusCode).toBe(204);
   });
-});
 
-afterAll(async () => {
-  // Clean test data
-  await User.destroy({ where: { email: "housingsteste@exemplo.com" } }); // This will also delete the housing due to cascading
-  await User.destroy({ where: { email: "housingsteste2@exemplo.com" } });
-  await app.sequelize.close(); // Close the database connection
+  afterAll(async () => {
+    // Clean test data
+    await User.destroy({ where: { email: "housingsteste@exemplo.com" } }); // This will also delete the housing due to cascading
+    await User.destroy({ where: { email: "housingsteste2@exemplo.com" } });
+  });
 });

@@ -14,10 +14,6 @@ const {
   twoFactorCodes,
 } = require("../server/controllers/users.auth.controller.js");
 
-beforeAll(async () => {
-  // setup code
-});
-
 describe("Authentication tests (without two factor authentication enabled)", () => {
   let token = "";
   let refreshToken = "";
@@ -146,5 +142,4 @@ describe("Authentication tests (with two factor authentication enabled)", () => 
 afterAll(async () => {
   // Clean test data
   await User.destroy({ where: { email: "authteste@exemplo.com" } });
-  await app.sequelize.close(); // Close the database connection
 });

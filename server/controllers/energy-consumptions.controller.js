@@ -5,7 +5,7 @@ const {
   Notifications,
   User,
 } = require("../models/index.js");
-const { UniqueConstraintError, ValidationError, Op } = require("sequelize");
+const { Op } = require("sequelize");
 
 // Create consumption
 const addEnergyConsumption = async (req, res, next) => {
@@ -34,6 +34,8 @@ const addEnergyConsumption = async (req, res, next) => {
       id_housing,
     });
 
+    await generateAlertsIfNeeded(newConsumption);
+
     res.status(201).json({
       data: newConsumption,
       links: [
@@ -45,20 +47,7 @@ const addEnergyConsumption = async (req, res, next) => {
         },
       ],
     });
-
-    await generateAlertsIfNeeded(newConsumption);
   } catch (err) {
-    console.error("Error creating consumption:", err);
-
-    if (err instanceof ValidationError) {
-      const messages = err.errors.map((e) => e.message);
-      return res.status(400).json({ message: messages.join(", ") });
-    }
-
-    if (err instanceof UniqueConstraintError) {
-      return res.status(400).json({ message: "Consumption already exists!" });
-    }
-
     next(err);
   }
 };
@@ -66,7 +55,12 @@ const addEnergyConsumption = async (req, res, next) => {
 async function generateAlertsIfNeeded(consumption) {
   try {
     const housing = await Housing.findByPk(consumption.id_housing);
+
     const user = await User.findByPk(housing.id_user);
+
+    // Check if user has notification settings
+    if (!user || !user.notification_settings) return;
+
     const prefs = user.notification_settings;
     const parsedPrefs = typeof prefs === "string" ? JSON.parse(prefs) : prefs;
 
@@ -96,12 +90,6 @@ async function generateAlertsIfNeeded(consumption) {
     if (parsedPrefs.thresholds && parsedPrefs.thresholds.cost !== undefined) {
       const estimatedCost = supplier.cost_kWh * value;
 
-      console.log(
-        `Estimated cost: ${estimatedCost.toFixed(2)}, threshold: ${
-          parsedPrefs.thresholds.cost
-        }`,
-      );
-
       if (estimatedCost > parsedPrefs.thresholds.cost) {
         await createNotification(
           user.id_user,
@@ -111,7 +99,8 @@ async function generateAlertsIfNeeded(consumption) {
       }
     }
   } catch (error) {
-    console.error("Error generating alerts:", error);
+    // Log the error but do not throw it to avoid breaking the consumption request
+    console.warn("Error generating alerts:", error);
   }
 }
 
@@ -166,7 +155,6 @@ const deleteEnergyConsumption = async (req, res, next) => {
       ],
     });
   } catch (err) {
-    console.error("Error deleting consumption:", err);
     next(err);
   }
 };
