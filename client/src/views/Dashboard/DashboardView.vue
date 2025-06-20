@@ -31,10 +31,6 @@ export default {
 
   },
   methods: {
-    remove() {
-      this.doEnable = !this.doEnable; // alterna o estado de remoção
-      this.grid.movable(this.doEnable); // define se os widgets são estáticos ou não
-    },
     alterFloat() {
       this.float = !this.float; // alterna o estado de flutuação
       this.grid.float(this.float);
@@ -59,7 +55,6 @@ export default {
           next();
         })
         .catch((error) => {
-          console.error("Erro ao atualizar widgets antes de sair:", error);
           next();
         });
     } else {
@@ -82,6 +77,7 @@ export default {
           { w: 1100, c: 12 },
         ],
       },
+      disableResize: true,
     });
 
     window.addEventListener('resize', this.updateWidth);
@@ -102,9 +98,7 @@ export default {
           this.changedWidgets.clear();
 
         }, 10000);
-      } else {
-        console.log("Mobile width detected. Not saving widget positions.");
-      }
+      } 
     });
   },
   watch: {
@@ -128,11 +122,7 @@ export default {
   <v-row>
     <v-col cols="12" md="6" class="d-flex my-2">
       <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="alterFloat"
-        :text="float ? 'Disable Float' : 'Enable Float'"></v-btn>
-      <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="remove">
-        <v-icon class="pr-3" left>mdi-pencil</v-icon>
-        {{ doEnable ? "Disable Edit mode" : "Enable Edit mode" }}
-      </v-btn>
+        :text="float ? 'Disable Dynamic Positioning' : 'Enable Dynamic Positioning'"></v-btn>
     </v-col>
   </v-row>
 
@@ -140,7 +130,6 @@ export default {
     <div class="grid-stack-item widgets" v-for="(item, i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x"
       :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">
       <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
-        <!-- <MinisWiget v-if="item.type == 1" :body="item.body"/> -->
         <graphic-wiget v-if="item.type == 5" />
         <SparkChart v-if="item.type == 1" :title="item.title" :earn="item.body.earn" :name="item.body.name" />
         <ColumnWiget v-if="item.type == 2" />
@@ -154,7 +143,6 @@ export default {
 .grid-stack-item-content {
   position: relative;
   z-index: 1;
-  /* abaixo do overlay */
 }
 
 .v-overlay-container {
