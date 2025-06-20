@@ -6,7 +6,6 @@ import ColumnWiget from "@/components/Column.widget.vue";
 import VerticalColumnWidget from "@/components/VerticalColumn.widget.vue";
 
 import { useWidgetsStore } from "@/stores/widgetsStore";
-import { useAuthStore } from "@/stores/auth.js";
 
 export default {
   name: "DashboardView",
@@ -82,6 +81,7 @@ export default {
 
     window.addEventListener('resize', this.updateWidth);
 
+    // add listeners for grid events
     this.grid.on("change", (event, items) => {
       if (window.innerWidth > 1050) {
 
@@ -102,6 +102,7 @@ export default {
     });
   },
   watch: {
+    // Observa mudanças na largura da janela para reparar bugs de widgets
     innerWidth(newWidth, oldWidth) {
       const crossed950 =
         (newWidth > 950 && oldWidth <= 950) ||
@@ -129,7 +130,7 @@ export default {
   <v-sheet color="#E0E0E0" rounded="lg" width="100%" class="grid-stack">
     <div class="grid-stack-item widgets" v-for="(item, i) in widgetsStore.userWidgets" :key="i" :gs-x="item.body.x"
       :gs-y="item.body.y" :gs-w="item.body.w" :gs-h="item.body.h" :id="item.title">
-      <div class="grid-stack-item-content border-1 elevation-2 rounded-xl">
+      <div loading="lazy" class="grid-stack-item-content border-1 elevation-2 rounded-xl">
         <graphic-wiget v-if="item.type == 5" />
         <SparkChart v-if="item.type == 1" :title="item.title" :earn="item.body.earn" :name="item.body.name" />
         <ColumnWiget v-if="item.type == 2" />

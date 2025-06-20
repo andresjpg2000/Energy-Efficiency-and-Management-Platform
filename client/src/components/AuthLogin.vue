@@ -197,7 +197,7 @@ export default {
         variant="outlined" color="primary" hide-details="auto" :type="show1 ? 'text' : 'password'" class="mt-2"
         autocomplete="current-password" @input="passwordTouched = true">
         <template v-slot:append-inner>
-          <v-btn color="secondary" icon rounded variant="text" @click="show1 = !show1">
+          <v-btn aria-label="see Password" color="secondary" icon rounded variant="text" @click="show1 = !show1">
             <v-icon size="large" icon="mdi-eye-outline" v-if="show1 == false"></v-icon>
             <v-icon size="large" icon="mdi-eye-off-outline" v-if="show1 == true"></v-icon>
           </v-btn>

@@ -4,7 +4,7 @@
     <v-layout>
       <v-navigation-drawer v-if="showDrawer" v-model="drawer" expand-on-hover :permanent="!isMobile"
         :temporary="isMobile" :floating="!isMobile" :rail="!isMobile && rail">
-        <v-list density="compact" mandatory item-props :items="items" nav />
+        <v-list role="list" density="compact" mandatory item-props :items="items" nav />
 
         <template v-if="showDrawer" v-slot:prepend>
           <router-link to="/" :style="{
@@ -19,26 +19,29 @@
         </template>
 
         <template #append>
-          <v-list-item v-if="showSettings" class="ma-2" link :to="{ path: '/settings' }" router nav
-            prepend-icon="mdi-cog-outline" title="Settings" />
+          <v-list role="list" density="compact">
+            <v-list-item alt="Settings" role="listitem" v-if="showSettings" class="ma-2" link :to="{ path: '/settings' }" router nav
+              prepend-icon="mdi-cog-outline" title="Settings" />
+          </v-list>
+ 
         </template>
       </v-navigation-drawer>
 
       <v-app-bar flat>
-        <v-app-bar-nav-icon variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon aria-label="drawer" variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
 
         <template v-if="showHouses">
           <v-row>
             <v-col class="d-flex flex-row align-center scroll">
-              <v-btn density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
+              <v-btn aria-label="add new house"  density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
                 @click="addHousing"><v-icon>mdi-home-plus add</v-icon></v-btn>
-              <v-btn density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
+              <v-btn aria-label="edit house"  density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
                 @click="editHouse"><v-icon>mdi-home-edit</v-icon></v-btn>
               <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
-                <v-tooltip v-for="house in labeledHousings" :text="house.address" :key="house.id_housing"
+                <v-tooltip aria-label="house name"  v-for="house in labeledHousings" :text="house.address" :key="house.id_housing"
                   location="bottom">
                   <template v-slot:activator="{ props }">
-                    <v-chip filter selected :="props" :key="house.id_housing" rounded="lg" :value="house.id_housing"
+                    <v-chip aria-label="house"  filter selected :="props" :key="house.id_housing" rounded="lg" :value="house.id_housing"
                       @click="changingHouse(house.id_housing)">{{ house.label }}</v-chip>
                   </template>
                 </v-tooltip>
@@ -48,7 +51,7 @@
         </template>
 
         <template #append>
-          <router-link v-if="isAdmin && showSettings" to="admin" :style="{
+          <router-link v-if="isAdmin && showSettings" to="admin" alt="admin tools" :style="{
             textDecoration: 'none',
             color: 'inherit',
             marginLeft: showDrawer ? '0' : '32px',
@@ -58,38 +61,38 @@
 
           <v-menu offset-y :scrim="true" :close-on-content-click="false">
             <template #activator="{ props }">
-              <v-btn icon v-bind="props">
+              <v-btn aria-label="see notifications"  icon v-bind="props">
                 <v-icon>mdi-bell</v-icon>
               </v-btn>
             </template>
 
             <div style="max-height: 300px; overflow-y: auto">
-              <v-list>
-                <v-list-item v-for="notification in notificationsStore.alerts" :key="notification.id_notification">
+              <v-list role="list">
+                <v-list-item role="listitem" v-for="notification in notificationsStore.alerts" :key="notification.id_notification">
                   <v-list-item-title>{{
                     notification.message
                   }}</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item v-if="notificationsStore.alerts.length === 0">
+                <v-list-item role="listitem" v-if="notificationsStore.alerts.length === 0">
                   <v-list-item-title>No notifications</v-list-item-title>
                 </v-list-item>
               </v-list>
             </div>
           </v-menu>
 
-          <v-btn class="text-none mr-4" height="48" icon slim>
+          <v-btn aria-label="profile menu"  class="text-none mr-4" height="48" icon slim>
             <v-avatar color="surface-light" class="profileAvatar" text="" size="small">
               <span class="initialsText">{{ userInitials }}</span>
             </v-avatar>
 
             <v-menu activator="parent">
-              <v-list density="compact" nav>
+              <v-list density="compact" nav role="list">
                 <h3 class="text-center">{{ username }}</h3>
                 <v-divider class="my-2"></v-divider>
-                <v-list-item v-if="showSettings" append-icon="mdi-cog-outline" link title="Settings"
+                <v-list-item role="listitem" v-if="showSettings" aria-label="settings"  append-icon="mdi-cog-outline" link title="Settings"
                   :to="{ path: '/settings' }" router />
-                <v-list-item @click="logout()" append-icon="mdi-logout" link title="Logout" />
+                <v-list-item role="listitem" @click="logout()" append-icon="mdi-logout" link title="Logout" />
               </v-list>
             </v-menu>
           </v-btn>
@@ -121,9 +124,9 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
-            <v-btn text @click="closeDialog">Cancel</v-btn>
-            <v-btn color="primary" @click="saveHousing">Save</v-btn>
+            <v-btn aria-label="open delete house dialog" v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
+            <v-btn aria-label="cancel" text @click="closeDialog">Cancel</v-btn>
+            <v-btn aria-label="save" color="primary" @click="saveHousing">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -133,8 +136,8 @@
           <v-card-title>Are you sure you want to delete this housing?</v-card-title>
           <v-card-actions>
             <v-spacer />
-            <v-btn text @click="closeDeleteHousingDialog">Cancel</v-btn>
-            <v-btn color="error" @click="deleteHousing">Delete</v-btn>
+            <v-btn aria-label="close"  text @click="closeDeleteHousingDialog">Cancel</v-btn>
+            <v-btn aria-label="delete"  color="error" @click="deleteHousing">Delete</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

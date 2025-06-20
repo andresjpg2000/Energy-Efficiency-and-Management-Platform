@@ -67,40 +67,55 @@ export default {
           prependIcon: "mdi-view-dashboard-outline",
           to: { name: "Dashboard" },
           exact: true,
+          role:"listitem",
+          alt: "Dashboard",
         },
         {
           title: "Monitoring",
           prependIcon: "mdi-monitor-dashboard",
           to: { name: "Monitoring" },
+          role:"listitem",
+          alt: "Monitoring",
         },
         {
           title: "Forecasts",
           prependIcon: "mdi-chart-line",
           to: { name: "Forecasts" },
+          role:"listitem",
+          alt: "Forecasts",
         },
         {
           title: "Reports",
           prependIcon: "mdi-file-document-outline",
+          role:"listitem",
+          alt: "Reports",
           children: [
             {
               title: "Consumption",
               prependIcon: "mdi-chart-bar",
               to: { name: "dataConsumption" },
+              role:"listitem",
+              alt: "Consumption Report",
             },
             {
               title: "Production",
               prependIcon: "mdi-chart-timeline",
               to: { name: "dataProduction" },
+              role:"listitem",
+              alt: "Production Report",
             },
             {
               title: "Given Energies",
               prependIcon: "mdi-chart-pie",
               to: { name: "dataGivenEnergies" },
+              role:"listitem",
+              alt: "Given Energies Report",
             },
             {
               title: "Calendar",
               prependIcon: "mdi-calendar",
               to: { name: "Calendar" },
+              role:"listitem"
             },
           ],
         },
@@ -108,6 +123,8 @@ export default {
           title: "Alerts & Notifications",
           prependIcon: "mdi-bell-outline",
           to: { name: "Alerts & Notifications" },
+          role:"listitem",
+          alt: "Alerts & Notifications",
         },
       ],
     };
@@ -123,15 +140,6 @@ export default {
       this.reload(); // sempre que mudar a casa, recarrega dados
     },
     async load() {
-      // if(this.authStore.lastUser == this.authStore.user.id_user) {
-      //   await this.widgetsStore.fetchUserWidgets();
-      //   await this.productionsStore.fetchProductions();
-      //   await this.consumptionStore.fetchConsumption();
-      //   await this.givenEnergiesStore.fetchGivenEnergies();
-
-
-      //   this.isReady = true;
-      // }else {
       try {
         await this.widgetsStore.fetchUserWidgets();
         await this.housingsStore.fetchHousings();
