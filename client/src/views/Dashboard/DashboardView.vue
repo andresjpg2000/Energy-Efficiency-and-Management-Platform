@@ -122,8 +122,10 @@ export default {
 
   <v-row>
     <v-col cols="12" md="6" class="d-flex my-2">
-      <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="alterFloat"
-        :text="float ? 'Disable Dynamic Positioning' : 'Enable Dynamic Positioning'"></v-btn>
+      <v-btn density="comfortable" class="mx-4" color="success" rounded="lg" @click="alterFloat">
+        <span v-if="float">Disable Dynamic Positioning</span>
+        <span v-else>Enable Dynamic Positioning</span>
+      </v-btn>
     </v-col>
   </v-row>
 

@@ -5,9 +5,14 @@
     </div>
     <div v-else class="loading-container">
       <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
-        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
-        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
-        <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>
+        <v-row>
+          <v-col cols="12" md="6" class="d-flex my-2">
+            <v-btn density="comfortable" class="mx-4" color="success" rounded="lg">
+              <span v-if="float">Disable Dynamic Positioning</span>
+              <span v-else>Enable Dynamic Positioning</span>
+            </v-btn>
+          </v-col>
+        </v-row>
       </div>
       <div style="width: 100%" class="d-flex justify-center w-100 gap-4">
         <v-skeleton-loader width="33%" type="card"></v-skeleton-loader>

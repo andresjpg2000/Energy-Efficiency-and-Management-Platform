@@ -28,7 +28,7 @@
       </v-navigation-drawer>
 
       <v-app-bar flat>
-        <v-app-bar-nav-icon aria-label="drawer" variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon aria-label="Toggle navigation drawer" variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
 
         <template v-if="showHouses">
           <v-row>
@@ -51,7 +51,7 @@
         </template>
 
         <template #append>
-          <router-link v-if="isAdmin && showSettings" to="admin" alt="admin tools" :style="{
+          <router-link v-if="isAdmin && showSettings" to="admin" aria-label="Admin Panel" :style="{
             textDecoration: 'none',
             color: 'inherit',
             marginLeft: showDrawer ? '0' : '32px',
