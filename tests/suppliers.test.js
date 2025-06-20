@@ -104,6 +104,7 @@ describe("Suppliers management tests", () => {
   afterAll(async () => {
     // Clean test data
     await User.destroy({ where: { email: "suppliersteste@exemplo.com" } });
+    // await User.destroy({ where: { email: "suppliersteste2@exemplo.com" } });
     await Supplier.destroy({ where: { id: createdSupplierId } });
     await app.sequelize.close();
   });

@@ -20,8 +20,6 @@ const chrome = require("selenium-webdriver/chrome");
     console.log("🔁 A aceder ao registo...");
     await driver.get("http://localhost:5173/register");
 
-    await driver.sleep(2000);
-
     await driver.wait(until.elementLocated(By.name("email")), 5000);
 
     await driver
@@ -38,15 +36,13 @@ const chrome = require("selenium-webdriver/chrome");
     // Acede à página de login
     console.log("A aceder ao login...");
     await driver.get("http://localhost:5173/login");
-
+    await driver.wait(until.elementLocated(By.name("email")), 5000);
     await driver
       .findElement(By.name("email"))
       .sendKeys("greengridesmad@gmail.com");
     await driver.findElement(By.name("password")).sendKeys("passteste");
     await driver.sleep(2000);
-    const submitLogin = await driver.findElement(
-      By.id("loginButton")
-    );
+    const submitLogin = await driver.findElement(By.id("loginButton"));
     await submitLogin.click();
 
     console.log("Login com sucesso!");
