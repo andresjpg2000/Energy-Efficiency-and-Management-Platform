@@ -8,8 +8,7 @@
         <v-row>
           <v-col cols="12" md="6" class="d-flex my-2">
             <v-btn density="comfortable" class="mx-4" color="success" rounded="lg">
-              <span v-if="float">Disable Dynamic Positioning</span>
-              <span v-else>Enable Dynamic Positioning</span>
+              <span>Disable Dynamic Positioning</span>
             </v-btn>
           </v-col>
         </v-row>
@@ -115,12 +114,6 @@ export default {
               to: { name: "dataGivenEnergies" },
               role:"listitem",
               alt: "Given Energies Report",
-            },
-            {
-              title: "Calendar",
-              prependIcon: "mdi-calendar",
-              to: { name: "Calendar" },
-              role:"listitem"
             },
           ],
         },

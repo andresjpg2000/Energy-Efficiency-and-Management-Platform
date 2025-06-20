@@ -1,10 +1,6 @@
 <template>
   <div>
-    <v-sheet
-        class="d-flex rounded-t-lg"
-        height="54"
-        tile
-    >
+    <v-sheet class="d-flex rounded-t-lg" height="54" tile>
       <v-select
         v-model="type"
         :items="types"
@@ -13,7 +9,7 @@
         label="View Mode"
         variant="outlined"
         hide-details
-      ></v-select>
+      />
     </v-sheet>
     <v-sheet>
       <v-calendar
@@ -23,70 +19,71 @@
         :events="events"
         :view-mode="type"
         :weekdays="weekday"
-      ></v-calendar>
+      />
     </v-sheet>
   </div>
 </template>
+
 <script>
-import { VCalendar } from 'vuetify/labs/VCalendar'
-import { useDate } from 'vuetify'
-  export default {
-    name: "CalendarView",
-    components: {
-      VCalendar,
-    },
-    data: () => ({
-      type: 'month',
-      types: ['month', 'week', 'day'],
-      weekday: [0, 1, 2, 3, 4, 5, 6],
-      weekdays: [
-        { title: 'Sun - Sat', value: [0, 1, 2, 3, 4, 5, 6] },
-        { title: 'Mon - Sun', value: [1, 2, 3, 4, 5, 6, 0] },
-        { title: 'Mon - Fri', value: [1, 2, 3, 4, 5] },
-        { title: 'Mon, Wed, Fri', value: [1, 3, 5] },
-      ],
-      value: [new Date()],
-      events: [],
-      colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-      titles: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
-    }),
-    mounted () {
-      const adapter = useDate()
-      this.getEvents({ start: adapter.startOfDay(adapter.startOfMonth(new Date())), end: adapter.endOfDay(adapter.endOfMonth(new Date())) })
-    },
-    methods: {
-      getEvents ({ start, end }) {
-        const events = []
+import { VCalendar } from 'vuetify/labs/VCalendar';
+import { useDate } from 'vuetify';
+import { useProductionsStore } from '@/stores/productionsStore.js';
+import { useConsumptionStore } from '@/stores/consumptionStore.js';
+import { useGivenEnergiesStore } from '@/stores/givenEnergiesStore.js';
 
-        const min = start
-        const max = end
-        const days = (max.getTime() - min.getTime()) / 86400000
-        const eventCount = this.rnd(days, days + 20)
+export default {
+  name: 'CalendarView',
+  components: { VCalendar },
+  data: () => ({
+    type: 'month',
+    types: ['month', 'week', 'day'],
+    weekday: [0, 1, 2, 3, 4, 5, 6],
+    value: [new Date()],
+    events: [],
+  }),
+  async mounted () {
+    const adapter = useDate();
+    const start = adapter.startOfDay(adapter.startOfMonth(new Date()));
+    const end = adapter.endOfDay(adapter.endOfMonth(new Date()));
 
-        for (let i = 0; i < eventCount; i++) {
-          const allDay = this.rnd(0, 3) === 0
-          const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-          const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-          const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-          const second = new Date(first.getTime() + secondTimestamp)
+    await this.loadEnergyEvents(start, end);
+  },
+  methods: {
+    async loadEnergyEvents (start, end) {
+      const productionsStore = useProductionsStore();
+      const consumptionStore = useConsumptionStore();
+      const givenEnergiesStore = useGivenEnergiesStore();
 
-          events.push({
-            title: this.titles[this.rnd(0, this.titles.length - 1)],
-            start: first,
-            end: second,
-            color: this.colors[this.rnd(0, this.colors.length - 1)],
-            allDay: !allDay,
-          })
-        }
+      await productionsStore.fetchProductions();
+      await consumptionStore.fetchConsumption();
+      await givenEnergiesStore.fetchGivenEnergies();
 
-        this.events = events
-      },
-      getEventColor (event) {
-        return event.color
-      },
-      rnd (a, b) {
-        return Math.floor((b - a + 1) * Math.random()) + a
-      },
-    },
+      const prodEvents = productionsStore.data.map(p => ({
+        title: `${p.value} Kw (Production)`,
+        start: new Date(p.date),
+        end: new Date(new Date(p.date).getTime() + 3600000),
+        color: '#2196f3'
+      }));
+
+      const consEvents = consumptionStore.data.map(c => ({
+        title: `${c.value} Kw (Consumption)`,
+        start: new Date(c.date),
+        end: new Date(new Date(c.date).getTime() + 3600000),
+        color: '#e53935'
+      }));
+
+      const givenEvents = givenEnergiesStore.data.map(g => ({
+        title: `${g.value} Kw (Given)`,
+        start: new Date(g.date),
+        end: new Date(new Date(g.date).getTime() + 3600000),
+        color: '#43a047'
+      }));
+
+      this.events = [...prodEvents, ...consEvents, ...givenEvents];
+    }
   }
+};
 </script>
+
+<style scoped>
+</style>

@@ -62,11 +62,6 @@ const router = createRouter({
           },
         },
         {
-          path: "Calendar",
-          name: "Calendar",
-          component: () => import("../views/DataTables/calendarView.vue"),
-        },
-        {
           path: "Alerts-Notifications",
           name: "Alerts & Notifications",
           component: () =>
