@@ -1,6 +1,6 @@
 <template>
   <v-container class="container">
-    <v-row justify="space-between" class="mb-4 align-content-center">
+    <v-row class="mb-4 align-content-center">
       <h1 class="text-h5 pl-4">Given Energies Data</h1>
     </v-row>
 

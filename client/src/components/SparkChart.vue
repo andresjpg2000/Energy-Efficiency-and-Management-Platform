@@ -1,11 +1,6 @@
 <template>
   <div class="box box1 overflow-hidden h-100">
-    <apexchart
-      type="area"
-      height="100%"
-      :options="chartOptions"
-      :series="chartSeries"
-    />
+    <apexchart type="area" :height="chartHeight" :options="chartOptions" :series="chartSeries" />
   </div>
 </template>
 
@@ -39,11 +34,11 @@ export default {
     ///////////////// total consumption    
     if (this.title == "Total-Consumption") {
       const thisYear = new Date().getFullYear();
-      
+
       this.data = this.consumptionStore.data
         .filter((c) => new Date(c.date).getFullYear() === thisYear)
         .map((c) => c.value);
-      
+
       this.total = this.data.reduce((total, c) => total + c, 0);
       ///////////////// corrent consumption
     } else if (this.title == "Corrent-Consumption") {
@@ -70,22 +65,20 @@ export default {
       const productionData = (this.productionsStore.data || [])
         .filter((p) => p.date.startsWith(thisMonth))
         .reduce((total, p) => total + (p.value || 0), 0);
-      
+
       const consumptionData = (this.consumptionStore.data || [])
         .filter((c) => c.date.startsWith(thisMonth))
         .reduce((total, c) => total + (c.value || 0), 0);
 
-      
-
       const supplier = this.suppliersStore.suppliers.find(
         s => s.id == this.housingsStore.selectedSupplierId
       );
-      
+
       let price = consumptionData - productionData;
-      
+
       this.total = price > 0 ? price * supplier.cost_kWh : 0;//multiplicação e validação aqui
       if (price > 0) {
-          this.data = this.sparklineData;
+        this.data = this.sparklineData;
       }
     }
     if (this.data.length < 5) {
@@ -125,7 +118,6 @@ export default {
         chart: {
           group: "sparklines",
           type: "area",
-          height: 160,
           sparkline: { enabled: true },
         },
         dataLabels: {
@@ -174,6 +166,13 @@ export default {
           },
         },
       };
+    },
+    chartHeight() {
+      if ((this.total) == 0) {
+        return '65%';
+      } else {
+        return '100%';
+      }
     },
   },
   methods: {},
