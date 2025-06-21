@@ -51,7 +51,14 @@ describe("Widgets tests", () => {
       resCheck.body.data.widgets.some((widget) => widget.title === widgetTitle),
     ).toBe(true);
   });
-
+  test("PATCH /widgets/:title - should update the widget position", async () => {
+    const res = await request(app)
+      .patch(`/widgets/${widgetTitle}`)
+      .set("Authorization", `Bearer ${token}`)
+      .query({ id_user: userId })
+      .send({ x: 10, y: 20 });
+    expect(res.statusCode).toBe(200);
+  });
   test("PATCH /widgets/:title - should fail with extra fields", async () => {
     const res = await request(app)
       .patch(`/widgets/${widgetTitle}`)
@@ -68,6 +75,8 @@ describe("Widgets tests", () => {
       .query({ id_user: userId });
     expect(res.statusCode).toBe(204);
   });
+
+  
 
   afterAll(async () => {
     await User.destroy({ where: { email: "widgetsteste@exemplo.com" } });
