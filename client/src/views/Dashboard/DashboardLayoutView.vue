@@ -26,10 +26,10 @@
             <v-spacer></v-spacer>
 
             <v-btn @click="dialog = false">
-              Disagree
+              Cancel
             </v-btn>
 
-            <v-btn @click="dialog = false">
+            <v-btn @click="openCreateHousingDialog">
               Add House
             </v-btn>
           </template>
@@ -71,48 +71,48 @@ export default {
           prependIcon: "mdi-view-dashboard-outline",
           to: { name: "Dashboard" },
           exact: true,
-          role:"listitem",
+          role: "listitem",
           alt: "Dashboard",
         },
         {
           title: "Monitoring",
           prependIcon: "mdi-monitor-dashboard",
           to: { name: "Monitoring" },
-          role:"listitem",
+          role: "listitem",
           alt: "Monitoring",
         },
         {
           title: "Forecasts",
           prependIcon: "mdi-chart-line",
           to: { name: "Forecasts" },
-          role:"listitem",
+          role: "listitem",
           alt: "Forecasts",
         },
         {
           title: "Reports",
           prependIcon: "mdi-file-document-outline",
-          role:"listitem",
+          role: "listitem",
           alt: "Reports",
           children: [
             {
               title: "Consumption",
               prependIcon: "mdi-chart-bar",
               to: { name: "dataConsumption" },
-              role:"listitem",
+              role: "listitem",
               alt: "Consumption Report",
             },
             {
               title: "Production",
               prependIcon: "mdi-chart-timeline",
               to: { name: "dataProduction" },
-              role:"listitem",
+              role: "listitem",
               alt: "Production Report",
             },
             {
               title: "Given Energies",
               prependIcon: "mdi-chart-pie",
               to: { name: "dataGivenEnergies" },
-              role:"listitem",
+              role: "listitem",
               alt: "Given Energies Report",
             },
           ],
@@ -121,13 +121,17 @@ export default {
           title: "Alerts & Notifications",
           prependIcon: "mdi-bell-outline",
           to: { name: "Alerts & Notifications" },
-          role:"listitem",
+          role: "listitem",
           alt: "Alerts & Notifications",
         },
       ],
     };
   },
   methods: {
+    openCreateHousingDialog() {
+      this.housingsStore.openAddHousingDialog();
+      this.dialog = false;
+    },
     tradingHouse() {
       this.isReady = false;
       this.consumptionStore.resetData();

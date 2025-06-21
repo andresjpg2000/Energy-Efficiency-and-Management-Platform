@@ -20,29 +20,30 @@
 
         <template #append>
           <v-list role="list" density="compact">
-            <v-list-item alt="Settings" role="listitem" v-if="showSettings" class="ma-2" link :to="{ path: '/settings' }" router nav
-              prepend-icon="mdi-cog-outline" title="Settings" />
+            <v-list-item alt="Settings" role="listitem" v-if="showSettings" class="ma-2" link
+              :to="{ path: '/settings' }" router nav prepend-icon="mdi-cog-outline" title="Settings" />
           </v-list>
- 
+
         </template>
       </v-navigation-drawer>
 
       <v-app-bar flat>
-        <v-app-bar-nav-icon aria-label="Toggle navigation drawer" variant="text" @click.stop="clickApp()"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon aria-label="Toggle navigation drawer" variant="text"
+          @click.stop="clickApp()"></v-app-bar-nav-icon>
 
         <template v-if="showHouses">
           <v-row>
             <v-col class="d-flex flex-row align-center scroll">
-              <v-btn aria-label="add new house"  density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
-                @click="addHousing"><v-icon>mdi-home-plus add</v-icon></v-btn>
-              <v-btn aria-label="edit house"  density="comfortable" color="success" rounded="lg" variant="outlined" class="mr-2"
-                @click="editHouse"><v-icon>mdi-home-edit</v-icon></v-btn>
-              <v-chip-group mandatory selected-class="text-success" v-model="housingsStore.selectedHousingId">
-                <v-tooltip aria-label="house name"  v-for="house in labeledHousings" :text="house.address" :key="house.id_housing"
-                  location="bottom">
+              <v-btn aria-label="add new house" density="comfortable" color="success" rounded="lg" variant="outlined"
+                class="mr-2" @click="addHousing"><v-icon>mdi-home-plus add</v-icon></v-btn>
+              <v-btn aria-label="edit house" density="comfortable" color="success" rounded="lg" variant="outlined"
+                class="mr-2" @click="editHouse"><v-icon>mdi-home-edit</v-icon></v-btn>
+              <v-chip-group mandatory selected-class="text-success" v-model="selectedHouse">
+                <v-tooltip aria-label="house name" v-for="house in labeledHousings" :text="house.address"
+                  :key="house.id_housing" location="bottom">
                   <template v-slot:activator="{ props }">
-                    <v-chip aria-label="house"  filter selected :="props" :key="house.id_housing" rounded="lg" :value="house.id_housing"
-                      @click="changingHouse(house.id_housing)">{{ house.label }}</v-chip>
+                    <v-chip aria-label="house" filter selected :="props" :key="house.id_housing" rounded="lg"
+                      :value="house.id_housing" @click="changingHouse(house.id_housing)">{{ house.label }}</v-chip>
                   </template>
                 </v-tooltip>
               </v-chip-group>
@@ -61,14 +62,15 @@
 
           <v-menu offset-y :scrim="true" :close-on-content-click="false">
             <template #activator="{ props }">
-              <v-btn aria-label="see notifications"  icon v-bind="props">
+              <v-btn aria-label="see notifications" icon v-bind="props">
                 <v-icon>mdi-bell</v-icon>
               </v-btn>
             </template>
 
             <div style="max-height: 300px; overflow-y: auto">
               <v-list role="list">
-                <v-list-item role="listitem" v-for="notification in notificationsStore.alerts" :key="notification.id_notification">
+                <v-list-item role="listitem" v-for="notification in notificationsStore.alerts"
+                  :key="notification.id_notification">
                   <v-list-item-title>{{
                     notification.message
                   }}</v-list-item-title>
@@ -81,7 +83,7 @@
             </div>
           </v-menu>
 
-          <v-btn aria-label="profile menu"  class="text-none mr-4" height="48" icon slim>
+          <v-btn aria-label="profile menu" class="text-none mr-4" height="48" icon slim>
             <v-avatar color="surface-light" class="profileAvatar" text="" size="small">
               <span class="initialsText">{{ userInitials }}</span>
             </v-avatar>
@@ -90,8 +92,8 @@
               <v-list density="compact" nav role="list">
                 <h3 class="text-center">{{ username }}</h3>
                 <v-divider class="my-2"></v-divider>
-                <v-list-item role="listitem" v-if="showSettings" aria-label="settings"  append-icon="mdi-cog-outline" link title="Settings"
-                  :to="{ path: '/settings' }" router />
+                <v-list-item role="listitem" v-if="showSettings" aria-label="settings" append-icon="mdi-cog-outline"
+                  link title="Settings" :to="{ path: '/settings' }" router />
                 <v-list-item role="listitem" @click="logout()" append-icon="mdi-logout" link title="Logout" />
               </v-list>
             </v-menu>
@@ -124,7 +126,8 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn aria-label="open delete house dialog" v-if="isEditMode" color="error" @click="openDeleteHousingDialog">Delete</v-btn>
+            <v-btn aria-label="open delete house dialog" v-if="isEditMode" color="error"
+              @click="openDeleteHousingDialog">Delete</v-btn>
             <v-btn aria-label="cancel" text @click="closeDialog">Cancel</v-btn>
             <v-btn aria-label="save" color="primary" @click="saveHousing">Save</v-btn>
           </v-card-actions>
@@ -136,8 +139,8 @@
           <v-card-title>Are you sure you want to delete this housing?</v-card-title>
           <v-card-actions>
             <v-spacer />
-            <v-btn aria-label="close"  text @click="closeDeleteHousingDialog">Cancel</v-btn>
-            <v-btn aria-label="delete"  color="error" @click="deleteHousing">Delete</v-btn>
+            <v-btn aria-label="close" text @click="closeDeleteHousingDialog">Cancel</v-btn>
+            <v-btn aria-label="delete" color="error" @click="deleteHousing">Delete</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -212,6 +215,9 @@ export default {
     };
   },
   computed: {
+    selectedHouse() {
+      return this.housingsStore.selectedHousingId;
+    },
     username() {
       return this.authStore.getUsername || "";
     },
@@ -312,18 +318,29 @@ export default {
       }
     },
     async saveHousing() {
-      if (!this.housing.id_user) {
-        this.housing.id_user = this.authStore.getUserId;
-      }
-      if (this.isEditMode) {
-        await this.housingsStore.updateHousing(this.housing);
-      } else {
-        await this.housingsStore.addHousing(this.housing);
-      }
+      try {
+        if (!this.housing.id_user) {
+          this.housing.id_user = this.authStore.getUserId;
+        }
+        if (this.isEditMode) {
+          await this.housingsStore.updateHousing(this.housing);
+          this.messagesStore.add({
+            color: "success",
+            text: "Housing updated successfully.",
+          });
+        } else {
+          await this.housingsStore.addHousing(this.housing);
+          this.messagesStore.add({
+            color: "success",
+            text: "Housing added successfully.",
+          });
+        }
 
-      await this.housingsStore.resetData(); // Reset housings data
-      await this.housingsStore.fetchHousings(); // Fetch updated housings
-      this.closeDialog();
+        this.$emit("changeHouse", true); // Emit event to notify parent component
+        this.closeDialog();
+      } catch (error) {
+        console.warn("Error saving housing:", error.message);
+      }
     },
     closeDialog() {
       this.openDialog = false;
@@ -343,16 +360,13 @@ export default {
     },
     async deleteHousing() {
       await this.housingsStore.deleteHousing(this.housing.id_housing);
-      this.housingsStore.resetData(); // Reset housings data
-      this.housingsStore.selectedHousingId = null; // Reset selected housing
-      this.housingsStore.fetchHousings();
-
       this.closeDeleteHousingDialog();
       this.closeDialog();
       this.messagesStore.add({
         color: "success",
         text: "Housing deleted successfully.",
       });
+      this.$emit("changeHouse", true); // Emit event to notify parent component
     },
     openDeleteHousingDialog() {
       this.openDeleteDialog = true;
@@ -378,6 +392,16 @@ export default {
         this.drawer = false;
       }
     });
+
+    watch(
+      () => this.housingsStore.triggerOpenDialog,
+      (val) => {
+        if (val) {
+          this.addHousing();
+          this.housingsStore.triggerOpenDialog = false;
+        }
+      }
+    );
   },
   mounted() {
     // Fetch suppliers

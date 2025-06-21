@@ -39,15 +39,15 @@ module.exports = (sequelize) => {
         allowNull: false,
         validate: {
           isInt: {
-            msg: "pc must be an integer",
+            msg: "must be an integer",
           },
           min: {
             args: [1000000],
-            msg: "pc must be greater than 1000",
+            msg: "must be greater than 1000",
           },
           max: {
             args: [9999999],
-            msg: "pc must be less than 9999999",
+            msg: "must be less than 9999999",
           },
         },
       },

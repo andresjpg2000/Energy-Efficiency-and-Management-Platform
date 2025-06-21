@@ -238,10 +238,11 @@ const createHousing = async (req, res, next) => {
     !req.body.location ||
     !req.body.id_supplier
   ) {
-    return res.status(400).json({
+    throw {
+      statusCode: 400,
       message:
         "Address, postal code, location, supplier and building type are required!",
-    });
+    };
   }
 
   try {
@@ -313,10 +314,11 @@ const partialUpdateHousing = async (req, res, next) => {
       !req.body.id_supplier &&
       !req.body.custom_supplier_price)
   ) {
-    return res.status(400).json({
+    throw {
+      statusCode: 400,
       message:
         "At least one of address, postal code, id_supplier, supplier price or building type must be provided!",
-    });
+    };
   }
 
   try {
@@ -327,7 +329,10 @@ const partialUpdateHousing = async (req, res, next) => {
 
     // Check if the housing exists
     if (!housing) {
-      return res.status(404).json({ message: "Housing not found!" });
+      throw {
+        statusCode: 404,
+        message: "Housing not found!",
+      };
     }
 
     if (req.body.pc) {
@@ -335,8 +340,40 @@ const partialUpdateHousing = async (req, res, next) => {
       await createOrUpdatePostalCode(req.body.pc, req.body.location);
     }
 
+    // Check if req.body has different fields than the housing
+    const fieldsToUpdate = {};
+    if (req.body.address && req.body.address !== housing.address) {
+      fieldsToUpdate.address = req.body.address;
+    }
+    if (req.body.pc && req.body.pc !== housing.pc) {
+      fieldsToUpdate.pc = req.body.pc;
+    }
+    if (
+      req.body.building_type &&
+      req.body.building_type !== housing.building_type
+    ) {
+      fieldsToUpdate.building_type = req.body.building_type;
+    }
+    if (req.body.id_supplier && req.body.id_supplier !== housing.id_supplier) {
+      fieldsToUpdate.id_supplier = req.body.id_supplier;
+    }
+    if (
+      req.body.custom_supplier_price !== undefined &&
+      req.body.custom_supplier_price !== housing.custom_supplier_price
+    ) {
+      fieldsToUpdate.custom_supplier_price = req.body.custom_supplier_price;
+    }
+    // If no fields to update, return 400 Bad Request
+    if (Object.keys(fieldsToUpdate).length === 0) {
+      throw {
+        statusCode: 400,
+        message:
+          "No fields to update! Please change at least one field to update this housing.",
+      };
+    }
+
     // Only update if the user is the owner
-    await Housing.update(req.body, {
+    await Housing.update(fieldsToUpdate, {
       where: {
         id_housing: id_housing,
         id_user: user.id_user,

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { URL } from "@/utils/constants.js";
-import { useMessagesStore } from "./messages.js";
+import { handleApiError } from "@/utils/handleApiErrors.js";
 
 export const useHousingsStore = defineStore("housings", {
   state: () => ({
@@ -10,6 +10,7 @@ export const useHousingsStore = defineStore("housings", {
     loaded: false,
     isFirstRun: true,
     selectedSupplierId: null,
+    triggerOpenDialog: false,
   }),
   getters: {
     getSelectedHousing: (state) => {
@@ -22,46 +23,48 @@ export const useHousingsStore = defineStore("housings", {
     },
   },
   actions: {
+    openAddHousingDialog() {
+      this.triggerOpenDialog = true;
+    },
+    closeAddHousingDialog() {
+      this.triggerOpenDialog = false;
+    },
     async fetchHousings() {
-      if (this.selectedHousingId == null) {
-        const messagesStore = useMessagesStore();
-        try {
-          const response = await fetchWithAuth(`${URL}/housings`, {
-            method: "GET",
-          });
+      try {
+        const response = await fetchWithAuth(`${URL}/housings`, {
+          method: "GET",
+        });
 
-          if (!response.ok) {
-            if (response.status === 404) {
-              this.housings = [];
-              this.selectedHousingId = null;
-              this.loaded = true;
-              return;
-            }
-            const data = await response.json();
-            messagesStore.add({
-              color: "error",
-              text: data.message || "Network response was not ok",
-            });
-            throw new Error(data.message || "Network response was not ok");
+        if (!response.ok) {
+          if (response.status === 404) {
+            this.housings = [];
+            this.selectedHousingId = null;
+            this.loaded = true;
+            return;
           }
           const data = await response.json();
-          this.housings = data.data;
-          console.log("Fetched housings:", this.housings);
+          handleApiError(data);
+          throw new Error("Request failed");
+        }
+        const data = await response.json();
+        this.housings = data.data;
+        // Only set selected if it's currently null or no longer valid
+        const stillExists = this.housings.some(
+          (h) => h.id_housing === this.selectedHousingId,
+        );
+        if (!stillExists) {
           this.selectedHousingId =
             this.housings.length > 0 ? this.housings[0].id_housing : null;
           this.selectedSupplierId =
             this.housings.length > 0 ? this.housings[0].id_supplier : null;
-        } catch (error) {
-          throw error;
-        } finally {
-          this.loaded = true;
         }
+      } catch (error) {
+        throw error;
+      } finally {
+        this.loaded = true;
       }
     },
     async addHousing(housing) {
-      console.log("Adding housing:", housing);
-
-      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings`, {
           method: "POST",
@@ -70,46 +73,39 @@ export const useHousingsStore = defineStore("housings", {
 
         if (!response.ok) {
           const data = await response.json();
-          messagesStore.add({
-            color: "error",
-            text: data.message || "Network response was not ok",
-          });
-          throw new Error(data.message || "Network response was not ok");
+          handleApiError(data);
+          throw new Error("Request failed");
         }
         const newHousing = await response.json();
         this.housings.push(newHousing.data);
+        this.fetchHousings();
+        this.selectedHousingId = newHousing.data.id_housing;
+        this.selectedSupplierId = newHousing.data.id_supplier;
       } catch (error) {
         throw error;
       }
     },
     async updateHousing(housing) {
-      const messagesStore = useMessagesStore();
+      const response = await fetchWithAuth(
+        `${URL}/housings/${this.selectedHousingId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(housing),
+        },
+      );
 
-      try {
-        const response = await fetchWithAuth(
-          `${URL}/housings/${this.selectedHousingId}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify(housing),
-          },
-        );
-
-        if (!response.ok) {
-          const data = await response.json();
-          messagesStore.add({
-            color: "error",
-            text: data.message || "Network response was not ok",
-          });
-          throw new Error(data.message || "Network response was not ok");
-        }
-
-        await this.fetchHousings();
-      } catch (error) {
-        throw error;
+      if (!response.ok) {
+        const data = await response.json();
+        handleApiError(data);
+        throw new Error("Request failed");
       }
+
+      await this.fetchHousings();
+      this.selectedHousingId = housing.id_housing;
+      this.selectedSupplierId = housing.id_supplier;
+      console.log("selectedHousingId", this.selectedHousingId);
     },
     async deleteHousing(id) {
-      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings/${id}`, {
           method: "DELETE",
@@ -117,20 +113,30 @@ export const useHousingsStore = defineStore("housings", {
 
         if (!response.ok) {
           const data = await response.json();
-          messagesStore.add({
-            color: "error",
-            text: data.message || "Network response was not ok",
-          });
-          throw new Error(data.message || "Network response was not ok");
+          handleApiError(data);
+          throw new Error("Request failed");
+        }
+        // Remove the housing from the local state
+        this.housings = this.housings.filter(
+          (housing) => housing.id_housing !== id,
+        );
+
+        if (this.selectedHousingId === id) {
+          this.selectedHousingId = null;
+          this.selectedSupplierId = null;
         }
 
-        await this.fetchHousings();
+        // If there are still housings, select the first one
+        if (this.housings.length > 0) {
+          this.selectedHousingId = this.housings[0].id_housing;
+          this.selectedSupplierId = this.housings[0].id_supplier;
+          await this.fetchHousings();
+        }
       } catch (error) {
         throw error;
       }
     },
     async fetchLocationByHousingId(id) {
-      const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings/${id}/location`, {
           method: "GET",
@@ -138,11 +144,8 @@ export const useHousingsStore = defineStore("housings", {
 
         if (!response.ok) {
           const data = await response.json();
-          messagesStore.add({
-            color: "error",
-            text: data.message || "Network response was not ok",
-          });
-          throw new Error(data.message || "Network response was not ok");
+          handleApiError(data);
+          throw new Error("Request failed");
         }
         const data = await response.json();
         const location = data.data.location;
@@ -157,6 +160,7 @@ export const useHousingsStore = defineStore("housings", {
       this.loaded = false;
       this.isFirstRun = true;
       this.selectedSupplierId = null;
+      this.triggerOpenDialog = false;
     },
   },
   persist: true,

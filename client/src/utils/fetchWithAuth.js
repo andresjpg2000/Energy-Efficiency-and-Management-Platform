@@ -1,26 +1,27 @@
-import { useMessagesStore } from '@/stores/messages';
-import { useAuthStore } from '@/stores/auth';
+import { useMessagesStore } from "@/stores/messages";
+import { useAuthStore } from "@/stores/auth";
+import { handleApiError } from "./handleApiErrors.js";
 
 export async function fetchWithAuth(url, options = {}) {
   const messagesStore = useMessagesStore();
   const authStore = useAuthStore();
-  const token = authStore.token || sessionStorage.getItem('token') || null;
+  const token = authStore.token || sessionStorage.getItem("token") || null;
   const authorization = token ? `Bearer ${token}` : null;
 
   const headers = {
     ...options.headers,
-    'Content-Type': 'application/json',
-    'authorization': `${authorization}`,
-    'Accept-Encoding': 'gzip, deflate, br',
-  }
+    "Content-Type": "application/json",
+    authorization: `${authorization}`,
+    "Accept-Encoding": "gzip, deflate, br",
+  };
 
   let response = await fetch(url, {
     ...options,
     headers,
-    credentials: 'include',
+    credentials: "include",
   });
 
-  const encoding = response.headers.get('content-encoding');
+  const encoding = response.headers.get("content-encoding");
 
   if (response.status === 401 && authStore.refreshToken) {
     const refreshed = await authStore.refreshAccessToken();
@@ -35,27 +36,29 @@ export async function fetchWithAuth(url, options = {}) {
       response = await fetch(url, {
         ...options,
         headers: retryHeaders,
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (response.ok) return response;
     }
 
-      messagesStore.add({
-        color: 'error',
-        text: 'Unauthorized access. Please log in again.',
-      });
-      window.location.href = '/login';
-      throw new Error('Unauthorized after refresh');
-    }
+    messagesStore.add({
+      color: "error",
+      text: "Unauthorized access. Please log in again.",
+    });
+    window.location.href = "/login";
+    throw new Error("Unauthorized after refresh");
+  }
 
   if (response.status === 403) {
     messagesStore.add({
-      color: 'error',
-      text: 'Forbidden access. You do not have permission to perform this action.',
+      color: "error",
+      text: "Forbidden access. You do not have permission to perform this action.",
     });
-    window.location.href = '/forbidden';
-    throw new Error('Forbidden access. You do not have permission to perform this action.');
+    window.location.href = "/forbidden";
+    throw new Error(
+      "Forbidden access. You do not have permission to perform this action.",
+    );
   }
 
   return response;
