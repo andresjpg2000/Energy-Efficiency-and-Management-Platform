@@ -46,7 +46,6 @@ export const useHousingsStore = defineStore("housings", {
           }
           const data = await response.json();
           this.housings = data.data;
-          console.log("Fetched housings:", this.housings);
           this.selectedHousingId =
             this.housings.length > 0 ? this.housings[0].id_housing : null;
           this.selectedSupplierId =
@@ -59,8 +58,6 @@ export const useHousingsStore = defineStore("housings", {
       }
     },
     async addHousing(housing) {
-      console.log("Adding housing:", housing);
-
       const messagesStore = useMessagesStore();
       try {
         const response = await fetchWithAuth(`${URL}/housings`, {

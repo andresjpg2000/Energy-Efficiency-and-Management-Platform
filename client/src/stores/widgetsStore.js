@@ -137,6 +137,7 @@ export const useWidgetsStore = defineStore('widgets', {
 
     async updateOneWidget(title, x, y) {
       const authStore = useAuthStore();
+      const messagesStore = useMessagesStore();
 
       const body = {
         x: x,
@@ -159,13 +160,16 @@ export const useWidgetsStore = defineStore('widgets', {
         }
         const data = await response.json();
       } catch (error) {
-        console.log(error);
+        messagesStore.add({
+          color: 'error',
+          text: error.message || 'Failed to update widget',
+        });
       }
     },
 
     async updateDBWidgets(changedWidgets = this.userWidgets.map(widget => widget.title)) {
-      console.log("updateDBWidgets");
       const authStore = useAuthStore();
+      const messagesStore = useMessagesStore();
       try {
         const promises = this.userWidgets
           .filter(widget => changedWidgets.includes(widget.title))
@@ -185,11 +189,17 @@ export const useWidgetsStore = defineStore('widgets', {
 
         responses.forEach((response, index) => {
           if (!response.ok) {
-            console.error(`Erro ao atualizar widget "${changedWidgets[index]}":`, response.statusText);
+            messagesStore.add({
+              color: 'error',
+              text: `Failed to update widget ${this.userWidgets[index].title}`,
+            });
           }
         });
       } catch (error) {
-        console.error("Erro de rede ao atualizar widgets:", error);
+        messagesStore.add({
+          color: 'error',
+          text: error.message || 'Failed to update widgets',
+        });
       }
     },
 
