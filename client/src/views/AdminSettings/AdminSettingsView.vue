@@ -20,12 +20,6 @@ export default {
           prependIcon: 'mdi-cog-outline', // Manage system settings, configure system parameters, manage system updates, like first time setup messages etc...
           to: '/admin/system-settings',
         },
-        // {
-        //   title: 'Analytics Overview', // Visual charts, graphs, and reports, like energy consumption trends, user activity trends, etc.
-        //   prependIcon: 'mdi-chart-line',
-        //   to: '/admin/analytics',
-        // },
-
       ],
     };
   },
