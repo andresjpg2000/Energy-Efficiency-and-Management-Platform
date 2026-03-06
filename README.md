@@ -78,18 +78,6 @@ The server-side application is built with Node.js and Express.
     npm run dev
     ```
 
-## Database Population
-
-The project includes a Python script (`populateDB.py`) to generate fake data for the database.
-
-1.  Run the script:
-
-    ```sh
-    python populateDB.py
-    ```
-2.  The script will generate a `populateDB.sql` file.
-3.  Execute this SQL file against your database to populate it.
-
 ## Team members
 *   Andres Gouveia
 *   Fabio Correia
